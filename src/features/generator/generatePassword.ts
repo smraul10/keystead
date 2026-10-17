@@ -24,8 +24,15 @@ export const DEFAULT_PASSWORD_OPTIONS: PasswordOptions = {
 };
 
 function randomIndex(max: number): number {
+  // Largest multiple of max that fits in a Uint32: values above it are unfair
+  const range = 2 ** 32;
+  const limit = range - (range % max);
+
   const values = new Uint32Array(1);
-  crypto.getRandomValues(values);
+  do {
+    crypto.getRandomValues(values);
+  } while (values[0] >= limit); // re-roll while the value falls in the unfair zone
+
   return values[0] % max;
 }
 

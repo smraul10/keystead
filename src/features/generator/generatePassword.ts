@@ -13,7 +13,7 @@ export interface PasswordOptions {
   requireEachType: boolean;
 }
 
-export const DEFAULT_PASSWORD_OPTIONS: PasswordOptions = {
+export const DEFAULT_PASSWORD_OPTIONS: Readonly<PasswordOptions> = {
   length: 20,
   lowercase: true,
   uppercase: true,

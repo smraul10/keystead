@@ -14,6 +14,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 - Conventional Commits (`feat`, `fix`, `test`, `refactor`, `docs`, `style`, `chore`, `ci`), imperative mood.
 - One change per branch (`feat/...`, `fix/...`, `chore/...`), merged through a GitHub Pull Request after review.
+- UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
 
 ## Security architecture (target)
 
@@ -23,7 +24,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 ## Roadmap
 
-0. Scaffolding and tooling: typecheck, ESLint + Prettier, Tailwind + shadcn/ui, Vitest + Testing Library ← current
+0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ← current
 1. Password generator (TDD)
 2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod)
 3. Rust crypto core: create/open/save vault, with `cargo test`

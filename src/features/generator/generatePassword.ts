@@ -1,3 +1,8 @@
+const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
+const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const DIGITS = '0123456789';
+const SYMBOLS = '!@#$%^&*()-_=+[]{};:,.?';
+
 export interface PasswordOptions {
   length: number;
   lowercase: boolean;
@@ -19,5 +24,11 @@ export const DEFAULT_PASSWORD_OPTIONS: PasswordOptions = {
 };
 
 export function generatePassword(options: PasswordOptions): string {
-  return 'a'.repeat(options.length);
+  let pool = '';
+  if (options.lowercase) pool += LOWERCASE;
+  if (options.uppercase) pool += UPPERCASE;
+  if (options.digits) pool += DIGITS;
+  if (options.symbols) pool += SYMBOLS;
+
+  return pool.charAt(0).repeat(options.length);
 }

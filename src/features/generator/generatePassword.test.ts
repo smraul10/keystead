@@ -12,4 +12,20 @@ describe('generatePassword', () => {
     // Assert
     expect(password).toHaveLength(12);
   });
+
+  it('uses only digits when only digits are enabled', () => {
+    // Arrange: only digits enabled
+    const options = {
+      ...DEFAULT_PASSWORD_OPTIONS,
+      lowercase: false,
+      uppercase: false,
+      symbols: false,
+    };
+
+    // Act
+    const password = generatePassword(options);
+
+    // Assert
+    expect(password).toMatch(/^[0-9]+$/);
+  });
 });

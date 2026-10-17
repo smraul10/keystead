@@ -28,4 +28,16 @@ describe('generatePassword', () => {
     // Assert
     expect(password).toMatch(/^[0-9]+$/);
   });
+
+  it('generates a different password on each call', () => {
+    // Arrange: default options
+    const options = { ...DEFAULT_PASSWORD_OPTIONS };
+
+    // Act
+    const firstPassword = generatePassword(options);
+    const secondPassword = generatePassword(options);
+
+    // Assert
+    expect(firstPassword).not.toBe(secondPassword);
+  });
 });

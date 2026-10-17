@@ -23,6 +23,12 @@ export const DEFAULT_PASSWORD_OPTIONS: PasswordOptions = {
   requireEachType: true,
 };
 
+function randomIndex(max: number): number {
+  const values = new Uint32Array(1);
+  crypto.getRandomValues(values);
+  return values[0] % max;
+}
+
 export function generatePassword(options: PasswordOptions): string {
   let pool = '';
   if (options.lowercase) pool += LOWERCASE;
@@ -30,5 +36,10 @@ export function generatePassword(options: PasswordOptions): string {
   if (options.digits) pool += DIGITS;
   if (options.symbols) pool += SYMBOLS;
 
-  return pool.charAt(0).repeat(options.length);
+  let password = '';
+  for (let i = 0; i < options.length; i++) {
+    password += pool.charAt(randomIndex(pool.length));
+  }
+
+  return password;
 }

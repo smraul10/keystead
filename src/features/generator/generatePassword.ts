@@ -43,6 +43,10 @@ export function generatePassword(options: PasswordOptions): string {
   if (options.digits) pool += DIGITS;
   if (options.symbols) pool += SYMBOLS;
 
+  if (pool.length === 0) {
+    throw new Error('At least one character type must be enabled');
+  }
+
   let password = '';
   for (let i = 0; i < options.length; i++) {
     password += pool.charAt(randomIndex(pool.length));

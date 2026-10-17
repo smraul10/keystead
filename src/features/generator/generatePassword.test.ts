@@ -40,4 +40,20 @@ describe('generatePassword', () => {
     // Assert
     expect(firstPassword).not.toBe(secondPassword);
   });
+
+  it('throws when no character type is enabled', () => {
+    // Arrange: every character type disabled
+    const options = {
+      ...DEFAULT_PASSWORD_OPTIONS,
+      lowercase: false,
+      uppercase: false,
+      digits: false,
+      symbols: false,
+    };
+
+    // Act + Assert
+    expect(() => generatePassword(options)).toThrow(
+      'At least one character type must be enabled',
+    );
+  });
 });

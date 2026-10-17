@@ -6,6 +6,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 - The owner is learning React, TypeScript, Tailwind, testing, Rust and GitHub through this project.
 - Mode: Claude gives the task statement and hints, the owner writes the code, Claude reviews. Do not write app code for the owner unless asked. Tooling setup (phase 0) may be given as explained commands/configs.
+- For every commit, Claude proposes the exact git commands and commit message, with a short explanation of the chosen type. The owner runs them.
 - Explain things to the owner in Spanish. Code, identifiers, comments, commits, branch names and PRs are in English.
 - Small steps, one concept at a time; end each step with a few review questions.
 

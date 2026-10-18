@@ -44,6 +44,16 @@ export function PasswordGenerator() {
         />
       </label>
       <span>{options.length}</span>
+      <label>
+        <input
+          type='checkbox'
+          checked={options.lowercase}
+          onChange={(event) =>
+            updateOptions({ ...options, lowercase: event.target.checked })
+          }
+        />
+        Lowercase
+      </label>
     </div>
   );
 }

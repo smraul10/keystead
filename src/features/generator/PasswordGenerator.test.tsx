@@ -66,4 +66,19 @@ describe('PasswordGenerator', () => {
     });
     expect(input.value).toHaveLength(32);
   });
+
+  it('removes lowercase letters when Lowercase is unchecked', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act: uncheck lowercase
+    await user.click(screen.getByRole('checkbox', { name: 'Lowercase' }));
+
+    // Assert
+    const input = screen.getByRole<HTMLInputElement>('textbox', {
+      name: 'Generated password',
+    });
+    expect(input.value).not.toMatch(/[a-z]/);
+  });
 });

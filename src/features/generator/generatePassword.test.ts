@@ -56,4 +56,25 @@ describe('generatePassword', () => {
       'At least one character type must be enabled',
     );
   });
+
+  it.each([7, 129])('throws when the length is %i', (length) => {
+    // Arrange: a length outside the allowed range
+    const options = { ...DEFAULT_PASSWORD_OPTIONS, length };
+
+    // Act + Assert
+    expect(() => generatePassword(options)).toThrow(
+      'Length must be between 8 and 128',
+    );
+  });
+
+  it.each([8, 128])('accepts a length of %i', (length) => {
+    // Arrange: a length at the edge of the allowed range
+    const options = { ...DEFAULT_PASSWORD_OPTIONS, length };
+
+    // Act
+    const password = generatePassword(options);
+
+    // Assert
+    expect(password).toHaveLength(length);
+  });
 });

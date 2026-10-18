@@ -3,6 +3,9 @@ const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const DIGITS = '0123456789';
 const SYMBOLS = '!@#$%^&*()-_=+[]{};:,.?';
 
+export const MIN_LENGTH = 8;
+export const MAX_LENGTH = 128;
+
 export interface PasswordOptions {
   length: number;
   lowercase: boolean;
@@ -37,6 +40,10 @@ function randomIndex(max: number): number {
 }
 
 export function generatePassword(options: PasswordOptions): string {
+  if (options.length < MIN_LENGTH || options.length > MAX_LENGTH) {
+    throw new Error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`);
+  }
+
   let pool = '';
   if (options.lowercase) pool += LOWERCASE;
   if (options.uppercase) pool += UPPERCASE;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
   generatePassword,
@@ -52,16 +53,14 @@ export function PasswordGenerator() {
       </label>
       <span>{options.length}</span>
       {CHARACTER_TYPES.map(({ option, label }) => (
-        <label key={label}>
-          <input
-            type='checkbox'
-            checked={options[option]}
-            onChange={(event) =>
-              updateOptions({ ...options, [option]: event.target.checked })
-            }
-          />
-          {label}
-        </label>
+        <Checkbox
+          key={label}
+          label={label}
+          checked={options[option]}
+          onChange={(checked) =>
+            updateOptions({ ...options, [option]: checked })
+          }
+        />
       ))}
     </div>
   );

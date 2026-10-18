@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import confusingBrowserGlobals from 'confusing-browser-globals';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
@@ -14,5 +15,8 @@ export default defineConfig([
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    rules: {
+      'no-restricted-globals': ['error', ...confusingBrowserGlobals],
+    },
   },
 ]);

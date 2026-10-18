@@ -40,27 +40,33 @@ function randomIndex(max: number): number {
   return values[0] % max;
 }
 
+function removeAmbiguous(chars: string): string {
+  return chars
+    .split('')
+    .filter((char) => !AMBIGUOUS.includes(char))
+    .join('');
+}
+
 export function generatePassword(options: PasswordOptions): string {
   if (options.length < MIN_LENGTH || options.length > MAX_LENGTH) {
     throw new Error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`);
   }
 
-  let pool = '';
-  if (options.lowercase) pool += LOWERCASE;
-  if (options.uppercase) pool += UPPERCASE;
-  if (options.digits) pool += DIGITS;
-  if (options.symbols) pool += SYMBOLS;
+  let sets: string[] = [];
+  if (options.lowercase) sets.push(LOWERCASE);
+  if (options.uppercase) sets.push(UPPERCASE);
+  if (options.digits) sets.push(DIGITS);
+  if (options.symbols) sets.push(SYMBOLS);
 
   if (options.excludeAmbiguous) {
-    pool = pool
-      .split('')
-      .filter((char) => !AMBIGUOUS.includes(char))
-      .join('');
+    sets = sets.map(removeAmbiguous);
   }
 
-  if (pool.length === 0) {
+  if (sets.length === 0) {
     throw new Error('At least one character type must be enabled');
   }
+
+  const pool = sets.join('');
 
   let password = '';
   for (let i = 0; i < options.length; i++) {

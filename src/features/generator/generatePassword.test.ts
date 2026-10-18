@@ -106,4 +106,24 @@ describe('generatePassword', () => {
       expect(password).toMatch(/[^a-zA-Z0-9]/);
     }
   });
+
+  it('does not always put the required characters at the start', () => {
+    // Arrange: shortest password, only lowercase and digits
+    const options = {
+      ...DEFAULT_PASSWORD_OPTIONS,
+      length: 8,
+      uppercase: false,
+      symbols: false,
+    };
+
+    // Act
+    let startsWithDigit = 0;
+
+    for (let i = 0; i < 100; i++) {
+      if (/^[0-9]/.test(generatePassword(options))) startsWithDigit++;
+    }
+
+    // Assert
+    expect(startsWithDigit).toBeGreaterThan(0);
+  });
 });

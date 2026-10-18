@@ -47,6 +47,16 @@ function removeAmbiguous(chars: string): string {
     .join('');
 }
 
+// Fisher-Yates shuffle with cryptographic randomness
+function shuffle(chars: string): string {
+  const array = chars.split('');
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = randomIndex(i + 1); // a random position between 0 and i (both included)
+    [array[i], array[j]] = [array[j], array[i]]; // swap the two positions
+  }
+  return array.join('');
+}
+
 export function generatePassword(options: PasswordOptions): string {
   if (options.length < MIN_LENGTH || options.length > MAX_LENGTH) {
     throw new Error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`);
@@ -82,5 +92,5 @@ export function generatePassword(options: PasswordOptions): string {
     password += pool.charAt(randomIndex(pool.length));
   }
 
-  return password;
+  return shuffle(password);
 }

@@ -67,18 +67,26 @@ describe('PasswordGenerator', () => {
     expect(input.value).toHaveLength(32);
   });
 
-  it('removes lowercase letters when Lowercase is unchecked', async () => {
-    // Arrange
+  it.each([
+    ['Lowercase', /[a-z]/],
+    ['Uppercase', /[A-Z]/],
+    ['Digits', /[0-9]/],
+    ['Symbols', /[^a-zA-Z0-9]/],
+  ])('removes %s characters when unchecked', async (name, pattern) => {
+    // Arrange: longest password, so a broken checkbox can't pass by luck
     const user = userEvent.setup();
     render(<PasswordGenerator />);
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '128' },
+    });
 
-    // Act: uncheck lowercase
-    await user.click(screen.getByRole('checkbox', { name: 'Lowercase' }));
+    // Act
+    await user.click(screen.getByRole('checkbox', { name }));
 
     // Assert
     const input = screen.getByRole<HTMLInputElement>('textbox', {
       name: 'Generated password',
     });
-    expect(input.value).not.toMatch(/[a-z]/);
+    expect(input.value).not.toMatch(pattern);
   });
 });

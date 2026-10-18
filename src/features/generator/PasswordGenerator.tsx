@@ -7,6 +7,13 @@ import {
   type PasswordOptions,
 } from './generatePassword';
 
+const CHARACTER_TYPES = [
+  { option: 'lowercase', label: 'Lowercase' },
+  { option: 'uppercase', label: 'Uppercase' },
+  { option: 'digits', label: 'Digits' },
+  { option: 'symbols', label: 'Symbols' },
+] as const;
+
 export function PasswordGenerator() {
   const [options, setOptions] = useState<PasswordOptions>(
     DEFAULT_PASSWORD_OPTIONS,
@@ -44,16 +51,18 @@ export function PasswordGenerator() {
         />
       </label>
       <span>{options.length}</span>
-      <label>
-        <input
-          type='checkbox'
-          checked={options.lowercase}
-          onChange={(event) =>
-            updateOptions({ ...options, lowercase: event.target.checked })
-          }
-        />
-        Lowercase
-      </label>
+      {CHARACTER_TYPES.map(({ option, label }) => (
+        <label key={label}>
+          <input
+            type='checkbox'
+            checked={options[option]}
+            onChange={(event) =>
+              updateOptions({ ...options, [option]: event.target.checked })
+            }
+          />
+          {label}
+        </label>
+      ))}
     </div>
   );
 }

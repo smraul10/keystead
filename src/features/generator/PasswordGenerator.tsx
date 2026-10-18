@@ -15,6 +15,11 @@ const CHARACTER_TYPES = [
   { option: 'symbols', label: 'Symbols' },
 ] as const;
 
+const RULES = [
+  { option: 'excludeAmbiguous', label: 'Avoid ambiguous characters' },
+  { option: 'requireEachType', label: 'Include every selected type' },
+] as const;
+
 export function PasswordGenerator() {
   const [options, setOptions] = useState<PasswordOptions>(
     DEFAULT_PASSWORD_OPTIONS,
@@ -52,16 +57,33 @@ export function PasswordGenerator() {
         />
       </label>
       <span>{options.length}</span>
-      {CHARACTER_TYPES.map(({ option, label }) => (
-        <Checkbox
-          key={label}
-          label={label}
-          checked={options[option]}
-          onChange={(checked) =>
-            updateOptions({ ...options, [option]: checked })
-          }
-        />
-      ))}
+      <fieldset>
+        <legend>Character types</legend>
+        {CHARACTER_TYPES.map(({ option, label }) => (
+          <Checkbox
+            key={label}
+            label={label}
+            checked={options[option]}
+            onChange={(checked) =>
+              updateOptions({ ...options, [option]: checked })
+            }
+          />
+        ))}
+      </fieldset>
+
+      <fieldset>
+        <legend>Rules</legend>
+        {RULES.map(({ option, label }) => (
+          <Checkbox
+            key={label}
+            label={label}
+            checked={options[option]}
+            onChange={(checked) =>
+              updateOptions({ ...options, [option]: checked })
+            }
+          />
+        ))}
+      </fieldset>
     </div>
   );
 }

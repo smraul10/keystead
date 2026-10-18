@@ -89,4 +89,34 @@ describe('PasswordGenerator', () => {
     });
     expect(input.value).not.toMatch(pattern);
   });
+
+  it('avoids ambiguous characters when the option is checked', async () => {
+    // Arrange: longest password, so a broken checkbox can't pass by luck
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '128' },
+    });
+
+    // Act
+    await user.click(
+      screen.getByRole('checkbox', { name: 'Avoid ambiguous characters' }),
+    );
+
+    // Assert
+    const input = screen.getByRole<HTMLInputElement>('textbox', {
+      name: 'Generated password',
+    });
+    expect(input.value).not.toMatch(/[0O1lI]/);
+  });
+
+  it('requires every selected type by default', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Assert
+    expect(
+      screen.getByRole('checkbox', { name: 'Include every selected type' }),
+    ).toBeChecked();
+  });
 });

@@ -119,4 +119,18 @@ describe('PasswordGenerator', () => {
       screen.getByRole('checkbox', { name: 'Include every selected type' }),
     ).toBeChecked();
   });
+
+  it('does not allow unchecking the last character type', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act: uncheck every type except digits
+    await user.click(screen.getByRole('checkbox', { name: 'Lowercase' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Uppercase' }));
+    await user.click(screen.getByRole('checkbox', { name: 'Symbols' }));
+
+    // Assert: digits is the only type left, so it can't be unchecked
+    expect(screen.getByRole('checkbox', { name: 'Digits' })).toBeDisabled();
+  });
 });

@@ -33,6 +33,10 @@ export function PasswordGenerator() {
     setPassword(generatePassword(next)); // live regeneration
   }
 
+  const enabledTypes = CHARACTER_TYPES.filter(
+    ({ option }) => options[option],
+  ).length;
+
   return (
     <div>
       <input readOnly aria-label='Generated password' value={password} />
@@ -64,6 +68,7 @@ export function PasswordGenerator() {
             key={label}
             label={label}
             checked={options[option]}
+            disabled={options[option] && enabledTypes === 1}
             onChange={(checked) =>
               updateOptions({ ...options, [option]: checked })
             }

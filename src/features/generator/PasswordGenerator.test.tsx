@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
@@ -31,5 +31,39 @@ describe('PasswordGenerator', () => {
 
     // Assert
     expect(input.value).not.toBe(before);
+  });
+
+  it('regenerates the password when the length changes', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+    const slider = screen.getByRole('slider', { name: 'Length' });
+
+    // Act
+    fireEvent.change(slider, { target: { value: '32' } });
+
+    // Assert
+    const input = screen.getByRole<HTMLInputElement>('textbox', {
+      name: 'Generated password',
+    });
+    expect(input.value).toHaveLength(32);
+  });
+
+  it('keeps the chosen length when regenerating', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+    const slider = screen.getByRole('slider', { name: 'Length' });
+
+    // Act: choose a length, then regenerate
+    fireEvent.change(slider, { target: { value: '32' } });
+    await user.click(
+      screen.getByRole('button', { name: 'Regenerate password' }),
+    );
+
+    // Assert
+    const input = screen.getByRole<HTMLInputElement>('textbox', {
+      name: 'Generated password',
+    });
+    expect(input.value).toHaveLength(32);
   });
 });

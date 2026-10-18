@@ -22,10 +22,15 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - KDF: Argon2id. Encryption: XChaCha20-Poly1305 (RustCrypto crates). No custom crypto.
 - Vault file: authenticated header (format version, KDF params, salt, nonce) + ciphertext. Atomic writes.
 
+## Product decisions
+
+- Password generator: random characters only for now (passphrases may come later, e.g. for the master password). It is a standalone module reused by the entry form and a generator screen.
+- Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).
+
 ## Roadmap
 
-0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ← current
-1. Password generator (TDD)
+0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ✅
+1. Password generator (TDD) ← current
 2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod)
 3. Rust crypto core: create/open/save vault, with `cargo test`
 4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests

@@ -24,4 +24,19 @@ describe('Checkbox', () => {
     // Assert
     expect(screen.getByRole('checkbox', { name: 'Digits' })).not.toBeChecked();
   });
+
+  it('can be disabled', () => {
+    // Arrange
+    render(
+      <Checkbox
+        label='Digits'
+        disabled={true}
+        checked={false}
+        onChange={vi.fn()}
+      />,
+    );
+
+    // Assert
+    expect(screen.getByRole('checkbox', { name: 'Digits' })).toBeDisabled();
+  });
 });

@@ -120,6 +120,17 @@ describe('generatePassword', () => {
     }
   });
 
+  it('fills the whole length when requireEachType is disabled', () => {
+    // Arrange: default options, without required types
+    const options = { ...DEFAULT_PASSWORD_OPTIONS, requireEachType: false };
+
+    // Act
+    const password = generatePassword(options);
+
+    // Assert
+    expect(password).toHaveLength(20);
+  });
+
   it('does not always put the required characters at the start', () => {
     // Arrange: shortest password, only lowercase and digits
     const options = {

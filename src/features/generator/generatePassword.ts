@@ -58,6 +58,10 @@ function shuffle(chars: string): string {
 }
 
 export function generatePassword(options: PasswordOptions): string {
+  if (!Number.isInteger(options.length)) {
+    throw new Error('Length must be an integer');
+  }
+
   if (options.length < MIN_LENGTH || options.length > MAX_LENGTH) {
     throw new Error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`);
   }

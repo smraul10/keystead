@@ -67,8 +67,8 @@ describe('generatePassword', () => {
     );
   });
 
-  it.each([8, 128])('accepts a length of %i', (length) => {
-    // Arrange: a length at the edge of the allowed range
+  it.each([8, 21, 128])('accepts a length of %i', (length) => {
+    // Arrange: a length inside the allowed range
     const options = { ...DEFAULT_PASSWORD_OPTIONS, length };
 
     // Act
@@ -77,6 +77,19 @@ describe('generatePassword', () => {
     // Assert
     expect(password).toHaveLength(length);
   });
+
+  it.each([12.5, NaN])(
+    'throws when the length is not an integer: %s',
+    (length) => {
+      // Arrange: a length that is not a whole number
+      const options = { ...DEFAULT_PASSWORD_OPTIONS, length };
+
+      // Act + Assert
+      expect(() => generatePassword(options)).toThrow(
+        'Length must be an integer',
+      );
+    },
+  );
 
   it('never uses ambiguous characters when excludeAmbiguous is enabled', () => {
     // Arrange: ambiguous characters excluded, longest password

@@ -69,7 +69,16 @@ export function generatePassword(options: PasswordOptions): string {
   const pool = sets.join('');
 
   let password = '';
-  for (let i = 0; i < options.length; i++) {
+
+  // 1. One random character from each enabled set
+  if (options.requireEachType) {
+    for (const set of sets) {
+      password += set.charAt(randomIndex(set.length));
+    }
+  }
+
+  // 2. Fill the rest with random characters from the whole pool
+  while (password.length < options.length) {
     password += pool.charAt(randomIndex(pool.length));
   }
 

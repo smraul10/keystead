@@ -92,4 +92,18 @@ describe('generatePassword', () => {
     // Assert
     expect(password).not.toMatch(/[0O1lI]/);
   });
+
+  it('includes at least one character of each enabled type', () => {
+    // Arrange: shortest password, every type enabled
+    const options = { ...DEFAULT_PASSWORD_OPTIONS, length: 8 };
+
+    // Act + Assert: repeat many times so the test can't pass by luck
+    for (let i = 0; i < 100; i++) {
+      const password = generatePassword(options);
+      expect(password).toMatch(/[a-z]/);
+      expect(password).toMatch(/[A-Z]/);
+      expect(password).toMatch(/[0-9]/);
+      expect(password).toMatch(/[^a-zA-Z0-9]/);
+    }
+  });
 });

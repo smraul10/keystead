@@ -2,6 +2,7 @@ const LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
 const UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const DIGITS = '0123456789';
 const SYMBOLS = '!@#$%^&*()-_=+[]{};:,.?';
+const AMBIGUOUS = '0O1lI';
 
 export const MIN_LENGTH = 8;
 export const MAX_LENGTH = 128;
@@ -49,6 +50,13 @@ export function generatePassword(options: PasswordOptions): string {
   if (options.uppercase) pool += UPPERCASE;
   if (options.digits) pool += DIGITS;
   if (options.symbols) pool += SYMBOLS;
+
+  if (options.excludeAmbiguous) {
+    pool = pool
+      .split('')
+      .filter((char) => !AMBIGUOUS.includes(char))
+      .join('');
+  }
 
   if (pool.length === 0) {
     throw new Error('At least one character type must be enabled');

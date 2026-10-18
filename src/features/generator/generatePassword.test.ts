@@ -77,4 +77,19 @@ describe('generatePassword', () => {
     // Assert
     expect(password).toHaveLength(length);
   });
+
+  it('never uses ambiguous characters when excludeAmbiguous is enabled', () => {
+    // Arrange: ambiguous characters excluded, longest password
+    const options = {
+      ...DEFAULT_PASSWORD_OPTIONS,
+      excludeAmbiguous: true,
+      length: 128,
+    };
+
+    // Act
+    const password = generatePassword(options);
+
+    // Assert
+    expect(password).not.toMatch(/[0O1lI]/);
+  });
 });

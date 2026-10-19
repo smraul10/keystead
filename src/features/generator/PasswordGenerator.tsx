@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -8,6 +8,7 @@ import {
   type PasswordOptions,
 } from './generatePassword';
 import { type CharType, getCharType } from './getCharType';
+import { Button } from '../../components/Button';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -35,9 +36,28 @@ export function PasswordGenerator() {
     generatePassword(DEFAULT_PASSWORD_OPTIONS),
   );
 
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
   function updateOptions(next: PasswordOptions) {
     setOptions(next);
-    setPassword(generatePassword(next)); // live regeneration
+    setPassword(generatePassword(next));
+    setCopied(false);
+  }
+
+  function regenerate() {
+    setPassword(generatePassword(options));
+    setCopied(false);
+  }
+
+  async function copyPassword() {
+    await navigator.clipboard.writeText(password);
+    setCopied(true);
   }
 
   const enabledTypes = CHARACTER_TYPES.filter(
@@ -46,10 +66,10 @@ export function PasswordGenerator() {
 
   return (
     <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white shadow-sm p-6'>
-      <div className='flex gap-2'>
+      <div className='flex flex-col gap-2'>
         <output
           aria-label='Generated password'
-          className='flex-1 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg break-all'
+          className='rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg break-all'
         >
           {password.split('').map((char, index) => (
             <span key={index} className={CHAR_TYPE_COLORS[getCharType(char)]}>
@@ -57,15 +77,16 @@ export function PasswordGenerator() {
             </span>
           ))}
         </output>
-        <button
-          type='button'
-          aria-label='Regenerate password'
-          title='Regenerate password'
-          onClick={() => setPassword(generatePassword(options))}
-          className='rounded-lg bg-zinc-100 hover:bg-zinc-200 px-3 text-lg focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
-        >
-          ↻
-        </button>
+
+        <div className='grid grid-cols-2 gap-2'>
+          <Button onClick={regenerate}>
+            <span aria-hidden='true'>↻</span> Regenerate
+          </Button>
+          <Button onClick={copyPassword}>
+            <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}
+            {copied ? 'Copied' : 'Copy'}
+          </Button>
+        </div>
       </div>
 
       <div className='flex items-center gap-3'>

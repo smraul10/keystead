@@ -38,31 +38,46 @@ export function PasswordGenerator() {
   ).length;
 
   return (
-    <div>
-      <input readOnly aria-label='Generated password' value={password} />
-      <button
-        type='button'
-        aria-label='Regenerate password'
-        title='Regenerate password'
-        onClick={() => setPassword(generatePassword(options))}
-      >
-        ↻
-      </button>
-      <label>
-        Length
+    <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white shadow-sm p-6'>
+      <div className='flex gap-2'>
         <input
-          type='range'
-          min={MIN_LENGTH}
-          max={MAX_LENGTH}
-          value={options.length}
-          onChange={(event) =>
-            updateOptions({ ...options, length: Number(event.target.value) })
-          }
+          readOnly
+          aria-label='Generated password'
+          value={password}
+          className='flex-1 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg'
         />
-      </label>
-      <span>{options.length}</span>
-      <fieldset>
-        <legend>Character types</legend>
+        <button
+          type='button'
+          aria-label='Regenerate password'
+          title='Regenerate password'
+          onClick={() => setPassword(generatePassword(options))}
+          className='rounded-lg bg-zinc-100 hover:bg-zinc-200 px-3 text-lg focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
+        >
+          ↻
+        </button>
+      </div>
+
+      <div className='flex items-center gap-3'>
+        <label className='flex flex-1 items-center gap-3'>
+          Length
+          <input
+            type='range'
+            min={MIN_LENGTH}
+            max={MAX_LENGTH}
+            value={options.length}
+            onChange={(event) =>
+              updateOptions({ ...options, length: Number(event.target.value) })
+            }
+            className='flex-1 accent-emerald-600'
+          />
+        </label>
+        <span className='w-8 text-right font-mono'>{options.length}</span>
+      </div>
+
+      <fieldset className='grid grid-cols-2 gap-2'>
+        <legend className='mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
+          Character types
+        </legend>
         {CHARACTER_TYPES.map(({ option, label }) => (
           <Checkbox
             key={label}
@@ -76,8 +91,10 @@ export function PasswordGenerator() {
         ))}
       </fieldset>
 
-      <fieldset>
-        <legend>Rules</legend>
+      <fieldset className='grid gap-2'>
+        <legend className='mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
+          Rules
+        </legend>
         {RULES.map(({ option, label }) => (
           <Checkbox
             key={label}

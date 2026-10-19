@@ -25,9 +25,7 @@ describe('PasswordGenerator', () => {
     const before = getPassword();
 
     // Act
-    await user.click(
-      screen.getByRole('button', { name: 'Regenerate password' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Regenerate' }));
 
     // Assert
     expect(getPassword()).not.toBe(before);
@@ -53,9 +51,7 @@ describe('PasswordGenerator', () => {
 
     // Act: choose a length, then regenerate
     fireEvent.change(slider, { target: { value: '32' } });
-    await user.click(
-      screen.getByRole('button', { name: 'Regenerate password' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Regenerate' }));
 
     // Assert
     expect(getPassword()).toHaveLength(32);

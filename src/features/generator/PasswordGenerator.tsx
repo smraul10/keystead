@@ -46,10 +46,10 @@ export function PasswordGenerator() {
 
   return (
     <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white shadow-sm p-6'>
-      <div className='flex gap-2'>
+      <div className='flex flex-col gap-2'>
         <output
           aria-label='Generated password'
-          className='flex-1 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg break-all'
+          className='rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg break-all'
         >
           {password.split('').map((char, index) => (
             <span key={index} className={CHAR_TYPE_COLORS[getCharType(char)]}>
@@ -57,15 +57,16 @@ export function PasswordGenerator() {
             </span>
           ))}
         </output>
-        <button
-          type='button'
-          aria-label='Regenerate password'
-          title='Regenerate password'
-          onClick={() => setPassword(generatePassword(options))}
-          className='rounded-lg bg-zinc-100 hover:bg-zinc-200 px-3 text-lg focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
-        >
-          ↻
-        </button>
+
+        <div className='flex justify-end gap-2'>
+          <button
+            type='button'
+            onClick={() => setPassword(generatePassword(options))}
+            className='flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium hover:bg-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
+          >
+            <span aria-hidden='true'>↻</span> Regenerate
+          </button>
+        </div>
       </div>
 
       <div className='flex items-center gap-3'>

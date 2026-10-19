@@ -28,6 +28,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - The password regenerates live whenever an option changes; a small ↻ "Regenerate password" button gives a new one with the same options.
 - Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).
 
+- Theme: light for now. A theme setting (light / dark / system) comes later (phase 6), using Tailwind `dark:` variants.
+
 ## Roadmap
 
 0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ✅

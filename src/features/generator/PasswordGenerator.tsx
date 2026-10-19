@@ -8,6 +8,7 @@ import {
   type PasswordOptions,
 } from './generatePassword';
 import { type CharType, getCharType } from './getCharType';
+import { Button } from '../../components/Button';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -77,22 +78,14 @@ export function PasswordGenerator() {
           ))}
         </output>
 
-        <div className='flex justify-end gap-2'>
-          <button
-            type='button'
-            onClick={regenerate}
-            className='flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium hover:bg-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
-          >
+        <div className='grid grid-cols-2 gap-2'>
+          <Button onClick={regenerate}>
             <span aria-hidden='true'>↻</span> Regenerate
-          </button>
-          <button
-            type='button'
-            onClick={copyPassword}
-            className='flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium hover:bg-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
-          >
+          </Button>
+          <Button onClick={copyPassword}>
             <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}
             {copied ? 'Copied' : 'Copy'}
-          </button>
+          </Button>
         </div>
       </div>
 

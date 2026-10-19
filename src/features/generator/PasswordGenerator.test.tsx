@@ -117,4 +117,46 @@ describe('PasswordGenerator', () => {
     // Assert: digits is the only type left, so it can't be unchecked
     expect(screen.getByRole('checkbox', { name: 'Digits' })).toBeDisabled();
   });
+
+  it('copies the password to the clipboard', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
+
+    // Assert
+    expect(await navigator.clipboard.readText()).toBe(getPassword());
+  });
+
+  it('confirms that the password was copied', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
+
+    // Assert
+    expect(
+      await screen.findByRole('button', { name: 'Copied' }),
+    ).toBeInTheDocument();
+  });
+
+  it('resets the copy confirmation when the options change', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act: copy, wait for the confirmation, then change the length
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
+    await screen.findByRole('button', { name: 'Copied' });
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '30' },
+    });
+
+    // Assert
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+  });
 });

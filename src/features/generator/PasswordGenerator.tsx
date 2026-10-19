@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -35,9 +35,28 @@ export function PasswordGenerator() {
     generatePassword(DEFAULT_PASSWORD_OPTIONS),
   );
 
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
   function updateOptions(next: PasswordOptions) {
     setOptions(next);
-    setPassword(generatePassword(next)); // live regeneration
+    setPassword(generatePassword(next));
+    setCopied(false);
+  }
+
+  function regenerate() {
+    setPassword(generatePassword(options));
+    setCopied(false);
+  }
+
+  async function copyPassword() {
+    await navigator.clipboard.writeText(password);
+    setCopied(true);
   }
 
   const enabledTypes = CHARACTER_TYPES.filter(
@@ -61,10 +80,18 @@ export function PasswordGenerator() {
         <div className='flex justify-end gap-2'>
           <button
             type='button'
-            onClick={() => setPassword(generatePassword(options))}
+            onClick={regenerate}
             className='flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium hover:bg-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
           >
             <span aria-hidden='true'>↻</span> Regenerate
+          </button>
+          <button
+            type='button'
+            onClick={copyPassword}
+            className='flex items-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium hover:bg-zinc-200 focus-visible:outline-2 focus-visible:outline-emerald-600 cursor-pointer'
+          >
+            <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}
+            {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
   MIN_LENGTH,
   type PasswordOptions,
 } from './generatePassword';
+import { type CharType, getCharType } from './getCharType';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -14,6 +15,12 @@ const CHARACTER_TYPES = [
   { option: 'digits', label: 'Digits' },
   { option: 'symbols', label: 'Symbols' },
 ] as const;
+
+const CHAR_TYPE_COLORS: Record<CharType, string> = {
+  letter: '',
+  digit: 'text-blue-600',
+  symbol: 'text-rose-600',
+};
 
 const RULES = [
   { option: 'excludeAmbiguous', label: 'Avoid ambiguous characters' },
@@ -40,12 +47,16 @@ export function PasswordGenerator() {
   return (
     <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white shadow-sm p-6'>
       <div className='flex gap-2'>
-        <input
-          readOnly
+        <output
           aria-label='Generated password'
-          value={password}
-          className='flex-1 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg'
-        />
+          className='flex-1 rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg break-all'
+        >
+          {password.split('').map((char, index) => (
+            <span key={index} className={CHAR_TYPE_COLORS[getCharType(char)]}>
+              {char}
+            </span>
+          ))}
+        </output>
         <button
           type='button'
           aria-label='Regenerate password'

@@ -3,26 +3,26 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
 
+function getPassword(): string {
+  return (
+    screen.getByRole('status', { name: 'Generated password' }).textContent ?? ''
+  );
+}
+
 describe('PasswordGenerator', () => {
   it('shows a generated password with the default length', () => {
     // Arrange
     render(<PasswordGenerator />);
 
     // Assert
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    expect(input.value).toHaveLength(20);
+    expect(getPassword()).toHaveLength(20);
   });
 
   it('generates a new password when clicking regenerate', async () => {
     // Arrange
     const user = userEvent.setup();
     render(<PasswordGenerator />);
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    const before = input.value;
+    const before = getPassword();
 
     // Act
     await user.click(
@@ -30,7 +30,7 @@ describe('PasswordGenerator', () => {
     );
 
     // Assert
-    expect(input.value).not.toBe(before);
+    expect(getPassword()).not.toBe(before);
   });
 
   it('regenerates the password when the length changes', () => {
@@ -42,10 +42,7 @@ describe('PasswordGenerator', () => {
     fireEvent.change(slider, { target: { value: '32' } });
 
     // Assert
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    expect(input.value).toHaveLength(32);
+    expect(getPassword()).toHaveLength(32);
   });
 
   it('keeps the chosen length when regenerating', async () => {
@@ -61,10 +58,7 @@ describe('PasswordGenerator', () => {
     );
 
     // Assert
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    expect(input.value).toHaveLength(32);
+    expect(getPassword()).toHaveLength(32);
   });
 
   it.each([
@@ -84,10 +78,7 @@ describe('PasswordGenerator', () => {
     await user.click(screen.getByRole('checkbox', { name }));
 
     // Assert
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    expect(input.value).not.toMatch(pattern);
+    expect(getPassword()).not.toMatch(pattern);
   });
 
   it('avoids ambiguous characters when the option is checked', async () => {
@@ -104,10 +95,7 @@ describe('PasswordGenerator', () => {
     );
 
     // Assert
-    const input = screen.getByRole<HTMLInputElement>('textbox', {
-      name: 'Generated password',
-    });
-    expect(input.value).not.toMatch(/[0O1lI]/);
+    expect(getPassword()).not.toMatch(/[0O1lI]/);
   });
 
   it('requires every selected type by default', () => {

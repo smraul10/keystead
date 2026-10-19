@@ -25,10 +25,13 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 ## Product decisions
 
 - Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the entry form, where a 🎲 button next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
-- The password regenerates live whenever an option changes; a small ↻ "Regenerate password" button gives a new one with the same options.
+- The password regenerates live whenever an option changes; the "↻ Regenerate" button gives a new one with the same options.
 - Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).
 
 - The generated password is shown color-coded by character type (letters default, digits and symbols in their own colors), like Bitwarden and 1Password, to tell apart look-alike characters.
+- Below the password, right-aligned: "↻ Regenerate" and "⧉ Copy" buttons with icon + text (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
+- Generator options live in a collapsible panel, closed by default. The panel state and the chosen options are remembered between sessions (never the password itself).
+- Strength indicator: bar + level + entropy in bits. Levels like KeePassXC: Poor < 40 bits, Weak < 75, Good < 100, Excellent ≥ 100.
 - Theme: light for now. A theme setting (light / dark / system) comes later (phase 6), using Tailwind `dark:` variants.
 
 ## Roadmap

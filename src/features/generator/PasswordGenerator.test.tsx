@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
 
 function getPassword(): string {
-  return screen.getByRole<HTMLInputElement>('textbox', {
-    name: 'Generated password',
-  }).value;
+  return (
+    screen.getByRole('status', { name: 'Generated password' }).textContent ?? ''
+  );
 }
 
 describe('PasswordGenerator', () => {

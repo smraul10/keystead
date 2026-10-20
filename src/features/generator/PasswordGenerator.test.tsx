@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
@@ -235,5 +235,40 @@ describe('PasswordGenerator', () => {
 
     // Assert
     expect(screen.getByText('Weak')).toBeInTheDocument();
+  });
+
+  it('keeps the options panel closed by default', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Assert
+    const panel = screen.getByText('Options').closest('details');
+    expect(panel).not.toHaveAttribute('open');
+  });
+
+  it('remembers that the options panel was opened', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+
+    // Act
+    await user.click(screen.getByText('Options'));
+
+    // Assert
+    await waitFor(() =>
+      expect(localStorage.getItem('generator.panelOpen')).toBe('true'),
+    );
+  });
+
+  it('opens the options panel if it was open last time', () => {
+    // Arrange: the panel was left open in a previous session
+    localStorage.setItem('generator.panelOpen', 'true');
+
+    // Act
+    render(<PasswordGenerator />);
+
+    // Assert
+    const panel = screen.getByText('Options').closest('details');
+    expect(panel).toHaveAttribute('open');
   });
 });

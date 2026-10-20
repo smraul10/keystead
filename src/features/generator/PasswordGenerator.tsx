@@ -11,6 +11,7 @@ import {
 import { type CharType, getCharType } from './getCharType';
 import { Button } from '../../components/Button';
 import { getEntropy, getStrength, type Strength } from './strength';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -71,6 +72,11 @@ export function PasswordGenerator() {
   const [copied, setCopied] = useState(false);
 
   const [lengthDraft, setLengthDraft] = useState<string | null>(null);
+
+  const [panelOpen, setPanelOpen] = useLocalStorage(
+    'generator.panelOpen',
+    false,
+  );
 
   useEffect(() => {
     if (!copied) return;
@@ -172,34 +178,54 @@ export function PasswordGenerator() {
         />
       </div>
 
-      <fieldset className='grid grid-cols-2 gap-2'>
-        <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
-        {CHARACTER_TYPES.map(({ option, label }) => (
-          <Checkbox
-            key={label}
-            label={label}
-            checked={options[option]}
-            disabled={options[option] && enabledTypes === 1}
-            onChange={(checked) =>
-              updateOptions({ ...options, [option]: checked })
-            }
-          />
-        ))}
-      </fieldset>
+      <details
+        open={panelOpen}
+        onToggle={(event) => setPanelOpen(event.currentTarget.open)}
+        className='group'
+      >
+        <summary className='flex cursor-pointer list-none items-center justify-between border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
+          Options
+          <span
+            aria-hidden='true'
+            className='text-zinc-500 transition-transform group-open:rotate-180'
+          >
+            ▾
+          </span>
+        </summary>
 
-      <fieldset className='grid gap-2'>
-        <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
-        {RULES.map(({ option, label }) => (
-          <Checkbox
-            key={label}
-            label={label}
-            checked={options[option]}
-            onChange={(checked) =>
-              updateOptions({ ...options, [option]: checked })
-            }
-          />
-        ))}
-      </fieldset>
+        <div className='mt-4 flex flex-col gap-5'>
+          <fieldset className='grid grid-cols-2 gap-2'>
+            <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
+            {CHARACTER_TYPES.map(({ option, label }) => (
+              <Checkbox
+                key={label}
+                label={label}
+                checked={options[option]}
+                disabled={options[option] && enabledTypes === 1}
+                onChange={(checked) =>
+                  updateOptions({ ...options, [option]: checked })
+                }
+              />
+            ))}
+          </fieldset>
+        </div>
+
+        <div className='mt-4 flex flex-col gap-5'>
+          <fieldset className='grid gap-2'>
+            <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
+            {RULES.map(({ option, label }) => (
+              <Checkbox
+                key={label}
+                label={label}
+                checked={options[option]}
+                onChange={(checked) =>
+                  updateOptions({ ...options, [option]: checked })
+                }
+              />
+            ))}
+          </fieldset>
+        </div>
+      </details>
     </div>
   );
 }

@@ -18,6 +18,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Tailwind classes are sorted automatically by `prettier-plugin-tailwindcss` (run `pnpm format`).
 - No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
 - UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
+- Icons: Lucide (`lucide-react`, ISC). Import each icon by name (only those are bundled), size it with Tailwind (`size-4`) and let it inherit the text color. Lucide adds `aria-hidden` when the icon has no `aria-label` or `title`, so icons next to text need nothing else; an icon-only button needs its own `aria-label`.
 - UI rules: never remove the focus indicator (global `:focus-visible` ring in `index.css`); every animation uses `motion-safe:` / `motion-reduce:`; space with `gap` and `padding` rather than margins; write Tailwind class names in full (never build them from pieces); icon-only content is `aria-hidden` and every control has an accessible name.
 - TypeScript runs in strict mode plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`. Avoid `!` (non-null assertion) and `as` casts: check the value and let TypeScript narrow it. For states that cannot happen, throw a clear error instead of asserting.
 - Data from outside (localStorage, files, IPC) is read as `unknown` and validated before use. Only preferences go to localStorage, never secrets.
@@ -46,11 +47,11 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Sidebar: All items, Favorites, Trash and Generator, with Settings and Lock at the bottom. Each one is added when it works (no dead buttons).
 - Navigation is a state in `App`, with no router: a desktop app has no URLs.
 - Only login items for now (title, username, password, URL, notes). The word "item" is used both in the UI and in the code.
-- Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the item form, where a 🎲 button next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
-- The password regenerates live whenever an option changes; the "↻ Regenerate" button gives a new one with the same options.
+- Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the item form, where a dice button (`Dices` icon) next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
+- The password regenerates live whenever an option changes; the "Regenerate" button gives a new one with the same options.
 - Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).
 - The generated password is shown color-coded by character type (letters default, digits and symbols in their own colors), like Bitwarden and 1Password, to tell apart look-alike characters.
-- Below the password: "↻ Regenerate" and "⧉ Copy" buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
+- Below the password: "Regenerate" (`RefreshCw`, spins on click) and "Copy" (`Copy`, then `Check`) buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
 - Generator options live in a collapsible panel, closed by default; the length (slider + number) stays visible outside it. The panel state and the chosen options are remembered between sessions (never the password itself).
 - Strength indicator: an icon + the level word, colored by level (no bar). The entropy in bits appears as a tooltip. Levels like KeePassXC: Poor < 40 bits, Weak < 75, Good < 100, Excellent ≥ 100.
 - Monospace font: Fira Code (OFL-1.1, self-hosted via Fontsource) with ligatures disabled, so characters like `!=` or `->` are never merged in a password.

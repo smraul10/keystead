@@ -65,7 +65,7 @@ export function PasswordGenerator() {
   ).length;
 
   return (
-    <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white shadow-sm p-6'>
+    <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm'>
       <div className='flex flex-col gap-2'>
         <output
           aria-label='Generated password'

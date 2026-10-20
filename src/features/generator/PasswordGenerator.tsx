@@ -192,7 +192,7 @@ export function PasswordGenerator() {
       <details
         open={panelOpen}
         onToggle={(event) => setPanelOpen(event.currentTarget.open)}
-        className='group'
+        className='group [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
       >
         <summary className='flex cursor-pointer list-none items-center justify-between border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
           Options

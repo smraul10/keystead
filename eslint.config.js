@@ -17,6 +17,18 @@ export default defineConfig([
     ],
     rules: {
       'no-restricted-globals': ['error', ...confusingBrowserGlobals],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/features/*/*'],
+              message:
+                'Import a feature through its index.ts (@/features/<name>).',
+            },
+          ],
+        },
+      ],
     },
   },
 ]);

@@ -180,7 +180,7 @@ export function PasswordGenerator() {
             onChange={(event) =>
               updateOptions({ ...options, length: Number(event.target.value) })
             }
-            className='flex-1 accent-emerald-600'
+            className='flex-1 cursor-pointer accent-emerald-600'
           />
           <input
             type='number'

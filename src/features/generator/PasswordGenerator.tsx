@@ -9,11 +9,11 @@ import {
   type PasswordOptions,
   sanitizeOptions,
 } from './options';
-import { type CharType, getCharType } from './getCharType';
 import { Button } from '@/components/Button';
 import { getEntropy } from './strength';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { StrengthBadge } from './components/StrengthBadge';
+import { PasswordDisplay } from './components/PasswordDisplay';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -21,12 +21,6 @@ const CHARACTER_TYPES = [
   { option: 'digits', label: 'Digits' },
   { option: 'symbols', label: 'Symbols' },
 ] as const;
-
-const CHAR_TYPE_COLORS: Record<CharType, string> = {
-  letter: '',
-  digit: 'text-blue-600',
-  symbol: 'text-rose-600',
-};
 
 const SECTION_TITLE =
   'text-xs font-semibold tracking-wide text-zinc-500 uppercase';
@@ -104,16 +98,7 @@ export function PasswordGenerator() {
           <StrengthBadge bits={bits} />
         </div>
 
-        <output
-          aria-label='Generated password'
-          className='rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg tracking-wider break-all'
-        >
-          {password.split('').map((char, index) => (
-            <span key={index} className={CHAR_TYPE_COLORS[getCharType(char)]}>
-              {char}
-            </span>
-          ))}
-        </output>
+        <PasswordDisplay password={password} />
 
         <div className='grid grid-cols-2 gap-2'>
           <Button onClick={regenerate}>

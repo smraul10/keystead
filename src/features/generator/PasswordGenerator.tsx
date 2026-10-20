@@ -154,7 +154,8 @@ export function PasswordGenerator() {
               style={{ transform: `rotate(${turns}turn)` }}
             >
               ↻
-            </span>
+            </span>{' '}
+            Regenerate
           </Button>
           <Button onClick={copyPassword}>
             <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}

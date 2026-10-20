@@ -25,6 +25,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - The master key lives only in Rust memory (zeroized on lock) and never crosses IPC to the webview.
 - KDF: Argon2id. Encryption: XChaCha20-Poly1305 (RustCrypto crates). No custom crypto.
 - Vault file: authenticated header (format version, KDF params, salt, nonce) + ciphertext. Atomic writes.
+- Strict CSP in `tauri.conf.json`: only bundled resources (`'self'`), and the UI can only talk to Rust (`connect-src ipc: http://ipc.localhost`). Never loosen it for convenience. On desktop, `pnpm tauri dev` does not apply the CSP: test it with `pnpm tauri build --debug --no-bundle`.
+- Least privilege: no unused plugins, commands or capability permissions.
 
 ## Product decisions
 
@@ -43,8 +45,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ✅
 1. Password generator (TDD) ✅
-   - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ← current
-2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod)
+   - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ✅
+2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod) ← current
 3. Rust crypto core: create/open/save vault, with `cargo test`
 4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests
 5. Auto-lock, clipboard clearing, strength meter

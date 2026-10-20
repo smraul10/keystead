@@ -1,6 +1,6 @@
 import { PasswordGenerator } from './features/generator/PasswordGenerator';
 
-function App() {
+export function App() {
   return (
     <main className='flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-50 text-zinc-900'>
       <h1 className='text-4xl font-bold'>Welcome to Keystead</h1>
@@ -9,5 +9,3 @@ function App() {
     </main>
   );
 }
-
-export default App;

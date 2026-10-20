@@ -1,14 +1,14 @@
 import { useEffect, useId, useState } from 'react';
 import { Checkbox } from '@/components/Checkbox';
+import { generatePassword } from './generatePassword';
 import {
   DEFAULT_PASSWORD_OPTIONS,
-  generatePassword,
   isValidLength,
   MAX_LENGTH,
   MIN_LENGTH,
   type PasswordOptions,
   sanitizeOptions,
-} from './generatePassword';
+} from './options';
 import { type CharType, getCharType } from './getCharType';
 import { Button } from '@/components/Button';
 import { getEntropy, getStrength, type Strength } from './strength';

@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
-import { DEFAULT_PASSWORD_OPTIONS } from './generatePassword';
+import { DEFAULT_PASSWORD_OPTIONS } from './options';
 
 function getPassword(): string {
   return (

@@ -54,7 +54,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Below the password: "Regenerate" (`RefreshCw`, spins on click) and "Copy" (`Copy`, then `Check`) buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
 - Generator options live in a collapsible panel, closed by default; the length (slider + number) stays visible outside it. The panel state and the chosen options are remembered between sessions (never the password itself).
 - Strength indicator: an icon + the level word, colored by level (no bar). The entropy in bits appears as a tooltip. Levels like KeePassXC: Poor < 40 bits, Weak < 75, Good < 100, Excellent ≥ 100.
-- Monospace font: Fira Code (OFL-1.1, self-hosted via Fontsource) with ligatures disabled, so characters like `!=` or `->` are never merged in a password.
+- Fonts (OFL-1.1, variable, self-hosted via Fontsource): Inter for the whole UI (`--font-sans`, with optical sizes via `opsz.css`) and JetBrains Mono for passwords (`--font-mono`), chosen because it tells apart look-alike characters (`0 O`, `1 l I`). Ligatures are disabled for any mono font, so characters like `!=` or `->` are never merged in a password.
 - Theme: light for now. A theme setting (light / dark / system) comes later (phase 6), using Tailwind `dark:` variants.
 
 ## Roadmap

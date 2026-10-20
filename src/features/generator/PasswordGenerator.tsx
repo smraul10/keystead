@@ -124,7 +124,7 @@ export function PasswordGenerator() {
           <span className={SECTION_TITLE}>Password</span>
           <p
             title={`${Math.round(bits)} bits of entropy`}
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${STRENGTH_STYLES[strength].className}`}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 transition-colors duration-300 ring-inset ${STRENGTH_STYLES[strength].className}`}
           >
             <span className='sr-only'>Password strength:</span>
             <span aria-hidden='true'>{STRENGTH_STYLES[strength].icon}</span>

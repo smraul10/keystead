@@ -7,6 +7,12 @@ const AMBIGUOUS = '0O1lI';
 export const MIN_LENGTH = 8;
 export const MAX_LENGTH = 128;
 
+export function isValidLength(length: number): boolean {
+  return (
+    Number.isInteger(length) && length >= MIN_LENGTH && length <= MAX_LENGTH
+  );
+}
+
 export interface PasswordOptions {
   length: number;
   lowercase: boolean;

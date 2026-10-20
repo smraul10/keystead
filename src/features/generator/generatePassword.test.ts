@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PASSWORD_OPTIONS, generatePassword } from './generatePassword';
+import {
+  DEFAULT_PASSWORD_OPTIONS,
+  generatePassword,
+  isValidLength,
+} from './generatePassword';
 
 describe('generatePassword', () => {
   it('returns a password with the requested length', () => {
@@ -149,5 +153,20 @@ describe('generatePassword', () => {
 
     // Assert
     expect(startsWithDigit).toBeGreaterThan(0);
+  });
+});
+
+describe('isValidLength', () => {
+  it.each([
+    [8, true],
+    [20, true],
+    [128, true],
+    [7, false],
+    [129, false],
+    [12.5, false],
+    [NaN, false],
+  ])('returns for %s: %s', (length, expected) => {
+    // Act + Assert
+    expect(isValidLength(length)).toBe(expected);
   });
 });

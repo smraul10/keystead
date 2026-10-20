@@ -1,11 +1,8 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Checkbox } from '@/components/Checkbox';
 import { generatePassword } from './generatePassword';
 import {
   DEFAULT_PASSWORD_OPTIONS,
-  isValidLength,
-  MAX_LENGTH,
-  MIN_LENGTH,
   type PasswordOptions,
   sanitizeOptions,
 } from './options';
@@ -14,6 +11,8 @@ import { getEntropy } from './strength';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { StrengthBadge } from './components/StrengthBadge';
 import { PasswordDisplay } from './components/PasswordDisplay';
+import { SECTION_TITLE } from './styles';
+import { LengthControl } from './components/LengthControl';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -21,9 +20,6 @@ const CHARACTER_TYPES = [
   { option: 'digits', label: 'Digits' },
   { option: 'symbols', label: 'Symbols' },
 ] as const;
-
-const SECTION_TITLE =
-  'text-xs font-semibold tracking-wide text-zinc-500 uppercase';
 
 const RULES = [
   { option: 'excludeAmbiguous', label: 'Avoid ambiguous characters' },
@@ -42,8 +38,6 @@ export function PasswordGenerator() {
 
   const [copied, setCopied] = useState(false);
 
-  const [lengthDraft, setLengthDraft] = useState<string | null>(null);
-
   const [panelOpen, setPanelOpen] = useLocalStorage(
     'generator.panelOpen',
     false,
@@ -51,21 +45,11 @@ export function PasswordGenerator() {
 
   const [turns, setTurns] = useState(0);
 
-  const lengthId = useId();
-
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
     return () => clearTimeout(timer);
   }, [copied]);
-
-  function changeLength(value: string) {
-    setLengthDraft(value);
-    const length = Number(value);
-    if (isValidLength(length)) {
-      updateOptions({ ...options, length });
-    }
-  }
 
   function updateOptions(next: PasswordOptions) {
     setStoredOptions(next);
@@ -118,34 +102,10 @@ export function PasswordGenerator() {
         </div>
       </div>
 
-      <div className='flex flex-col gap-2'>
-        <label htmlFor={lengthId} className={SECTION_TITLE}>
-          Length
-        </label>
-        <div className='flex items-center gap-3'>
-          <input
-            id={lengthId}
-            type='range'
-            min={MIN_LENGTH}
-            max={MAX_LENGTH}
-            value={options.length}
-            onChange={(event) =>
-              updateOptions({ ...options, length: Number(event.target.value) })
-            }
-            className='flex-1 cursor-pointer accent-emerald-600'
-          />
-          <input
-            type='number'
-            aria-label='Length'
-            min={MIN_LENGTH}
-            max={MAX_LENGTH}
-            value={lengthDraft ?? options.length}
-            onChange={(event) => changeLength(event.target.value)}
-            onBlur={() => setLengthDraft(null)}
-            className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
-          />
-        </div>
-      </div>
+      <LengthControl
+        length={options.length}
+        onChange={(length) => updateOptions({ ...options, length })}
+      />
 
       <details
         open={panelOpen}

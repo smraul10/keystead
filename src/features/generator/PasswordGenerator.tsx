@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -82,6 +82,8 @@ export function PasswordGenerator() {
 
   const [turns, setTurns] = useState(0);
 
+  const lengthId = useId();
+
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
@@ -164,10 +166,13 @@ export function PasswordGenerator() {
         </div>
       </div>
 
-      <div className='flex items-center gap-3'>
-        <label className='flex flex-1 items-center gap-3'>
+      <div className='flex flex-col gap-2'>
+        <label htmlFor={lengthId} className={SECTION_TITLE}>
           Length
+        </label>
+        <div className='flex items-center gap-3'>
           <input
+            id={lengthId}
             type='range'
             min={MIN_LENGTH}
             max={MAX_LENGTH}
@@ -177,25 +182,25 @@ export function PasswordGenerator() {
             }
             className='flex-1 accent-emerald-600'
           />
-        </label>
-        <input
-          type='number'
-          aria-label='Length'
-          min={MIN_LENGTH}
-          max={MAX_LENGTH}
-          value={lengthDraft ?? options.length}
-          onChange={(event) => changeLength(event.target.value)}
-          onBlur={() => setLengthDraft(null)}
-          className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
-        />
+          <input
+            type='number'
+            aria-label='Length'
+            min={MIN_LENGTH}
+            max={MAX_LENGTH}
+            value={lengthDraft ?? options.length}
+            onChange={(event) => changeLength(event.target.value)}
+            onBlur={() => setLengthDraft(null)}
+            className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
+          />
+        </div>
       </div>
 
       <details
         open={panelOpen}
         onToggle={(event) => setPanelOpen(event.currentTarget.open)}
-        className='group [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
+        className='group border-t border-zinc-200 pt-4 [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
       >
-        <summary className='flex cursor-pointer list-none items-center justify-between rounded-md border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
+        <summary className='flex cursor-pointer list-none items-center justify-between rounded-md text-sm font-medium text-zinc-700'>
           Options
           <span
             aria-hidden='true'

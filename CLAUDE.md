@@ -7,6 +7,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - The owner is learning React, TypeScript, Tailwind, testing, Rust and GitHub through this project.
 - Mode: Claude gives the task statement and hints, the owner writes the code, Claude reviews. Do not write app code for the owner unless asked. Tooling setup (phase 0) may be given as explained commands/configs.
 - For every commit and PR, Claude proposes the exact git commands, the commit message (with a short explanation of the chosen type) and the PR title and description. The owner runs them.
+- Claude keeps `CLAUDE.md` up to date directly (structure, decisions, roadmap); the owner reviews and commits it.
 - Explain things to the owner in Spanish. Code, identifiers, comments, commits, branch names and PRs are in English.
 - Small steps, one concept at a time; end each step with a few review questions.
 
@@ -23,6 +24,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 ## Project structure
 
+- `src/app/`: the app shell (`App` and the sidebar navigation between sections).
 - `src/components/`: shared UI components (`Button`, `Checkbox`).
 - `src/hooks/`: shared hooks (`useLocalStorage`).
 - `src/features/<name>/`: one folder per feature (e.g. `generator`) with its main component, its logic and their tests. UI pieces used only by that feature go in its `components/` folder.
@@ -40,10 +42,13 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 ## Product decisions
 
-- Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the entry form, where a 🎲 button next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
+- Layout: three columns, like Bitwarden and 1Password: sidebar, item list (search, "+ New") and item details (copy buttons, Edit).
+- Sidebar: All items, Favorites, Trash and Generator, with Settings and Lock at the bottom. Each one is added when it works (no dead buttons).
+- Navigation is a state in `App`, with no router: a desktop app has no URLs.
+- Only login items for now (title, username, password, URL, notes). The word "item" is used both in the UI and in the code.
+- Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the item form, where a 🎲 button next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
 - The password regenerates live whenever an option changes; the "↻ Regenerate" button gives a new one with the same options.
 - Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).
-
 - The generated password is shown color-coded by character type (letters default, digits and symbols in their own colors), like Bitwarden and 1Password, to tell apart look-alike characters.
 - Below the password: "↻ Regenerate" and "⧉ Copy" buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
 - Generator options live in a collapsible panel, closed by default; the length (slider + number) stays visible outside it. The panel state and the chosen options are remembered between sessions (never the password itself).
@@ -56,7 +61,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ✅
 1. Password generator (TDD) ✅
    - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ✅
-2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod) ← current
+2. UI with fake data: unlock, item list, search, create/edit, favorites, trash (Zustand, React Hook Form + Zod) ← current
 3. Rust crypto core: create/open/save vault, with `cargo test`
 4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests
 5. Auto-lock, clipboard clearing, strength meter

@@ -1,4 +1,7 @@
 # Checks that run before every commit. Skip in an emergency with: git commit --no-verify
+# Plain output: the interactive spinner hangs in the classic Windows console
+no_tty: true
+colors: false
 pre-commit:
   parallel: true
   commands:

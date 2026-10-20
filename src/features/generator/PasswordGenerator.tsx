@@ -25,6 +25,9 @@ const CHAR_TYPE_COLORS: Record<CharType, string> = {
   symbol: 'text-rose-600',
 };
 
+const SECTION_TITLE =
+  'text-xs font-semibold tracking-wide text-zinc-500 uppercase';
+
 const STRENGTH_STYLES: Record<
   Strength,
   { label: string; icon: string; className: string }
@@ -110,9 +113,7 @@ export function PasswordGenerator() {
     <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm'>
       <div className='flex flex-col gap-2'>
         <div className='flex items-center justify-between'>
-          <span className='text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
-            Password
-          </span>
+          <span className={SECTION_TITLE}>Password</span>
           <p
             title={`${Math.round(bits)} bits of entropy`}
             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${STRENGTH_STYLES[strength].className}`}
@@ -172,9 +173,7 @@ export function PasswordGenerator() {
       </div>
 
       <fieldset className='grid grid-cols-2 gap-2'>
-        <legend className='mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
-          Character types
-        </legend>
+        <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
         {CHARACTER_TYPES.map(({ option, label }) => (
           <Checkbox
             key={label}
@@ -189,9 +188,7 @@ export function PasswordGenerator() {
       </fieldset>
 
       <fieldset className='grid gap-2'>
-        <legend className='mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
-          Rules
-        </legend>
+        <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
         {RULES.map(({ option, label }) => (
           <Checkbox
             key={label}

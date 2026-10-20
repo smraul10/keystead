@@ -16,10 +16,19 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - One change per branch (`feat/...`, `fix/...`, `chore/...`), merged through a GitHub Pull Request after review.
 - Tailwind classes are sorted automatically by `prettier-plugin-tailwindcss` (run `pnpm format`).
 - No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
-- UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility. Reusable pieces live in `src/components/` (`Button`, `Checkbox`) and `src/hooks/` (`useLocalStorage`).
+- UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
 - UI rules: never remove the focus indicator (global `:focus-visible` ring in `index.css`); every animation uses `motion-safe:` / `motion-reduce:`; space with `gap` and `padding` rather than margins; write Tailwind class names in full (never build them from pieces); icon-only content is `aria-hidden` and every control has an accessible name.
 - TypeScript runs in strict mode plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`. Avoid `!` (non-null assertion) and `as` casts: check the value and let TypeScript narrow it. For states that cannot happen, throw a clear error instead of asserting.
 - Data from outside (localStorage, files, IPC) is read as `unknown` and validated before use. Only preferences go to localStorage, never secrets.
+
+## Project structure
+
+- `src/components/`: shared UI components (`Button`, `Checkbox`).
+- `src/hooks/`: shared hooks (`useLocalStorage`).
+- `src/features/<name>/`: one folder per feature (e.g. `generator`) with its main component, its logic and their tests. UI pieces used only by that feature go in its `components/` folder.
+- Each feature exposes its public API through `index.ts`. The rest of the app imports it only from there (`@/features/generator`); ESLint blocks deep imports like `@/features/generator/options`.
+- `@/` is an alias for `src/`: use it to import from another folder (`@/components/Button`). Inside a feature, use relative imports (`./options`, `../styles`).
+- Tests sit next to the file they test (`options.ts` → `options.test.ts`).
 
 ## Security architecture (target)
 

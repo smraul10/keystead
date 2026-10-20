@@ -3,6 +3,7 @@ import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
   generatePassword,
+  isValidLength,
   MAX_LENGTH,
   MIN_LENGTH,
   type PasswordOptions,
@@ -32,17 +33,28 @@ export function PasswordGenerator() {
   const [options, setOptions] = useState<PasswordOptions>(
     DEFAULT_PASSWORD_OPTIONS,
   );
+
   const [password, setPassword] = useState(() =>
     generatePassword(DEFAULT_PASSWORD_OPTIONS),
   );
 
   const [copied, setCopied] = useState(false);
 
+  const [lengthDraft, setLengthDraft] = useState<string | null>(null);
+
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
     return () => clearTimeout(timer);
   }, [copied]);
+
+  function changeLength(value: string) {
+    setLengthDraft(value);
+    const length = Number(value);
+    if (isValidLength(length)) {
+      updateOptions({ ...options, length });
+    }
+  }
 
   function updateOptions(next: PasswordOptions) {
     setOptions(next);
@@ -103,7 +115,16 @@ export function PasswordGenerator() {
             className='flex-1 accent-emerald-600'
           />
         </label>
-        <span className='w-8 text-right font-mono'>{options.length}</span>
+        <input
+          type='number'
+          aria-label='Length'
+          min={MIN_LENGTH}
+          max={MAX_LENGTH}
+          value={lengthDraft ?? options.length}
+          onChange={(event) => changeLength(event.target.value)}
+          onBlur={() => setLengthDraft(null)}
+          className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
+        />
       </div>
 
       <fieldset className='grid grid-cols-2 gap-2'>

@@ -159,4 +159,60 @@ describe('PasswordGenerator', () => {
     // Assert
     expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
   });
+
+  it('changes the length when typing a valid number', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+    const input = screen.getByRole('spinbutton', { name: 'Length' });
+
+    // Act
+    await user.clear(input);
+    await user.type(input, '32');
+
+    // Assert
+    expect(getPassword()).toHaveLength(32);
+  });
+
+  it('ignores invalid lengths while typing', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+    const input = screen.getByRole('spinbutton', { name: 'Length' });
+
+    // Act
+    await user.clear(input);
+    await user.type(input, '5');
+
+    // Assert
+    expect(getPassword()).toHaveLength(20);
+  });
+
+  it('restores the current length when leaving an invalid value', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<PasswordGenerator />);
+    const input = screen.getByRole('spinbutton', { name: 'Length' });
+
+    // Act: type an invalid length, then move the focus away
+    await user.clear(input);
+    await user.type(input, '5');
+    await user.tab();
+
+    // Assert
+    expect(input).toHaveValue(20);
+  });
+
+  it('shows the slider value in the number input', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Act
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '50' },
+    });
+
+    // Assert
+    expect(screen.getByRole('spinbutton', { name: 'Length' })).toHaveValue(50);
+  });
 });

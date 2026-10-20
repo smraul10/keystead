@@ -215,4 +215,25 @@ describe('PasswordGenerator', () => {
     // Assert
     expect(screen.getByRole('spinbutton', { name: 'Length' })).toHaveValue(50);
   });
+
+  it('shows the strength of the password', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Assert: default options → 20 × log2(85) ≈ 128 bits → Excellent
+    expect(screen.getByText('Excellent')).toBeInTheDocument();
+  });
+
+  it('updates the strength when the options change', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Act: 8 characters from a pool of 85 → 8 × log2(85) ≈ 51 bits
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '8' },
+    });
+
+    // Assert
+    expect(screen.getByText('Weak')).toBeInTheDocument();
+  });
 });

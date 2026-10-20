@@ -13,6 +13,7 @@ import { PasswordDisplay } from './components/PasswordDisplay';
 import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';
 import { OptionsPanel } from './components/OptionsPanel';
+import { Check, Copy, RefreshCw } from 'lucide-react';
 
 export function PasswordGenerator() {
   // Saved options can be anything (edited, corrupted, older version): validate them
@@ -65,17 +66,19 @@ export function PasswordGenerator() {
 
         <div className='grid grid-cols-2 gap-2'>
           <Button onClick={regenerate}>
-            <span
-              aria-hidden='true'
-              className='inline-block transition-transform duration-500 motion-reduce:transition-none'
+            <RefreshCw
+              className='size-4 transition-transform duration-500 motion-reduce:transition-none'
               style={{ transform: `rotate(${turns}turn)` }}
-            >
-              ↻
-            </span>{' '}
+            />
             Regenerate
           </Button>
+
           <Button onClick={copyPassword}>
-            <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}
+            {copied ? (
+              <Check className='size-4' />
+            ) : (
+              <Copy className='size-4' />
+            )}
             {copied ? 'Copied' : 'Copy'}
           </Button>
         </div>

@@ -195,7 +195,7 @@ export function PasswordGenerator() {
         onToggle={(event) => setPanelOpen(event.currentTarget.open)}
         className='group [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
       >
-        <summary className='flex cursor-pointer list-none items-center justify-between border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
+        <summary className='flex cursor-pointer list-none items-center justify-between rounded-md border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
           Options
           <span
             aria-hidden='true'
@@ -205,7 +205,7 @@ export function PasswordGenerator() {
           </span>
         </summary>
 
-        <div className='mt-4 flex flex-col gap-5'>
+        <div className='flex flex-col gap-5 pt-4'>
           <fieldset className='grid grid-cols-2 gap-2'>
             <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
             {CHARACTER_TYPES.map(({ option, label }) => (
@@ -220,9 +220,7 @@ export function PasswordGenerator() {
               />
             ))}
           </fieldset>
-        </div>
 
-        <div className='mt-4 flex flex-col gap-5'>
           <fieldset className='grid gap-2'>
             <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
             {RULES.map(({ option, label }) => (

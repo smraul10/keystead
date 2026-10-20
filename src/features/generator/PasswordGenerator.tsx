@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Checkbox } from '@/components/Checkbox';
 import { generatePassword } from './generatePassword';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -13,18 +12,7 @@ import { StrengthBadge } from './components/StrengthBadge';
 import { PasswordDisplay } from './components/PasswordDisplay';
 import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';
-
-const CHARACTER_TYPES = [
-  { option: 'lowercase', label: 'Lowercase' },
-  { option: 'uppercase', label: 'Uppercase' },
-  { option: 'digits', label: 'Digits' },
-  { option: 'symbols', label: 'Symbols' },
-] as const;
-
-const RULES = [
-  { option: 'excludeAmbiguous', label: 'Avoid ambiguous characters' },
-  { option: 'requireEachType', label: 'Include every selected type' },
-] as const;
+import { OptionsPanel } from './components/OptionsPanel';
 
 export function PasswordGenerator() {
   // Saved options can be anything (edited, corrupted, older version): validate them
@@ -37,11 +25,6 @@ export function PasswordGenerator() {
   const [password, setPassword] = useState(() => generatePassword(options));
 
   const [copied, setCopied] = useState(false);
-
-  const [panelOpen, setPanelOpen] = useLocalStorage(
-    'generator.panelOpen',
-    false,
-  );
 
   const [turns, setTurns] = useState(0);
 
@@ -67,10 +50,6 @@ export function PasswordGenerator() {
     await navigator.clipboard.writeText(password);
     setCopied(true);
   }
-
-  const enabledTypes = CHARACTER_TYPES.filter(
-    ({ option }) => options[option],
-  ).length;
 
   const bits = getEntropy(options);
 
@@ -107,52 +86,7 @@ export function PasswordGenerator() {
         onChange={(length) => updateOptions({ ...options, length })}
       />
 
-      <details
-        open={panelOpen}
-        onToggle={(event) => setPanelOpen(event.currentTarget.open)}
-        className='group border-t border-zinc-200 pt-4 [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
-      >
-        <summary className='flex cursor-pointer list-none items-center justify-between rounded-md text-sm font-medium text-zinc-700'>
-          Options
-          <span
-            aria-hidden='true'
-            className='text-zinc-500 transition-transform group-open:rotate-180'
-          >
-            ▾
-          </span>
-        </summary>
-
-        <div className='flex flex-col gap-5 pt-4'>
-          <fieldset className='grid grid-cols-2 gap-2'>
-            <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
-            {CHARACTER_TYPES.map(({ option, label }) => (
-              <Checkbox
-                key={label}
-                label={label}
-                checked={options[option]}
-                disabled={options[option] && enabledTypes === 1}
-                onChange={(checked) =>
-                  updateOptions({ ...options, [option]: checked })
-                }
-              />
-            ))}
-          </fieldset>
-
-          <fieldset className='grid gap-2'>
-            <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
-            {RULES.map(({ option, label }) => (
-              <Checkbox
-                key={label}
-                label={label}
-                checked={options[option]}
-                onChange={(checked) =>
-                  updateOptions({ ...options, [option]: checked })
-                }
-              />
-            ))}
-          </fieldset>
-        </div>
-      </details>
+      <OptionsPanel options={options} onChange={updateOptions} />
     </div>
   );
 }

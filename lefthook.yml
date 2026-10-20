@@ -1,0 +1,19 @@
+# Checks that run before every commit. Skip in an emergency with: git commit --no-verify
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: '*.{ts,tsx,js,json,css,md,yml,yaml,html}'
+      run: pnpm prettier --check {staged_files}
+    lint:
+      glob: '*.{ts,tsx,js}'
+      run: pnpm eslint {staged_files}
+    typecheck:
+      glob: '*.{ts,tsx}'
+      run: pnpm typecheck
+    test:
+      glob: '*.{ts,tsx}'
+      run: pnpm test
+    rust-format:
+      glob: '*.rs'
+      run: cargo fmt --manifest-path src-tauri/Cargo.toml --check

@@ -2,6 +2,7 @@ import { Checkbox } from '@/components/Checkbox';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import type { PasswordOptions } from '../options';
 import { SECTION_TITLE } from '../styles';
+import { ChevronDown } from 'lucide-react';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -35,12 +36,7 @@ export function OptionsPanel({ options, onChange }: OptionsPanelProps) {
     >
       <summary className='flex cursor-pointer list-none items-center justify-between rounded-md text-sm font-medium text-zinc-700'>
         Options
-        <span
-          aria-hidden='true'
-          className='text-zinc-500 transition-transform group-open:rotate-180'
-        >
-          ▾
-        </span>
+        <ChevronDown className='size-4 text-zinc-500 transition-transform group-open:rotate-180 motion-reduce:transition-none' />
       </summary>
 
       <div className='flex flex-col gap-5 pt-4'>

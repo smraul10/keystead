@@ -10,6 +10,7 @@ import {
 } from './generatePassword';
 import { type CharType, getCharType } from './getCharType';
 import { Button } from '../../components/Button';
+import { getEntropy, getStrength, type Strength } from './strength';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },
@@ -22,6 +23,32 @@ const CHAR_TYPE_COLORS: Record<CharType, string> = {
   letter: '',
   digit: 'text-blue-600',
   symbol: 'text-rose-600',
+};
+
+const STRENGTH_STYLES: Record<
+  Strength,
+  { label: string; icon: string; className: string }
+> = {
+  poor: {
+    label: 'Poor',
+    icon: '✕',
+    className: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+  },
+  weak: {
+    label: 'Weak',
+    icon: '!',
+    className: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+  },
+  good: {
+    label: 'Good',
+    icon: '✓',
+    className: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+  },
+  excellent: {
+    label: 'Excellent',
+    icon: '✓✓',
+    className: 'bg-emerald-100 text-emerald-800 ring-emerald-600/30',
+  },
 };
 
 const RULES = [
@@ -76,9 +103,26 @@ export function PasswordGenerator() {
     ({ option }) => options[option],
   ).length;
 
+  const bits = getEntropy(options);
+  const strength = getStrength(bits);
+
   return (
     <div className='flex w-full max-w-md flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm'>
       <div className='flex flex-col gap-2'>
+        <div className='flex items-center justify-between'>
+          <span className='text-xs font-semibold tracking-wide text-zinc-500 uppercase'>
+            Password
+          </span>
+          <p
+            title={`${Math.round(bits)} bits of entropy`}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${STRENGTH_STYLES[strength].className}`}
+          >
+            <span className='sr-only'>Password strength:</span>
+            <span aria-hidden='true'>{STRENGTH_STYLES[strength].icon}</span>
+            <span>{STRENGTH_STYLES[strength].label}</span>
+          </p>
+        </div>
+
         <output
           aria-label='Generated password'
           className='rounded-lg border border-zinc-300 bg-zinc-50 px-3 py-2 font-mono text-lg tracking-wider break-all'

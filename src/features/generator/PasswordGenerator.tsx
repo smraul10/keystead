@@ -7,6 +7,7 @@ import {
   MAX_LENGTH,
   MIN_LENGTH,
   type PasswordOptions,
+  sanitizeOptions,
 } from './generatePassword';
 import { type CharType, getCharType } from './getCharType';
 import { Button } from '../../components/Button';
@@ -61,13 +62,14 @@ const RULES = [
 ] as const;
 
 export function PasswordGenerator() {
-  const [options, setOptions] = useState<PasswordOptions>(
+  // Saved options can be anything (edited, corrupted, older version): validate them
+  const [storedOptions, setStoredOptions] = useLocalStorage<unknown>(
+    'generator.options',
     DEFAULT_PASSWORD_OPTIONS,
   );
+  const options = sanitizeOptions(storedOptions);
 
-  const [password, setPassword] = useState(() =>
-    generatePassword(DEFAULT_PASSWORD_OPTIONS),
-  );
+  const [password, setPassword] = useState(() => generatePassword(options));
 
   const [copied, setCopied] = useState(false);
 
@@ -93,7 +95,7 @@ export function PasswordGenerator() {
   }
 
   function updateOptions(next: PasswordOptions) {
-    setOptions(next);
+    setStoredOptions(next);
     setPassword(generatePassword(next));
     setCopied(false);
   }

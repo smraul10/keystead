@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
+import { DEFAULT_PASSWORD_OPTIONS } from './generatePassword';
 
 function getPassword(): string {
   return (
@@ -270,5 +271,47 @@ describe('PasswordGenerator', () => {
     // Assert
     const panel = screen.getByText('Options').closest('details');
     expect(panel).toHaveAttribute('open');
+  });
+
+  it('remembers the chosen options', () => {
+    // Arrange
+    render(<PasswordGenerator />);
+
+    // Act
+    fireEvent.change(screen.getByRole('slider', { name: 'Length' }), {
+      target: { value: '32' },
+    });
+
+    // Assert
+    const saved = JSON.parse(localStorage.getItem('generator.options') ?? '{}');
+    expect(saved).toMatchObject({ length: 32 });
+  });
+
+  it('starts with the options saved last time', () => {
+    // Arrange
+    localStorage.setItem(
+      'generator.options',
+      JSON.stringify({ ...DEFAULT_PASSWORD_OPTIONS, length: 32 }),
+    );
+
+    // Act
+    render(<PasswordGenerator />);
+
+    // Assert
+    expect(getPassword()).toHaveLength(32);
+  });
+
+  it('ignores corrupted saved options', () => {
+    // Arrange
+    localStorage.setItem(
+      'generator.options',
+      JSON.stringify({ ...DEFAULT_PASSWORD_OPTIONS, length: 'test' }),
+    );
+
+    // Act
+    render(<PasswordGenerator />);
+
+    // Assert
+    expect(getPassword()).toHaveLength(20);
   });
 });

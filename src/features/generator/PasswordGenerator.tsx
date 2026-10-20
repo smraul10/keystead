@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { Checkbox } from '../../components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -80,6 +80,10 @@ export function PasswordGenerator() {
     false,
   );
 
+  const [turns, setTurns] = useState(0);
+
+  const lengthId = useId();
+
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
@@ -103,6 +107,7 @@ export function PasswordGenerator() {
   function regenerate() {
     setPassword(generatePassword(options));
     setCopied(false);
+    setTurns((current) => current + 1);
   }
 
   async function copyPassword() {
@@ -124,7 +129,7 @@ export function PasswordGenerator() {
           <span className={SECTION_TITLE}>Password</span>
           <p
             title={`${Math.round(bits)} bits of entropy`}
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ring-inset ${STRENGTH_STYLES[strength].className}`}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 transition-colors duration-300 ring-inset ${STRENGTH_STYLES[strength].className}`}
           >
             <span className='sr-only'>Password strength:</span>
             <span aria-hidden='true'>{STRENGTH_STYLES[strength].icon}</span>
@@ -145,7 +150,14 @@ export function PasswordGenerator() {
 
         <div className='grid grid-cols-2 gap-2'>
           <Button onClick={regenerate}>
-            <span aria-hidden='true'>↻</span> Regenerate
+            <span
+              aria-hidden='true'
+              className='inline-block transition-transform duration-500 motion-reduce:transition-none'
+              style={{ transform: `rotate(${turns}turn)` }}
+            >
+              ↻
+            </span>{' '}
+            Regenerate
           </Button>
           <Button onClick={copyPassword}>
             <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}
@@ -154,10 +166,13 @@ export function PasswordGenerator() {
         </div>
       </div>
 
-      <div className='flex items-center gap-3'>
-        <label className='flex flex-1 items-center gap-3'>
+      <div className='flex flex-col gap-2'>
+        <label htmlFor={lengthId} className={SECTION_TITLE}>
           Length
+        </label>
+        <div className='flex items-center gap-3'>
           <input
+            id={lengthId}
             type='range'
             min={MIN_LENGTH}
             max={MAX_LENGTH}
@@ -165,27 +180,27 @@ export function PasswordGenerator() {
             onChange={(event) =>
               updateOptions({ ...options, length: Number(event.target.value) })
             }
-            className='flex-1 accent-emerald-600'
+            className='flex-1 cursor-pointer accent-emerald-600'
           />
-        </label>
-        <input
-          type='number'
-          aria-label='Length'
-          min={MIN_LENGTH}
-          max={MAX_LENGTH}
-          value={lengthDraft ?? options.length}
-          onChange={(event) => changeLength(event.target.value)}
-          onBlur={() => setLengthDraft(null)}
-          className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
-        />
+          <input
+            type='number'
+            aria-label='Length'
+            min={MIN_LENGTH}
+            max={MAX_LENGTH}
+            value={lengthDraft ?? options.length}
+            onChange={(event) => changeLength(event.target.value)}
+            onBlur={() => setLengthDraft(null)}
+            className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
+          />
+        </div>
       </div>
 
       <details
         open={panelOpen}
         onToggle={(event) => setPanelOpen(event.currentTarget.open)}
-        className='group'
+        className='group border-t border-zinc-200 pt-4 [interpolate-size:allow-keywords] details-content:h-0 details-content:overflow-clip details-content:transition-[height,content-visibility] details-content:transition-discrete details-content:duration-300 open:details-content:h-auto motion-reduce:details-content:transition-none'
       >
-        <summary className='flex cursor-pointer list-none items-center justify-between border-t border-zinc-200 pt-4 text-sm font-medium text-zinc-700'>
+        <summary className='flex cursor-pointer list-none items-center justify-between rounded-md text-sm font-medium text-zinc-700'>
           Options
           <span
             aria-hidden='true'
@@ -195,7 +210,7 @@ export function PasswordGenerator() {
           </span>
         </summary>
 
-        <div className='mt-4 flex flex-col gap-5'>
+        <div className='flex flex-col gap-5 pt-4'>
           <fieldset className='grid grid-cols-2 gap-2'>
             <legend className={`mb-2 ${SECTION_TITLE}`}>Character types</legend>
             {CHARACTER_TYPES.map(({ option, label }) => (
@@ -210,9 +225,7 @@ export function PasswordGenerator() {
               />
             ))}
           </fieldset>
-        </div>
 
-        <div className='mt-4 flex flex-col gap-5'>
           <fieldset className='grid gap-2'>
             <legend className={`mb-2 ${SECTION_TITLE}`}>Rules</legend>
             {RULES.map(({ option, label }) => (

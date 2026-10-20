@@ -53,6 +53,20 @@ function removeAmbiguous(chars: string): string {
     .join('');
 }
 
+export function getCharacterSets(options: PasswordOptions): string[] {
+  let sets: string[] = [];
+  if (options.lowercase) sets.push(LOWERCASE);
+  if (options.uppercase) sets.push(UPPERCASE);
+  if (options.digits) sets.push(DIGITS);
+  if (options.symbols) sets.push(SYMBOLS);
+
+  if (options.excludeAmbiguous) {
+    sets = sets.map(removeAmbiguous);
+  }
+
+  return sets;
+}
+
 // Fisher-Yates shuffle with cryptographic randomness
 function shuffle(chars: string): string {
   const array = chars.split('');
@@ -72,15 +86,7 @@ export function generatePassword(options: PasswordOptions): string {
     throw new Error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH}`);
   }
 
-  let sets: string[] = [];
-  if (options.lowercase) sets.push(LOWERCASE);
-  if (options.uppercase) sets.push(UPPERCASE);
-  if (options.digits) sets.push(DIGITS);
-  if (options.symbols) sets.push(SYMBOLS);
-
-  if (options.excludeAmbiguous) {
-    sets = sets.map(removeAmbiguous);
-  }
+  const sets = getCharacterSets(options);
 
   if (sets.length === 0) {
     throw new Error('At least one character type must be enabled');

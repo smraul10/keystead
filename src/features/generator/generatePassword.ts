@@ -110,3 +110,42 @@ export function generatePassword(options: PasswordOptions): string {
 
   return shuffle(password);
 }
+
+function booleanOr(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+export function sanitizeOptions(value: unknown): PasswordOptions {
+  // 1. Not an object (null, a text, a number...): nothing to keep
+  if (typeof value !== 'object' || value === null) {
+    return DEFAULT_PASSWORD_OPTIONS;
+  }
+
+  // 2. Keep each field only if it has the right type and a valid value
+  const stored = value as Record<string, unknown>;
+  const options: PasswordOptions = {
+    length:
+      typeof stored.length === 'number' && isValidLength(stored.length)
+        ? stored.length
+        : DEFAULT_PASSWORD_OPTIONS.length,
+    lowercase: booleanOr(stored.lowercase, DEFAULT_PASSWORD_OPTIONS.lowercase),
+    uppercase: booleanOr(stored.uppercase, DEFAULT_PASSWORD_OPTIONS.uppercase),
+    digits: booleanOr(stored.digits, DEFAULT_PASSWORD_OPTIONS.digits),
+    symbols: booleanOr(stored.symbols, DEFAULT_PASSWORD_OPTIONS.symbols),
+    excludeAmbiguous: booleanOr(
+      stored.excludeAmbiguous,
+      DEFAULT_PASSWORD_OPTIONS.excludeAmbiguous,
+    ),
+    requireEachType: booleanOr(
+      stored.requireEachType,
+      DEFAULT_PASSWORD_OPTIONS.requireEachType,
+    ),
+  };
+
+  // 3. Every character type disabled: the generator would throw
+  if (getCharacterSets(options).length === 0) {
+    return DEFAULT_PASSWORD_OPTIONS;
+  }
+
+  return options;
+}

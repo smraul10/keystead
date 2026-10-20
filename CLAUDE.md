@@ -32,7 +32,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 - The generated password is shown color-coded by character type (letters default, digits and symbols in their own colors), like Bitwarden and 1Password, to tell apart look-alike characters.
 - Below the password: "↻ Regenerate" and "⧉ Copy" buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
-- Generator options live in a collapsible panel, closed by default. The panel state and the chosen options are remembered between sessions (never the password itself).
+- Generator options live in a collapsible panel, closed by default; the length (slider + number) stays visible outside it. The panel state and the chosen options are remembered between sessions (never the password itself).
 - Strength indicator: an icon + the level word, colored by level (no bar). The entropy in bits appears as a tooltip. Levels like KeePassXC: Poor < 40 bits, Weak < 75, Good < 100, Excellent ≥ 100.
 - Monospace font: Fira Code (OFL-1.1, self-hosted via Fontsource) with ligatures disabled, so characters like `!=` or `->` are never merged in a password.
 - Theme: light for now. A theme setting (light / dark / system) comes later (phase 6), using Tailwind `dark:` variants.

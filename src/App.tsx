@@ -1,4 +1,4 @@
-import { PasswordGenerator } from './features/generator/PasswordGenerator';
+import { PasswordGenerator } from '@/features/generator';
 
 export function App() {
   return (

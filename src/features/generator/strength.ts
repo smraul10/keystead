@@ -1,4 +1,4 @@
-import { getCharacterSets, type PasswordOptions } from './generatePassword';
+import { getCharacterSets, type PasswordOptions } from './options';
 
 export type Strength = 'poor' | 'weak' | 'good' | 'excellent';
 

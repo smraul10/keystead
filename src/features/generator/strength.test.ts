@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_PASSWORD_OPTIONS } from './generatePassword';
+import { DEFAULT_PASSWORD_OPTIONS } from './options';
 import { getEntropy, getStrength } from './strength';
 
 describe('getEntropy', () => {

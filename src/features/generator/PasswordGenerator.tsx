@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from 'react';
-import { Checkbox } from '../../components/Checkbox';
+import { Checkbox } from '@/components/Checkbox';
 import {
   DEFAULT_PASSWORD_OPTIONS,
   generatePassword,
@@ -10,9 +10,9 @@ import {
   sanitizeOptions,
 } from './generatePassword';
 import { type CharType, getCharType } from './getCharType';
-import { Button } from '../../components/Button';
+import { Button } from '@/components/Button';
 import { getEntropy, getStrength, type Strength } from './strength';
-import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const CHARACTER_TYPES = [
   { option: 'lowercase', label: 'Lowercase' },

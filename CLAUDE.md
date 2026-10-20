@@ -18,6 +18,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
 - UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility. Reusable pieces live in `src/components/` (`Button`, `Checkbox`) and `src/hooks/` (`useLocalStorage`).
 - UI rules: never remove the focus indicator (global `:focus-visible` ring in `index.css`); every animation uses `motion-safe:` / `motion-reduce:`; space with `gap` and `padding` rather than margins; write Tailwind class names in full (never build them from pieces); icon-only content is `aria-hidden` and every control has an accessible name.
+- TypeScript runs in strict mode plus `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`. Avoid `!` (non-null assertion) and `as` casts: check the value and let TypeScript narrow it. For states that cannot happen, throw a clear error instead of asserting.
 - Data from outside (localStorage, files, IPC) is read as `unknown` and validated before use. Only preferences go to localStorage, never secrets.
 
 ## Security architecture (target)

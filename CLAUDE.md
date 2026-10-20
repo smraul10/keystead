@@ -15,6 +15,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Conventional Commits (`feat`, `fix`, `test`, `refactor`, `docs`, `style`, `chore`, `ci`), imperative mood.
 - One change per branch (`feat/...`, `fix/...`, `chore/...`), merged through a GitHub Pull Request after review.
 - Tailwind classes are sorted automatically by `prettier-plugin-tailwindcss` (run `pnpm format`).
+- No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
 - UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
 
 ## Security architecture (target)
@@ -33,6 +34,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Below the password: "↻ Regenerate" and "⧉ Copy" buttons with icon + text, in two full-width columns (Copy shows "Copied" for 2 s). The password box takes the full width and grows when a long password wraps.
 - Generator options live in a collapsible panel, closed by default. The panel state and the chosen options are remembered between sessions (never the password itself).
 - Strength indicator: bar + level + entropy in bits. Levels like KeePassXC: Poor < 40 bits, Weak < 75, Good < 100, Excellent ≥ 100.
+- Monospace font: Fira Code (OFL-1.1, self-hosted via Fontsource) with ligatures disabled, so characters like `!=` or `->` are never merged in a password.
 - Theme: light for now. A theme setting (light / dark / system) comes later (phase 6), using Tailwind `dark:` variants.
 
 ## Roadmap
@@ -43,7 +45,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 3. Rust crypto core: create/open/save vault, with `cargo test`
 4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests
 5. Auto-lock, clipboard clearing, strength meter
-6. Polish and packaging: dark mode, shortcuts, `.msi`, GitHub Actions CI
+6. Polish and packaging: dark mode, shortcuts, `.msi`, third-party licenses notice
 
 ## Commands
 

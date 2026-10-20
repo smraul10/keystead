@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Keystead",
   "version": "0.1.0",
   "identifier": "io.github.smraul10.keystead",
@@ -17,7 +17,8 @@
         "height": 720,
         "minWidth": 800,
         "minHeight": 600,
-        "center": true
+        "center": true,
+        "visible": false
       }
     ],
     "security": {

@@ -16,7 +16,9 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - One change per branch (`feat/...`, `fix/...`, `chore/...`), merged through a GitHub Pull Request after review.
 - Tailwind classes are sorted automatically by `prettier-plugin-tailwindcss` (run `pnpm format`).
 - No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
-- UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
+- UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility. Reusable pieces live in `src/components/` (`Button`, `Checkbox`) and `src/hooks/` (`useLocalStorage`).
+- UI rules: never remove the focus indicator (global `:focus-visible` ring in `index.css`); every animation uses `motion-safe:` / `motion-reduce:`; space with `gap` and `padding` rather than margins; write Tailwind class names in full (never build them from pieces); icon-only content is `aria-hidden` and every control has an accessible name.
+- Data from outside (localStorage, files, IPC) is read as `unknown` and validated before use. Only preferences go to localStorage, never secrets.
 
 ## Security architecture (target)
 
@@ -40,7 +42,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 ## Roadmap
 
 0. Scaffolding and tooling: typecheck, ESLint + Prettier, Vitest + Testing Library, CI, Tailwind CSS ✅
-1. Password generator (TDD) ← current
+1. Password generator (TDD) ✅
+   - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ← current
 2. UI with fake data: unlock, entry list, search, create/edit (Zustand, React Hook Form + Zod)
 3. Rust crypto core: create/open/save vault, with `cargo test`
 4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests

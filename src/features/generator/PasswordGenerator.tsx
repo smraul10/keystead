@@ -80,6 +80,8 @@ export function PasswordGenerator() {
     false,
   );
 
+  const [turns, setTurns] = useState(0);
+
   useEffect(() => {
     if (!copied) return;
     const timer = setTimeout(() => setCopied(false), 2000);
@@ -103,6 +105,7 @@ export function PasswordGenerator() {
   function regenerate() {
     setPassword(generatePassword(options));
     setCopied(false);
+    setTurns((current) => current + 1);
   }
 
   async function copyPassword() {
@@ -145,7 +148,13 @@ export function PasswordGenerator() {
 
         <div className='grid grid-cols-2 gap-2'>
           <Button onClick={regenerate}>
-            <span aria-hidden='true'>↻</span> Regenerate
+            <span
+              aria-hidden='true'
+              className='inline-block transition-transform duration-500 motion-reduce:transition-none'
+              style={{ transform: `rotate(${turns}turn)` }}
+            >
+              ↻
+            </span>
           </Button>
           <Button onClick={copyPassword}>
             <span aria-hidden='true'>{copied ? '✓' : '⧉'}</span>{' '}

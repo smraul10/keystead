@@ -33,17 +33,24 @@ export const DEFAULT_PASSWORD_OPTIONS: Readonly<PasswordOptions> = {
   requireEachType: true,
 };
 
+function randomUint32(): number {
+  const [value] = crypto.getRandomValues(new Uint32Array(1));
+  if (value === undefined) {
+    throw new Error('Could not generate a random number');
+  }
+  return value;
+}
+
 function randomIndex(max: number): number {
   // Largest multiple of max that fits in a Uint32: values above it are unfair
   const range = 2 ** 32;
   const limit = range - (range % max);
 
-  const values = new Uint32Array(1);
-  do {
-    crypto.getRandomValues(values);
-  } while (values[0] >= limit); // re-roll while the value falls in the unfair zone
-
-  return values[0] % max;
+  let value = randomUint32();
+  while (value >= limit) {
+    value = randomUint32(); // re-roll while the value falls in the unfair zone
+  }
+  return value % max;
 }
 
 function removeAmbiguous(chars: string): string {
@@ -72,7 +79,13 @@ function shuffle(chars: string): string {
   const array = chars.split('');
   for (let i = array.length - 1; i > 0; i--) {
     const j = randomIndex(i + 1); // a random position between 0 and i (both included)
-    [array[i], array[j]] = [array[j], array[i]]; // swap the two positions
+    const current = array[i];
+    const other = array[j];
+    if (current === undefined || other === undefined) {
+      throw new Error('Shuffle index out of range'); // cannot happen: 0 <= j <= i < length
+    }
+    array[i] = other; // swap the two positions
+    array[j] = current;
   }
   return array.join('');
 }

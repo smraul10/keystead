@@ -73,4 +73,29 @@ describe('ItemDetails', () => {
       ITEM.updatedAt,
     );
   });
+
+  it('copies the password without showing it', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ItemDetails item={ITEM} />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Copy password' }));
+
+    // Assert: copied, but still hidden on screen
+    expect(await navigator.clipboard.readText()).toBe(ITEM.password);
+    expect(screen.queryByText(ITEM.password)).not.toBeInTheDocument();
+  });
+
+  it('copies the username', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ItemDetails item={ITEM} />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Copy username' }));
+
+    // Assert
+    expect(await navigator.clipboard.readText()).toBe(ITEM.username);
+  });
 });

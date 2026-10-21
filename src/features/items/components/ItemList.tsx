@@ -26,7 +26,7 @@ export function ItemList({
             type='button'
             onClick={() => onSelect(item.id)}
             aria-current={item.id === selectedId ? 'true' : undefined}
-            className='flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition hover:bg-zinc-100 aria-[current=true]:bg-zinc-200'
+            className='flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition hover:bg-zinc-100 aria-current:bg-zinc-200'
           >
             <ItemAvatar title={item.title} />
             <div className='flex min-w-0 flex-col'>

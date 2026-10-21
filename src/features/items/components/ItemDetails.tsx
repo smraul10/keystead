@@ -2,6 +2,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
+import { CopyButton } from '@/components/CopyButton';
 
 // Always the same number of dots, so the password length is not revealed
 const PASSWORD_MASK = '••••••••';
@@ -42,7 +43,14 @@ export function ItemDetails({ item }: ItemDetailsProps) {
       </div>
 
       <dl className='grid grid-cols-[8rem_1fr] gap-x-4 gap-y-3 text-sm'>
-        {item.username && <Field label='Username'>{item.username}</Field>}
+        {item.username && (
+          <Field label='Username'>
+            <div className='flex items-center gap-2'>
+              <span className='min-w-0 wrap-break-word'>{item.username}</span>
+              <CopyButton text={item.username} label='Copy username' />
+            </div>
+          </Field>
+        )}
         <Field label='Password'>
           <div className='flex items-center gap-2'>
             <span className='font-mono break-all'>
@@ -61,6 +69,7 @@ export function ItemDetails({ item }: ItemDetailsProps) {
                 <Eye className='size-4' />
               )}
             </button>
+            <CopyButton text={item.password} label='Copy password' />
           </div>
         </Field>
         {item.url && <Field label='Website'>{item.url}</Field>}

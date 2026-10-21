@@ -68,4 +68,20 @@ describe('ItemsView', () => {
     ).toBeInTheDocument();
     expect(screen.queryByText('Select an item')).not.toBeInTheDocument();
   });
+
+  it('hides the password again when selecting another item', async () => {
+    // Arrange: reveal GitHub's password
+    const user = userEvent.setup();
+    render(<ItemsView items={ITEMS} />);
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+    await user.click(screen.getByRole('button', { name: 'Show password' }));
+
+    // Act
+    await user.click(screen.getByRole('button', { name: /Netflix/ }));
+
+    // Assert
+    expect(
+      screen.getByRole('button', { name: 'Show password' }),
+    ).toHaveAttribute('aria-pressed', 'false');
+  });
 });

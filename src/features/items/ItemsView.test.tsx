@@ -6,9 +6,17 @@ import { makeItem } from './makeItem';
 import { useItemsStore } from './itemsStore';
 
 const ITEMS = [
-  makeItem({ title: 'Netflix', username: 'raul@example.com' }),
-  makeItem({ title: 'amazon', username: 'raul@example.com' }),
-  makeItem({ title: 'GitHub', username: 'raul-dev' }),
+  makeItem({
+    title: 'Netflix',
+    username: 'raul@example.com',
+    password: 'netflix-pass',
+  }),
+  makeItem({
+    title: 'amazon',
+    username: 'raul@example.com',
+    password: 'amazon-pass',
+  }),
+  makeItem({ title: 'GitHub', username: 'raul-dev', password: 'github-pass' }),
 ];
 
 describe('ItemsView', () => {
@@ -259,5 +267,77 @@ describe('ItemsView', () => {
 
     // Assert
     expect(screen.getByText('The trash is empty')).toBeInTheDocument();
+  });
+
+  describe('creating an item', () => {
+    it('creates an item and selects it', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(<ItemsView />);
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'New item' }));
+      await user.type(screen.getByLabelText('Title'), 'Spotify');
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+
+      // Assert: the new item is selected and its details are open
+      expect(
+        await screen.findByRole('heading', { level: 2, name: 'Spotify' }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Spotify/ })).toHaveAttribute(
+        'aria-current',
+        'true',
+      );
+    });
+
+    it('cancels creating an item', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: 'New item' }));
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      // Assert
+      expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+      expect(screen.getByText('Select an item')).toBeInTheDocument();
+    });
+
+    it('closes the form when selecting another item', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: 'New item' }));
+
+      // Act
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+      // Assert
+      expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { level: 2, name: 'GitHub' }),
+      ).toBeInTheDocument();
+    });
+
+    it('starts new items as favorites in the favorites view', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      render(<ItemsView filter='favorites' />);
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'New item' }));
+
+      // Assert
+      expect(screen.getByRole('checkbox', { name: 'Favorite' })).toBeChecked();
+    });
+
+    it('does not offer to create items in the trash', () => {
+      render(<ItemsView filter='trash' />);
+
+      expect(
+        screen.queryByRole('button', { name: 'New item' }),
+      ).not.toBeInTheDocument();
+    });
   });
 });

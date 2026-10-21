@@ -131,27 +131,29 @@ export function ItemDetails({
             </div>
           </Field>
         )}
-        <Field label='Password'>
-          <div className='flex items-center gap-2'>
-            <span className='font-mono break-all'>
-              {revealed ? item.password : PASSWORD_MASK}
-            </span>
-            <button
-              type='button'
-              aria-label='Show password'
-              aria-pressed={revealed}
-              onClick={() => setRevealed((current) => !current)}
-              className='cursor-pointer rounded-md p-1 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
-            >
-              {revealed ? (
-                <EyeOff className='size-4' />
-              ) : (
-                <Eye className='size-4' />
-              )}
-            </button>
-            <CopyButton text={item.password} label='Copy password' />
-          </div>
-        </Field>
+        {item.password && (
+          <Field label='Password'>
+            <div className='flex items-center gap-2'>
+              <span className='font-mono break-all'>
+                {revealed ? item.password : PASSWORD_MASK}
+              </span>
+              <button
+                type='button'
+                aria-label='Show password'
+                aria-pressed={revealed}
+                onClick={() => setRevealed((current) => !current)}
+                className='cursor-pointer rounded-md p-1 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
+              >
+                {revealed ? (
+                  <EyeOff className='size-4' />
+                ) : (
+                  <Eye className='size-4' />
+                )}
+              </button>
+              <CopyButton text={item.password} label='Copy password' />
+            </div>
+          </Field>
+        )}
         {item.url && <Field label='Website'>{item.url}</Field>}
         {item.notes && (
           <Field label='Notes'>

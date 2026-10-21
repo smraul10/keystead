@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { FAKE_ITEMS } from './fakeItems';
 import type { Item } from './item';
+import type { ItemFormValues } from './itemSchema';
 
 interface ItemsState {
   items: readonly Item[];
@@ -8,6 +9,7 @@ interface ItemsState {
   moveToTrash: (id: string) => void;
   restore: (id: string) => void;
   deleteForever: (id: string) => void;
+  addItem: (values: ItemFormValues) => string;
 }
 
 export const useItemsStore = create<ItemsState>()((set) => ({
@@ -39,4 +41,17 @@ export const useItemsStore = create<ItemsState>()((set) => ({
         (item) => !(item.id === id && item.deletedAt !== null),
       ),
     })),
+  // Returns the new id, so the caller can select the item
+  addItem: (values) => {
+    const now = new Date().toISOString();
+    const item: Item = {
+      ...values,
+      id: crypto.randomUUID(),
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    };
+    set((state) => ({ items: [...state.items, item] }));
+    return item.id;
+  },
 }));

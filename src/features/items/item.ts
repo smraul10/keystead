@@ -8,4 +8,6 @@ export interface Item {
   favorite: boolean;
   createdAt: string;
   updatedAt: string;
+  // When the item was moved to the trash; null if it is not in the trash
+  deletedAt: string | null;
 }

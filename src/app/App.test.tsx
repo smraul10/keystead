@@ -45,6 +45,20 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows the trash when choosing its section', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Trash' }));
+
+    // Assert
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Trash' }),
+    ).toBeInTheDocument();
+  });
+
   it('marks the current section', async () => {
     // Arrange
     const user = userEvent.setup();

@@ -3,14 +3,12 @@ import { ItemDetails } from './components/ItemDetails';
 import { ItemList } from './components/ItemList';
 import { SearchField } from './components/SearchField';
 import { filterItems } from './filterItems';
-import type { Item } from './item';
+import { useItemsStore } from './itemsStore';
 import { sortItems } from './sortItems';
 
-interface ItemsViewProps {
-  items: readonly Item[];
-}
-
-export function ItemsView({ items }: ItemsViewProps) {
+export function ItemsView() {
+  const items = useItemsStore((state) => state.items);
+  const toggleFavorite = useItemsStore((state) => state.toggleFavorite);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const visibleItems = sortItems(filterItems(items, query));
@@ -33,7 +31,11 @@ export function ItemsView({ items }: ItemsViewProps) {
 
       <section className='flex-1 overflow-y-auto p-8'>
         {selected ? (
-          <ItemDetails key={selected.id} item={selected} />
+          <ItemDetails
+            key={selected.id}
+            item={selected}
+            onToggleFavorite={() => toggleFavorite(selected.id)}
+          />
         ) : (
           <p className='text-zinc-500'>Select an item</p>
         )}

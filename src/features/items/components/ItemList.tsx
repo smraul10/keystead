@@ -5,11 +5,17 @@ interface ItemListProps {
   items: readonly Item[];
   selectedId: string | null;
   onSelect: (id: string) => void;
+  emptyMessage: string;
 }
 
-export function ItemList({ items, selectedId, onSelect }: ItemListProps) {
+export function ItemList({
+  items,
+  selectedId,
+  onSelect,
+  emptyMessage,
+}: ItemListProps) {
   if (items.length === 0) {
-    return <p className='px-3 text-sm text-zinc-500'>No items yet</p>;
+    return <p className='px-3 text-sm text-zinc-500'>{emptyMessage}</p>;
   }
 
   return (

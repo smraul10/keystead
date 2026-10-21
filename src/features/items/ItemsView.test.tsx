@@ -84,4 +84,55 @@ describe('ItemsView', () => {
       screen.getByRole('button', { name: 'Show password' }),
     ).toHaveAttribute('aria-pressed', 'false');
   });
+
+  it('filters the list while typing', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ItemsView items={ITEMS} />);
+
+    // Act
+    await user.type(
+      screen.getByRole('searchbox', { name: 'Search items' }),
+      'git',
+    );
+
+    // Assert
+    const rows = within(
+      screen.getByRole('list', { name: 'Items' }),
+    ).getAllByRole('listitem');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveTextContent('GitHub');
+  });
+
+  it('shows a message when nothing matches', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ItemsView items={ITEMS} />);
+
+    // Act
+    await user.type(
+      screen.getByRole('searchbox', { name: 'Search items' }),
+      'zzz',
+    );
+
+    // Assert
+    expect(screen.getByText('No items match your search')).toBeInTheDocument();
+  });
+
+  it('shows every item again when the search is cleared', async () => {
+    // Arrange: filter the list first
+    const user = userEvent.setup();
+    render(<ItemsView items={ITEMS} />);
+    const search = screen.getByRole('searchbox', { name: 'Search items' });
+    await user.type(search, 'git');
+
+    // Act
+    await user.clear(search);
+
+    // Assert
+    const rows = within(
+      screen.getByRole('list', { name: 'Items' }),
+    ).getAllByRole('listitem');
+    expect(rows).toHaveLength(3);
+  });
 });

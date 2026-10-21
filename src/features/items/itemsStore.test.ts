@@ -1,6 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ItemFormValues } from './itemSchema';
 import { useItemsStore } from './itemsStore';
 import { makeItem } from './makeItem';
+
+const NEW_ITEM: ItemFormValues = {
+  title: 'Netflix',
+  username: 'raul@example.com',
+  password: 'B2+vk8})GFe^?g14}@',
+  url: 'https://www.netflix.com',
+  notes: '',
+  favorite: false,
+};
 
 describe('itemsStore', () => {
   // The store lives outside React and survives between tests: reset it
@@ -78,5 +88,29 @@ describe('itemsStore', () => {
     expect(useItemsStore.getState().items.map((item) => item.id)).toEqual([
       '2',
     ]);
+  });
+
+  it('adds a new item with the current date', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-22T10:00:00.000Z'));
+
+    const id = useItemsStore.getState().addItem(NEW_ITEM);
+
+    const items = useItemsStore.getState().items;
+    expect(items).toHaveLength(3);
+    expect(items.find((item) => item.id === id)).toEqual({
+      ...NEW_ITEM,
+      id,
+      createdAt: '2026-10-22T10:00:00.000Z',
+      updatedAt: '2026-10-22T10:00:00.000Z',
+      deletedAt: null,
+    });
+  });
+
+  it('gives every new item a different id', () => {
+    const first = useItemsStore.getState().addItem(NEW_ITEM);
+    const second = useItemsStore.getState().addItem(NEW_ITEM);
+
+    expect(first).not.toBe(second);
   });
 });

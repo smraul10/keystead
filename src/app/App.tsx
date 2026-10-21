@@ -10,13 +10,14 @@ export function App() {
     <div className='flex h-screen bg-white text-zinc-900'>
       <Sidebar current={section} onSelect={setSection} />
       <main className='flex-1 overflow-y-auto'>
-        {section === 'all' ? (
-          <ItemsView />
-        ) : (
+        {section === 'generator' ? (
           <div className='flex flex-col gap-6 p-8'>
             <h1 className='text-2xl font-bold'>Generator</h1>
             <PasswordGenerator />
           </div>
+        ) : (
+          // A new key per section: switching views clears selection and search
+          <ItemsView key={section} filter={section} />
         )}
       </main>
     </div>

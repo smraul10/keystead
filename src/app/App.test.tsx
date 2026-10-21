@@ -31,6 +31,20 @@ describe('App', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('shows the favorites when choosing their section', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Favorites' }));
+
+    // Assert
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Favorites' }),
+    ).toBeInTheDocument();
+  });
+
   it('marks the current section', async () => {
     // Arrange
     const user = userEvent.setup();

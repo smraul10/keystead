@@ -1,1 +1,1 @@
-export { ItemsView } from './ItemsView';
+export { ItemsView, type ItemFilter } from './ItemsView';

@@ -177,4 +177,35 @@ describe('ItemsView', () => {
       within(netflix).queryByRole('img', { name: 'Favorite' }),
     ).not.toBeInTheDocument();
   });
+
+  it('shows only favorites in the favorites view', () => {
+    // Arrange
+    useItemsStore.setState({
+      items: [
+        makeItem({ title: 'GitHub', favorite: true }),
+        makeItem({ title: 'Netflix' }),
+      ],
+    });
+
+    // Act
+    render(<ItemsView filter='favorites' />);
+
+    // Assert
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Favorites' }),
+    ).toBeInTheDocument();
+    const rows = within(
+      screen.getByRole('list', { name: 'Items' }),
+    ).getAllByRole('listitem');
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveTextContent('GitHub');
+  });
+
+  it('shows an empty state when there are no favorites', () => {
+    // Arrange: none of ITEMS is a favorite
+    render(<ItemsView filter='favorites' />);
+
+    // Assert
+    expect(screen.getByText('No favorites yet')).toBeInTheDocument();
+  });
 });

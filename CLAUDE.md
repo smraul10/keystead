@@ -46,7 +46,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Layout: three columns, like Bitwarden and 1Password: sidebar, item list (search, "+ New") and item details (copy buttons, Edit).
 - Sidebar: All items, Favorites, Trash and Generator, with Settings and Lock at the bottom. Each one is added when it works (no dead buttons).
 - Navigation is a state in `App`, with no router: a desktop app has no URLs.
-- Only login items for now (title, username, password, URL, notes). The word "item" is used both in the UI and in the code.
+- Only login items for now. An `Item` has `id`, `title`, `username`, `password`, `url`, `notes`, `favorite`, `createdAt` and `updatedAt`. Text fields are always strings (`''` when empty, never optional) and dates are ISO 8601 UTC strings (JSON-friendly and sortable as text). The word "item" is used both in the UI and in the code.
+- Items are listed by title as a person would sort them (`Intl.Collator`): case and accents are ignored and numbers sort naturally (`Server 2` before `Server 10`).
 - Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the item form, where a dice button (`Dices` icon) next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
 - The password regenerates live whenever an option changes; the "Regenerate" button gives a new one with the same options.
 - Generator options: lowercase, uppercase, digits, symbols (each toggleable), exclude ambiguous characters (`0 O 1 l I`), require at least one character of each enabled type, adjustable length (default 20, range 8–128).

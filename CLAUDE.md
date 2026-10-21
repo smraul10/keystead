@@ -47,6 +47,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Sidebar: All items, Favorites, Trash and Generator, with Settings and Lock at the bottom. Each one is added when it works (no dead buttons).
 - Navigation is a state in `App`, with no router: a desktop app has no URLs.
 - Only login items for now. An `Item` has `id`, `title`, `username`, `password`, `url`, `notes`, `favorite`, `createdAt` and `updatedAt`. Text fields are always strings (`''` when empty, never optional) and dates are ISO 8601 UTC strings (JSON-friendly and sortable as text). The word "item" is used both in the UI and in the code.
+- Item icons: the title's initial on a color derived from the title (no network). Later (phase 4), an optional "Download icon" button where Rust fetches the site's favicon on demand and stores it encrypted in the vault, like KeePassXC. Never ask a third-party icon server for logos (it would learn which sites the user has accounts on).
 - Items are listed by title as a person would sort them (`Intl.Collator`): case and accents are ignored and numbers sort naturally (`Server 2` before `Server 10`).
 - Password generator: random characters only for now (passphrases may come later, e.g. for the master password). One reusable `PasswordGenerator` component, used in two places: a standalone "Generator" section (copy the password) and the item form, where a dice button (`Dices` icon) next to the password field opens it in a dialog with a "Use password" button (like Bitwarden and KeePassXC).
 - The password regenerates live whenever an option changes; the "Regenerate" button gives a new one with the same options.
@@ -65,7 +66,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
    - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ✅
 2. UI with fake data: unlock, item list, search, create/edit, favorites, trash (Zustand, React Hook Form + Zod) ← current
 3. Rust crypto core: create/open/save vault, with `cargo test`
-4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests
+4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests, on-demand favicon download
 5. Auto-lock, clipboard clearing, strength meter
 6. Polish and packaging: dark mode, shortcuts, `.msi`, third-party licenses notice
 

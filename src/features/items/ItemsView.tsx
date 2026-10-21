@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ItemList } from './components/ItemList';
 import type { Item } from './item';
 import { sortItems } from './sortItems';
+import { ItemDetails } from './components/ItemDetails';
 
 interface ItemsViewProps {
   items: readonly Item[];
@@ -25,7 +26,7 @@ export function ItemsView({ items }: ItemsViewProps) {
 
       <section className='flex-1 overflow-y-auto p-8'>
         {selected ? (
-          <h2 className='text-2xl font-bold'>{selected.title}</h2>
+          <ItemDetails key={selected.id} item={selected} />
         ) : (
           <p className='text-zinc-500'>Select an item</p>
         )}

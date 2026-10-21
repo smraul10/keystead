@@ -1,25 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import type { Item } from './item';
 import { sortItems } from './sortItems';
-
-function makeItem(title: string): Item {
-  return {
-    id: title,
-    title,
-    username: '',
-    password: '',
-    url: '',
-    notes: '',
-    favorite: false,
-    createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z',
-  };
-}
+import { makeItem } from './makeItem';
 
 describe('sortItems', () => {
   it('sorts items by title', () => {
     // Arrange
-    const items = ['Netflix', 'Amazon', 'GitHub'].map(makeItem);
+    const items = ['Netflix', 'Amazon', 'GitHub'].map((title) =>
+      makeItem({ title }),
+    );
 
     // Act
     const sorted = sortItems(items);
@@ -34,7 +22,7 @@ describe('sortItems', () => {
 
   it('ignores letter case', () => {
     // Arrange
-    const items = ['GitHub', 'amazon'].map(makeItem);
+    const items = ['GitHub', 'amazon'].map((title) => makeItem({ title }));
 
     // Act
     const sorted = sortItems(items);
@@ -45,7 +33,7 @@ describe('sortItems', () => {
 
   it('sorts accented letters with their base letter', () => {
     // Arrange
-    const items = ['Zara', 'Éxito'].map(makeItem);
+    const items = ['Zara', 'Éxito'].map((title) => makeItem({ title }));
 
     // Act
     const sorted = sortItems(items);
@@ -56,7 +44,7 @@ describe('sortItems', () => {
 
   it('sorts numbers naturally', () => {
     // Arrange
-    const items = ['Server 10', 'Server 2'].map(makeItem);
+    const items = ['Server 10', 'Server 2'].map((title) => makeItem({ title }));
 
     // Act
     const sorted = sortItems(items);
@@ -67,7 +55,7 @@ describe('sortItems', () => {
 
   it('does not modify the original list', () => {
     // Arrange
-    const items = ['B', 'A'].map(makeItem);
+    const items = ['B', 'A'].map((title) => makeItem({ title }));
 
     // Act
     sortItems(items);

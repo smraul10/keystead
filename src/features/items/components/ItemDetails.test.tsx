@@ -50,11 +50,12 @@ describe('ItemDetails', () => {
   });
 
   it('hides empty fields', () => {
-    // Arrange: makeItem leaves username, url and notes empty
+    // Arrange: makeItem leaves username, password, url and notes empty
     renderDetails(makeItem({ title: 'Home Wi-Fi' }));
 
     // Assert
     expect(screen.queryByText('Username')).not.toBeInTheDocument();
+    expect(screen.queryByText('Password')).not.toBeInTheDocument();
     expect(screen.queryByText('Website')).not.toBeInTheDocument();
     expect(screen.queryByText('Notes')).not.toBeInTheDocument();
   });

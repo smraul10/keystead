@@ -11,6 +11,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: true,
     createdAt: '2026-03-14T10:12:00.000Z',
     updatedAt: '2026-09-02T18:40:00.000Z',
+    deletedAt: null,
   },
   {
     id: '2',
@@ -22,6 +23,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: true,
     createdAt: '2025-11-03T08:00:00.000Z',
     updatedAt: '2026-06-21T12:15:00.000Z',
+    deletedAt: null,
   },
   {
     id: '3',
@@ -33,6 +35,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2026-01-20T16:30:00.000Z',
     updatedAt: '2026-01-20T16:30:00.000Z',
+    deletedAt: null,
   },
   {
     id: '4',
@@ -44,6 +47,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2025-09-10T19:05:00.000Z',
     updatedAt: '2026-04-02T09:00:00.000Z',
+    deletedAt: null,
   },
   {
     id: '5',
@@ -55,6 +59,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2026-07-07T11:45:00.000Z',
     updatedAt: '2026-07-07T11:45:00.000Z',
+    deletedAt: null,
   },
   {
     id: '6',
@@ -66,6 +71,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2025-12-24T21:00:00.000Z',
     updatedAt: '2026-08-15T17:20:00.000Z',
+    deletedAt: null,
   },
   {
     id: '7',
@@ -77,6 +83,7 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2026-02-11T07:55:00.000Z',
     updatedAt: '2026-02-11T07:55:00.000Z',
+    deletedAt: null,
   },
   {
     id: '8',
@@ -88,5 +95,6 @@ export const FAKE_ITEMS: readonly Item[] = [
     favorite: false,
     createdAt: '2026-05-30T14:10:00.000Z',
     updatedAt: '2026-10-01T10:00:00.000Z',
+    deletedAt: null,
   },
 ];

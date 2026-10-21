@@ -1,3 +1,4 @@
+import { Star } from 'lucide-react';
 import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
 
@@ -30,7 +31,16 @@ export function ItemList({
           >
             <ItemAvatar title={item.title} />
             <div className='flex min-w-0 flex-col'>
-              <span className='truncate text-sm font-medium'>{item.title}</span>
+              <span className='flex items-center gap-1 text-sm font-medium'>
+                <span className='truncate'>{item.title}</span>
+                {item.favorite && (
+                  <Star
+                    role='img'
+                    aria-label='Favorite'
+                    className='size-3.5 shrink-0 fill-amber-400 text-amber-400'
+                  />
+                )}
+              </span>
               {item.username && (
                 <span className='truncate text-xs text-zinc-500'>
                   {item.username}

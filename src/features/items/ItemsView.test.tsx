@@ -154,4 +154,27 @@ describe('ItemsView', () => {
       'true',
     );
   });
+
+  it('marks favorites in the list', () => {
+    // Arrange
+    useItemsStore.setState({
+      items: [
+        makeItem({ title: 'GitHub', favorite: true }),
+        makeItem({ title: 'Netflix' }),
+      ],
+    });
+
+    // Act
+    render(<ItemsView />);
+
+    // Assert
+    const github = screen.getByRole('button', { name: /GitHub/ });
+    const netflix = screen.getByRole('button', { name: /Netflix/ });
+    expect(
+      within(github).getByRole('img', { name: 'Favorite' }),
+    ).toBeInTheDocument();
+    expect(
+      within(netflix).queryByRole('img', { name: 'Favorite' }),
+    ).not.toBeInTheDocument();
+  });
 });

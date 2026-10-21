@@ -53,6 +53,25 @@ describe('sortItems', () => {
     expect(sorted.map((item) => item.title)).toEqual(['Server 2', 'Server 10']);
   });
 
+  it('puts favorites first', () => {
+    // Arrange
+    const items = [
+      makeItem({ title: 'Amazon' }),
+      makeItem({ title: 'Netflix', favorite: true }),
+      makeItem({ title: 'GitHub', favorite: true }),
+    ];
+
+    // Act
+    const sorted = sortItems(items);
+
+    // Assert: favorites first, and each group still by title
+    expect(sorted.map((item) => item.title)).toEqual([
+      'GitHub',
+      'Netflix',
+      'Amazon',
+    ]);
+  });
+
   it('does not modify the original list', () => {
     // Arrange
     const items = ['B', 'A'].map((title) => makeItem({ title }));

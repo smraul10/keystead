@@ -1,8 +1,9 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ItemsView } from './ItemsView';
 import { makeItem } from './makeItem';
+import { useItemsStore } from './itemsStore';
 
 const ITEMS = [
   makeItem({ title: 'Netflix', username: 'raul@example.com' }),
@@ -11,9 +12,13 @@ const ITEMS = [
 ];
 
 describe('ItemsView', () => {
+  beforeEach(() => {
+    useItemsStore.setState({ items: ITEMS });
+  });
+
   it('lists the items sorted by title', () => {
     // Arrange
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
 
     // Assert
     const list = screen.getByRole('list', { name: 'Items' });
@@ -26,7 +31,7 @@ describe('ItemsView', () => {
 
   it('shows the username under each title', () => {
     // Arrange
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
 
     // Assert
     expect(screen.getByText('raul-dev')).toBeInTheDocument();
@@ -34,7 +39,8 @@ describe('ItemsView', () => {
 
   it('shows an empty state when there are no items', () => {
     // Arrange
-    render(<ItemsView items={[]} />);
+    useItemsStore.setState({ items: [] });
+    render(<ItemsView />);
 
     // Assert
     expect(screen.getByText('No items yet')).toBeInTheDocument();
@@ -43,7 +49,7 @@ describe('ItemsView', () => {
   it('selects an item when clicking it', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
     const button = screen.getByRole('button', { name: /GitHub/ });
 
     // Act
@@ -56,7 +62,7 @@ describe('ItemsView', () => {
   it('shows the selected item', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
     expect(screen.getByText('Select an item')).toBeInTheDocument();
 
     // Act
@@ -72,7 +78,7 @@ describe('ItemsView', () => {
   it('hides the password again when selecting another item', async () => {
     // Arrange: reveal GitHub's password
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
     await user.click(screen.getByRole('button', { name: /GitHub/ }));
     await user.click(screen.getByRole('button', { name: 'Show password' }));
 
@@ -88,7 +94,7 @@ describe('ItemsView', () => {
   it('filters the list while typing', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
 
     // Act
     await user.type(
@@ -107,7 +113,7 @@ describe('ItemsView', () => {
   it('shows a message when nothing matches', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
 
     // Act
     await user.type(
@@ -122,7 +128,7 @@ describe('ItemsView', () => {
   it('shows every item again when the search is cleared', async () => {
     // Arrange: filter the list first
     const user = userEvent.setup();
-    render(<ItemsView items={ITEMS} />);
+    render(<ItemsView />);
     const search = screen.getByRole('searchbox', { name: 'Search items' });
     await user.type(search, 'git');
 
@@ -134,5 +140,41 @@ describe('ItemsView', () => {
       screen.getByRole('list', { name: 'Items' }),
     ).getAllByRole('listitem');
     expect(rows).toHaveLength(3);
+  });
+
+  it('marks the selected item as favorite', async () => {
+    const user = userEvent.setup();
+    render(<ItemsView />);
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    await user.click(screen.getByRole('button', { name: 'Favorite' }));
+
+    expect(screen.getByRole('button', { name: 'Favorite' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('marks favorites in the list', () => {
+    // Arrange
+    useItemsStore.setState({
+      items: [
+        makeItem({ title: 'GitHub', favorite: true }),
+        makeItem({ title: 'Netflix' }),
+      ],
+    });
+
+    // Act
+    render(<ItemsView />);
+
+    // Assert
+    const github = screen.getByRole('button', { name: /GitHub/ });
+    const netflix = screen.getByRole('button', { name: /Netflix/ });
+    expect(
+      within(github).getByRole('img', { name: 'Favorite' }),
+    ).toBeInTheDocument();
+    expect(
+      within(netflix).queryByRole('img', { name: 'Favorite' }),
+    ).not.toBeInTheDocument();
   });
 });

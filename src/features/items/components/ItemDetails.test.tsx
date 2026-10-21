@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { makeItem } from '../makeItem';
 import { ItemDetails } from './ItemDetails';
+import type { Item } from '../item';
 
 const ITEM = makeItem({
   title: 'GitHub',
@@ -13,9 +14,15 @@ const ITEM = makeItem({
   updatedAt: '2026-09-02T18:40:00.000Z',
 });
 
+function renderDetails(item: Item = ITEM) {
+  const onToggleFavorite = vi.fn();
+  render(<ItemDetails item={item} onToggleFavorite={onToggleFavorite} />);
+  return { onToggleFavorite };
+}
+
 describe('ItemDetails', () => {
   it('shows the title as a heading', () => {
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     expect(
       screen.getByRole('heading', { level: 2, name: 'GitHub' }),
@@ -23,7 +30,7 @@ describe('ItemDetails', () => {
   });
 
   it('shows the username, website and notes', () => {
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     expect(screen.getByText('raul-dev')).toBeInTheDocument();
     expect(screen.getByText('https://github.com')).toBeInTheDocument();
@@ -34,7 +41,7 @@ describe('ItemDetails', () => {
 
   it('hides empty fields', () => {
     // Arrange: makeItem leaves username, url and notes empty
-    render(<ItemDetails item={makeItem({ title: 'Home Wi-Fi' })} />);
+    renderDetails(makeItem({ title: 'Home Wi-Fi' }));
 
     // Assert
     expect(screen.queryByText('Username')).not.toBeInTheDocument();
@@ -43,7 +50,7 @@ describe('ItemDetails', () => {
   });
 
   it('hides the password by default', () => {
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     expect(screen.queryByText(ITEM.password)).not.toBeInTheDocument();
     expect(
@@ -53,7 +60,7 @@ describe('ItemDetails', () => {
 
   it('shows the password when asked', async () => {
     const user = userEvent.setup();
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     await user.click(screen.getByRole('button', { name: 'Show password' }));
 
@@ -64,7 +71,7 @@ describe('ItemDetails', () => {
   });
 
   it('shows when the item was last edited', () => {
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     expect(screen.getByText('Last edited')).toBeInTheDocument();
     // The visible date depends on the system language: check the exact value
@@ -77,7 +84,7 @@ describe('ItemDetails', () => {
   it('copies the password without showing it', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     // Act
     await user.click(screen.getByRole('button', { name: 'Copy password' }));
@@ -90,12 +97,30 @@ describe('ItemDetails', () => {
   it('copies the username', async () => {
     // Arrange
     const user = userEvent.setup();
-    render(<ItemDetails item={ITEM} />);
+    renderDetails();
 
     // Act
     await user.click(screen.getByRole('button', { name: 'Copy username' }));
 
     // Assert
     expect(await navigator.clipboard.readText()).toBe(ITEM.username);
+  });
+
+  it('shows whether the item is a favorite', () => {
+    renderDetails(makeItem({ title: 'GitHub', favorite: true }));
+
+    expect(screen.getByRole('button', { name: 'Favorite' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+  });
+
+  it('asks to toggle the favorite when clicking the star', async () => {
+    const user = userEvent.setup();
+    const { onToggleFavorite } = renderDetails();
+
+    await user.click(screen.getByRole('button', { name: 'Favorite' }));
+
+    expect(onToggleFavorite).toHaveBeenCalledOnce();
   });
 });

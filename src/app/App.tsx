@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PasswordGenerator } from '@/features/generator';
-import { FAKE_ITEMS, ItemsView } from '@/features/items';
+import { ItemsView } from '@/features/items';
 import { Sidebar, type Section } from './Sidebar';
 
 export function App() {
@@ -11,7 +11,7 @@ export function App() {
       <Sidebar current={section} onSelect={setSection} />
       <main className='flex-1 overflow-y-auto'>
         {section === 'all' ? (
-          <ItemsView items={FAKE_ITEMS} />
+          <ItemsView />
         ) : (
           <div className='flex flex-col gap-6 p-8'>
             <h1 className='text-2xl font-bold'>Generator</h1>

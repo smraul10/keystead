@@ -5,6 +5,11 @@ const collator = new Intl.Collator(undefined, {
   numeric: true,
 });
 
+// Favorites first; within each group, by title
 export function sortItems(items: readonly Item[]): Item[] {
-  return [...items].sort((a, b) => collator.compare(a.title, b.title));
+  return [...items].sort(
+    (a, b) =>
+      Number(b.favorite) - Number(a.favorite) ||
+      collator.compare(a.title, b.title),
+  );
 }

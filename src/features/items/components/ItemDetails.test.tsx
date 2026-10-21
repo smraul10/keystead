@@ -14,10 +14,20 @@ const ITEM = makeItem({
   updatedAt: '2026-09-02T18:40:00.000Z',
 });
 
+const TRASHED = makeItem({
+  title: 'GitHub',
+  deletedAt: '2026-10-22T10:00:00.000Z',
+});
+
 function renderDetails(item: Item = ITEM) {
-  const onToggleFavorite = vi.fn();
-  render(<ItemDetails item={item} onToggleFavorite={onToggleFavorite} />);
-  return { onToggleFavorite };
+  const actions = {
+    onToggleFavorite: vi.fn(),
+    onMoveToTrash: vi.fn(),
+    onRestore: vi.fn(),
+    onDeleteForever: vi.fn(),
+  };
+  render(<ItemDetails item={item} {...actions} />);
+  return actions;
 }
 
 describe('ItemDetails', () => {
@@ -122,5 +132,76 @@ describe('ItemDetails', () => {
     await user.click(screen.getByRole('button', { name: 'Favorite' }));
 
     expect(onToggleFavorite).toHaveBeenCalledOnce();
+  });
+
+  it('asks to move the item to the trash', async () => {
+    const user = userEvent.setup();
+    const { onMoveToTrash } = renderDetails();
+
+    await user.click(screen.getByRole('button', { name: 'Move to trash' }));
+
+    expect(onMoveToTrash).toHaveBeenCalledOnce();
+  });
+
+  describe('in the trash', () => {
+    it('shows since when the item is in the trash', () => {
+      renderDetails(TRASHED);
+
+      expect(screen.getByText('In the trash since')).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: 'Move to trash' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('hides the favorite star', () => {
+      renderDetails(TRASHED);
+
+      expect(
+        screen.queryByRole('button', { name: 'Favorite' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('asks to restore the item', async () => {
+      const user = userEvent.setup();
+      const { onRestore } = renderDetails(TRASHED);
+
+      await user.click(screen.getByRole('button', { name: 'Restore' }));
+
+      expect(onRestore).toHaveBeenCalledOnce();
+    });
+
+    it('asks for confirmation before deleting forever', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { onDeleteForever } = renderDetails(TRASHED);
+
+      // Act + Assert: the first click only asks
+      await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+      expect(onDeleteForever).not.toHaveBeenCalled();
+      // The safe option gets the focus, so a stray Enter deletes nothing
+      expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+
+      // Act + Assert: confirming deletes
+      await user.click(
+        screen.getByRole('button', { name: 'Yes, delete forever' }),
+      );
+      expect(onDeleteForever).toHaveBeenCalledOnce();
+    });
+
+    it('cancels deleting forever', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      const { onDeleteForever } = renderDetails(TRASHED);
+      await user.click(screen.getByRole('button', { name: 'Delete forever' }));
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      // Assert: nothing deleted, back to the first step
+      expect(onDeleteForever).not.toHaveBeenCalled();
+      expect(
+        screen.getByRole('button', { name: 'Delete forever' }),
+      ).toBeInTheDocument();
+    });
   });
 });

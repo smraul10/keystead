@@ -3,19 +3,20 @@ import { ItemDetails } from './components/ItemDetails';
 import { ItemList } from './components/ItemList';
 import { SearchField } from './components/SearchField';
 import { filterItems } from './filterItems';
+import { type ItemFilter, itemsInView } from './itemsInView';
 import { useItemsStore } from './itemsStore';
 import { sortItems } from './sortItems';
-
-export type ItemFilter = 'all' | 'favorites';
 
 const TITLES: Record<ItemFilter, string> = {
   all: 'All items',
   favorites: 'Favorites',
+  trash: 'Trash',
 };
 
 const EMPTY_MESSAGES: Record<ItemFilter, string> = {
   all: 'No items yet',
   favorites: 'No favorites yet',
+  trash: 'The trash is empty',
 };
 
 interface ItemsViewProps {
@@ -25,13 +26,21 @@ interface ItemsViewProps {
 export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   const items = useItemsStore((state) => state.items);
   const toggleFavorite = useItemsStore((state) => state.toggleFavorite);
+  const moveToTrash = useItemsStore((state) => state.moveToTrash);
+  const restore = useItemsStore((state) => state.restore);
+  const deleteForever = useItemsStore((state) => state.deleteForever);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState('');
-  const itemsInView =
-    filter === 'favorites' ? items.filter((item) => item.favorite) : items;
-  const visibleItems = sortItems(filterItems(itemsInView, query));
+  const inView = itemsInView(items, filter);
+  const visibleItems = sortItems(filterItems(inView, query));
   // Search all items: the details stay open even if the item leaves the view
   const selected = items.find((item) => item.id === selectedId);
+
+  // After trashing, restoring or deleting, the item no longer belongs here
+  function runAndClose(action: (id: string) => void, id: string) {
+    action(id);
+    setSelectedId(null);
+  }
 
   return (
     <div className='flex h-full'>
@@ -43,7 +52,7 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
           selectedId={selectedId}
           onSelect={setSelectedId}
           emptyMessage={
-            itemsInView.length === 0
+            inView.length === 0
               ? EMPTY_MESSAGES[filter]
               : 'No items match your search'
           }
@@ -56,6 +65,9 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
             key={selected.id}
             item={selected}
             onToggleFavorite={() => toggleFavorite(selected.id)}
+            onMoveToTrash={() => runAndClose(moveToTrash, selected.id)}
+            onRestore={() => runAndClose(restore, selected.id)}
+            onDeleteForever={() => runAndClose(deleteForever, selected.id)}
           />
         ) : (
           <p className='text-zinc-500'>Select an item</p>

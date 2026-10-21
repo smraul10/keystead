@@ -208,4 +208,56 @@ describe('ItemsView', () => {
     // Assert
     expect(screen.getByText('No favorites yet')).toBeInTheDocument();
   });
+
+  it('moves the selected item to the trash', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    render(<ItemsView />);
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Move to trash' }));
+
+    // Assert: gone from the list, and the details are closed
+    expect(
+      screen.queryByRole('button', { name: /GitHub/ }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Select an item')).toBeInTheDocument();
+  });
+
+  it('shows trashed items in the trash', () => {
+    // Arrange
+    useItemsStore.setState({
+      items: [
+        makeItem({ title: 'GitHub', deletedAt: '2026-10-22T10:00:00.000Z' }),
+      ],
+    });
+
+    // Act
+    render(<ItemsView filter='trash' />);
+
+    // Assert
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Trash' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /GitHub/ })).toBeInTheDocument();
+  });
+
+  it('restores an item from the trash', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    useItemsStore.setState({
+      items: [
+        makeItem({ title: 'GitHub', deletedAt: '2026-10-22T10:00:00.000Z' }),
+      ],
+    });
+    render(<ItemsView filter='trash' />);
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Restore' }));
+
+    // Assert
+    expect(screen.getByText('The trash is empty')).toBeInTheDocument();
+  });
 });

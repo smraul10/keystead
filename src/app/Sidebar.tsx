@@ -1,4 +1,4 @@
-import { Dices, type LucideIcon, Star, Vault } from 'lucide-react';
+import { Dices, type LucideIcon, Star, Trash2, Vault } from 'lucide-react';
 import type { ItemFilter } from '@/features/items';
 
 export type Section = ItemFilter | 'generator';
@@ -6,6 +6,7 @@ export type Section = ItemFilter | 'generator';
 const SECTIONS: { id: Section; label: string; icon: LucideIcon }[] = [
   { id: 'all', label: 'All items', icon: Vault },
   { id: 'favorites', label: 'Favorites', icon: Star },
+  { id: 'trash', label: 'Trash', icon: Trash2 },
   { id: 'generator', label: 'Generator', icon: Dices },
 ];
 

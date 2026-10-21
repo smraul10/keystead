@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { generatePassword } from './generatePassword';
 import {
   DEFAULT_PASSWORD_OPTIONS,
@@ -14,6 +14,7 @@ import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';
 import { OptionsPanel } from './components/OptionsPanel';
 import { Check, Copy, RefreshCw } from 'lucide-react';
+import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 export function PasswordGenerator() {
   // Saved options can be anything (edited, corrupted, older version): validate them
@@ -25,31 +26,20 @@ export function PasswordGenerator() {
 
   const [password, setPassword] = useState(() => generatePassword(options));
 
-  const [copied, setCopied] = useState(false);
-
   const [turns, setTurns] = useState(0);
 
-  useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), 2000);
-    return () => clearTimeout(timer);
-  }, [copied]);
+  const { copied, copy, reset } = useCopyToClipboard();
 
   function updateOptions(next: PasswordOptions) {
     setStoredOptions(next);
     setPassword(generatePassword(next));
-    setCopied(false);
+    reset();
   }
 
   function regenerate() {
     setPassword(generatePassword(options));
-    setCopied(false);
+    reset();
     setTurns((current) => current + 1);
-  }
-
-  async function copyPassword() {
-    await navigator.clipboard.writeText(password);
-    setCopied(true);
   }
 
   const bits = getEntropy(options);
@@ -73,7 +63,7 @@ export function PasswordGenerator() {
             Regenerate
           </Button>
 
-          <Button onClick={copyPassword}>
+          <Button onClick={() => copy(password)}>
             {copied ? (
               <Check className='size-4' />
             ) : (

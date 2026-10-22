@@ -42,3 +42,33 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  rust:
+    name: Rust format, lint and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src-tauri
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # The runner comes with rustup: install the stable toolchain explicitly
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+
+      # Formatting doesn't compile anything, so it can check the whole workspace
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      # Only the vault crate: the Tauri app needs system libraries and the
+      # built frontend to compile, the vault crate doesn't
+      - name: Lint
+        run: cargo clippy -p keystead-vault --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test -p keystead-vault --locked

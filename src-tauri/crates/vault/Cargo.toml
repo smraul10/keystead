@@ -1,0 +1,19 @@
+[package]
+name = "keystead-vault"
+version = "0.1.0"
+description = "Keystead's encrypted vault: key derivation, encryption and the vault file"
+edition = "2024"
+# Only used by the Keystead app, never published to crates.io
+publish = false
+
+[dependencies]
+
+[lints.rust]
+# The crypto core never needs unsafe code: forbid it, so it can't sneak in
+unsafe_code = "forbid"
+
+[lints.clippy]
+# A panic in the vault code could lose the user's data: return errors instead
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"

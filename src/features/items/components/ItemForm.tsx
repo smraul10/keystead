@@ -4,6 +4,7 @@ import { type ReactNode, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
+import { IconButton } from '@/components/IconButton';
 import { type ItemFormValues, itemSchema } from '../itemSchema';
 import { GeneratorDialog } from './GeneratorDialog';
 
@@ -119,27 +120,23 @@ export function ItemForm({
               {...errorProps('password')}
               className={`${INPUT} font-mono`}
             />
-            <button
-              type='button'
-              aria-label='Show password'
+            <IconButton
+              label='Show password'
               aria-pressed={revealed}
               onClick={() => setRevealed((current) => !current)}
-              className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
             >
               {revealed ? (
                 <EyeOff className='size-4' />
               ) : (
                 <Eye className='size-4' />
               )}
-            </button>
-            <button
-              type='button'
-              aria-label='Generate password'
+            </IconButton>
+            <IconButton
+              label='Generate password'
               onClick={() => setGeneratorOpen(true)}
-              className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
             >
               <Dices className='size-4' />
-            </button>
+            </IconButton>
           </div>
         </Field>
 
@@ -177,12 +174,9 @@ export function ItemForm({
         />
 
         <div className='flex gap-2'>
-          <button
-            type='submit'
-            className='cursor-pointer rounded-lg bg-emerald-600 px-4 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 motion-safe:active:scale-95'
-          >
+          <Button variant='primary' type='submit'>
             Save
-          </button>
+          </Button>
           <Button onClick={onCancel}>Cancel</Button>
         </div>
       </form>

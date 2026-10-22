@@ -1,5 +1,6 @@
 import { Plus } from 'lucide-react';
 import { type ReactElement, useState } from 'react';
+import { IconButton } from '@/components/IconButton';
 import { ItemDetails } from './components/ItemDetails';
 import { ItemForm } from './components/ItemForm';
 import { ItemList } from './components/ItemList';
@@ -153,16 +154,14 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
         <div className='flex items-center justify-between gap-2 px-3'>
           <h1 className='text-xl font-bold'>{TITLES[filter]}</h1>
           {filter !== 'trash' && (
-            <button
-              type='button'
-              aria-label='New item'
+            <IconButton
+              label='New item'
               onClick={() =>
                 setPanel({ kind: 'new', returnTo: highlightedId(panel) })
               }
-              className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
             >
               <Plus className='size-5' />
-            </button>
+            </IconButton>
           )}
         </div>
         <SearchField value={query} onChange={setQuery} />

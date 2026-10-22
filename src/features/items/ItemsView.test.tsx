@@ -340,4 +340,53 @@ describe('ItemsView', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe('editing an item', () => {
+    it('edits the selected item', async () => {
+      // Arrange: open GitHub's form
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+      await user.click(screen.getByRole('button', { name: 'Edit' }));
+      const title = screen.getByLabelText('Title');
+      expect(title).toHaveValue('GitHub');
+
+      // Act
+      await user.clear(title);
+      await user.type(title, 'GitHub Enterprise');
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+
+      // Assert: back to the details, with the new title in the list too
+      expect(
+        await screen.findByRole('heading', {
+          level: 2,
+          name: 'GitHub Enterprise',
+        }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /GitHub Enterprise/ }),
+      ).toHaveAttribute('aria-current', 'true');
+    });
+
+    it('cancels editing without changes', async () => {
+      // Arrange: open the form and change the title
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+      await user.click(screen.getByRole('button', { name: 'Edit' }));
+      await user.clear(screen.getByLabelText('Title'));
+      await user.type(screen.getByLabelText('Title'), 'Changed');
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      // Assert: the details show the original title
+      expect(
+        screen.getByRole('heading', { level: 2, name: 'GitHub' }),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /Changed/ }),
+      ).not.toBeInTheDocument();
+    });
+  });
 });

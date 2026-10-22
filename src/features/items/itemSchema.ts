@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { Item } from './item';
 
 // Rules for the item form. Only the title is required: an item can be just a
 // note, or a username without a password (like Bitwarden and KeePassXC).
@@ -28,3 +29,15 @@ export const EMPTY_ITEM_VALUES: ItemFormValues = {
   notes: '',
   favorite: false,
 };
+
+// What the form shows when editing an item: only the fields the user can change
+export function toFormValues(item: Item): ItemFormValues {
+  return {
+    title: item.title,
+    username: item.username,
+    password: item.password,
+    url: item.url,
+    notes: item.notes,
+    favorite: item.favorite,
+  };
+}

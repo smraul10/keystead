@@ -107,6 +107,30 @@ describe('itemsStore', () => {
     });
   });
 
+  it('updates an item and its edit date', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-22T10:00:00.000Z'));
+
+    useItemsStore.getState().updateItem('1', NEW_ITEM);
+
+    // id, creation date and trash state are kept; everything else changes
+    expect(useItemsStore.getState().items[0]).toEqual({
+      ...NEW_ITEM,
+      id: '1',
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-10-22T10:00:00.000Z',
+      deletedAt: null,
+    });
+  });
+
+  it('leaves the other items untouched when updating one', () => {
+    const gmail = useItemsStore.getState().items[1];
+
+    useItemsStore.getState().updateItem('1', NEW_ITEM);
+
+    expect(useItemsStore.getState().items[1]).toBe(gmail);
+  });
+
   it('gives every new item a different id', () => {
     const first = useItemsStore.getState().addItem(NEW_ITEM);
     const second = useItemsStore.getState().addItem(NEW_ITEM);

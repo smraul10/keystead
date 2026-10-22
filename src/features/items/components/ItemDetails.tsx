@@ -1,4 +1,4 @@
-import { Eye, EyeOff, RotateCcw, Star, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Pencil, RotateCcw, Star, Trash2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
@@ -29,6 +29,7 @@ function Field({ label, children }: FieldProps) {
 
 interface ItemDetailsProps {
   item: Item;
+  onEdit: () => void;
   onToggleFavorite: () => void;
   onMoveToTrash: () => void;
   onRestore: () => void;
@@ -37,6 +38,7 @@ interface ItemDetailsProps {
 
 export function ItemDetails({
   item,
+  onEdit,
   onToggleFavorite,
   onMoveToTrash,
   onRestore,
@@ -52,22 +54,33 @@ export function ItemDetails({
         <h2 className='min-w-0 flex-1 text-2xl font-bold wrap-break-word'>
           {item.title}
         </h2>
+        {/* Trashed items can't be edited or marked until they are restored */}
         {item.deletedAt === null && (
-          <button
-            type='button'
-            aria-label='Favorite'
-            aria-pressed={item.favorite}
-            onClick={onToggleFavorite}
-            className='cursor-pointer rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900'
-          >
-            <Star
-              className={
-                item.favorite
-                  ? 'size-5 fill-amber-400 text-amber-400'
-                  : 'size-5'
-              }
-            />
-          </button>
+          <div className='flex items-center gap-1'>
+            <button
+              type='button'
+              aria-label='Edit'
+              onClick={onEdit}
+              className='cursor-pointer rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900'
+            >
+              <Pencil className='size-5' />
+            </button>
+            <button
+              type='button'
+              aria-label='Favorite'
+              aria-pressed={item.favorite}
+              onClick={onToggleFavorite}
+              className='cursor-pointer rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900'
+            >
+              <Star
+                className={
+                  item.favorite
+                    ? 'size-5 fill-amber-400 text-amber-400'
+                    : 'size-5'
+                }
+              />
+            </button>
+          </div>
         )}
       </div>
 

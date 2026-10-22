@@ -22,6 +22,32 @@ const EMPTY_MESSAGES: Record<ItemFilter, string> = {
   trash: 'The trash is empty',
 };
 
+// What the details column shows. A single state for every case, so impossible
+// combinations (like creating and showing details at once) can't happen
+type Panel =
+  | { kind: 'empty' }
+  | { kind: 'details'; id: string }
+  // `returnTo`: the item to show again if the user cancels
+  | { kind: 'new'; returnTo: string | null };
+
+const EMPTY_PANEL: Panel = { kind: 'empty' };
+
+function detailsOrEmpty(id: string | null): Panel {
+  return id === null ? EMPTY_PANEL : { kind: 'details', id };
+}
+
+// The item highlighted in the list while each panel is open
+function highlightedId(panel: Panel): string | null {
+  switch (panel.kind) {
+    case 'empty':
+      return null;
+    case 'details':
+      return panel.id;
+    case 'new':
+      return panel.returnTo;
+  }
+}
+
 interface ItemsViewProps {
   filter?: ItemFilter;
 }
@@ -33,27 +59,60 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   const restore = useItemsStore((state) => state.restore);
   const deleteForever = useItemsStore((state) => state.deleteForever);
   const addItem = useItemsStore((state) => state.addItem);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [panel, setPanel] = useState<Panel>(EMPTY_PANEL);
   const [query, setQuery] = useState('');
   const inView = itemsInView(items, filter);
   const visibleItems = sortItems(filterItems(inView, query));
-  // Search all items: the details stay open even if the item leaves the view
-  const selected = items.find((item) => item.id === selectedId);
 
   // After trashing, restoring or deleting, the item no longer belongs here
   function runAndClose(action: (id: string) => void, id: string) {
     action(id);
-    setSelectedId(null);
+    setPanel(EMPTY_PANEL);
   }
 
   function select(id: string) {
-    setSelectedId(id);
-    setCreating(false);
+    setPanel({ kind: 'details', id });
   }
 
   function create(values: ItemFormValues) {
     select(addItem(values));
+  }
+
+  function renderPanel() {
+    switch (panel.kind) {
+      case 'empty':
+        return <p className='text-zinc-500'>Select an item</p>;
+      case 'new':
+        return (
+          <ItemForm
+            heading='New item'
+            // Created from Favorites, an item starts as a favorite
+            defaultValues={{
+              ...EMPTY_ITEM_VALUES,
+              favorite: filter === 'favorites',
+            }}
+            onSubmit={create}
+            onCancel={() => setPanel(detailsOrEmpty(panel.returnTo))}
+          />
+        );
+      case 'details': {
+        // Search all items: the details stay open even if the item leaves the view
+        const item = items.find((candidate) => candidate.id === panel.id);
+        if (item === undefined) {
+          return <p className='text-zinc-500'>Select an item</p>;
+        }
+        return (
+          <ItemDetails
+            key={item.id}
+            item={item}
+            onToggleFavorite={() => toggleFavorite(item.id)}
+            onMoveToTrash={() => runAndClose(moveToTrash, item.id)}
+            onRestore={() => runAndClose(restore, item.id)}
+            onDeleteForever={() => runAndClose(deleteForever, item.id)}
+          />
+        );
+      }
+    }
   }
 
   return (
@@ -65,7 +124,9 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
             <button
               type='button'
               aria-label='New item'
-              onClick={() => setCreating(true)}
+              onClick={() =>
+                setPanel({ kind: 'new', returnTo: highlightedId(panel) })
+              }
               className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
             >
               <Plus className='size-5' />
@@ -75,7 +136,7 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
         <SearchField value={query} onChange={setQuery} />
         <ItemList
           items={visibleItems}
-          selectedId={selectedId}
+          selectedId={highlightedId(panel)}
           onSelect={select}
           emptyMessage={
             inView.length === 0
@@ -85,31 +146,7 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
         />
       </section>
 
-      <section className='flex-1 overflow-y-auto p-8'>
-        {creating ? (
-          <ItemForm
-            heading='New item'
-            // Created from Favorites, an item starts as a favorite
-            defaultValues={{
-              ...EMPTY_ITEM_VALUES,
-              favorite: filter === 'favorites',
-            }}
-            onSubmit={create}
-            onCancel={() => setCreating(false)}
-          />
-        ) : selected ? (
-          <ItemDetails
-            key={selected.id}
-            item={selected}
-            onToggleFavorite={() => toggleFavorite(selected.id)}
-            onMoveToTrash={() => runAndClose(moveToTrash, selected.id)}
-            onRestore={() => runAndClose(restore, selected.id)}
-            onDeleteForever={() => runAndClose(deleteForever, selected.id)}
-          />
-        ) : (
-          <p className='text-zinc-500'>Select an item</p>
-        )}
-      </section>
+      <section className='flex-1 overflow-y-auto p-8'>{renderPanel()}</section>
     </div>
   );
 }

@@ -1,4 +1,11 @@
-import { Dices, type LucideIcon, Star, Trash2, Vault } from 'lucide-react';
+import {
+  Dices,
+  Lock,
+  type LucideIcon,
+  Star,
+  Trash2,
+  Vault,
+} from 'lucide-react';
 import type { ItemFilter } from '@/features/items';
 
 export type Section = ItemFilter | 'generator';
@@ -10,16 +17,22 @@ const SECTIONS: { id: Section; label: string; icon: LucideIcon }[] = [
   { id: 'generator', label: 'Generator', icon: Dices },
 ];
 
+// The sidebar rows share one look: a full-width row, highlighted when current
+const ROW =
+  'flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 aria-[current=page]:bg-zinc-200 aria-[current=page]:text-zinc-900';
+
 interface SidebarProps {
   current: Section;
   onSelect: (section: Section) => void;
+  onLock: () => void;
 }
 
-export function Sidebar({ current, onSelect }: SidebarProps) {
+export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
   return (
     <div className='flex w-56 shrink-0 flex-col gap-6 border-r border-zinc-200 bg-zinc-50 p-4'>
       <p className='px-3 text-lg font-bold'>Keystead</p>
-      <nav aria-label='Sections'>
+      {/* flex-1 pushes the Lock button to the bottom */}
+      <nav aria-label='Sections' className='flex-1'>
         <ul className='flex flex-col gap-1'>
           {SECTIONS.map(({ id, label, icon: Icon }) => (
             <li key={id}>
@@ -27,7 +40,7 @@ export function Sidebar({ current, onSelect }: SidebarProps) {
                 type='button'
                 onClick={() => onSelect(id)}
                 aria-current={current === id ? 'page' : undefined}
-                className='flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 aria-[current=page]:bg-zinc-200 aria-[current=page]:text-zinc-900'
+                className={ROW}
               >
                 <Icon className='size-4' />
                 {label}
@@ -36,6 +49,12 @@ export function Sidebar({ current, onSelect }: SidebarProps) {
           ))}
         </ul>
       </nav>
+      <div className='border-t border-zinc-200 pt-4'>
+        <button type='button' onClick={onLock} className={ROW}>
+          <Lock className='size-4' />
+          Lock
+        </button>
+      </div>
     </div>
   );
 }

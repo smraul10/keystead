@@ -19,6 +19,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - No external network requests from the UI: fonts and assets are bundled with the app (Fontsource, no CDNs or Google Fonts). Check a dependency's license before adding it (`pnpm licenses list`).
 - UI components are written by hand with Tailwind (no shadcn/ui or component libraries). Prefer native HTML elements (`button`, `input`, `dialog`) for built-in accessibility.
 - Buttons: always `Button` (variants `primary`, `secondary` by default, `danger`, `danger-subtle`) or `IconButton` (its required `label` becomes the `aria-label`); never a `<button>` with hand-written classes, except the selectable rows of the sidebar and the item list. Neither accepts `className`, so all buttons look the same: the parent decides width and position (wrap a button in a `<div>` to keep it as wide as its text). `type` is `'button'` unless `'submit'` is asked for.
+- Password fields: always `PasswordInput`, with the show/hide eye (and any extra `actions`, like the generator's dice) inside the field. It works with `register()` directly; whether it is revealed is controlled by the parent.
 - Icons: Lucide (`lucide-react`, ISC). Import each icon by name (only those are bundled), size it with Tailwind (`size-4`) and let it inherit the text color. Lucide adds `aria-hidden` when the icon has no `aria-label` or `title`, so icons next to text need nothing else; an icon-only button needs its own `aria-label`.
 - UI rules: never remove the focus indicator (global `:focus-visible` ring in `index.css`); every animation uses `motion-safe:` / `motion-reduce:`; space with `gap` and `padding` rather than margins; write Tailwind class names in full (never build them from pieces); icon-only content is `aria-hidden` and every control has an accessible name.
 - Forms use React Hook Form + Zod: the Zod schema is the single source of the rules and of the type (`z.infer`). Native inputs use `register`; controlled components like `Checkbox` use `Controller`. Each error is linked to its field with `aria-invalid` + `aria-describedby`.
@@ -28,7 +29,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 ## Project structure
 
 - `src/app/`: the app shell. `App` shows `UnlockScreen` or `MainScreen` (sidebar + current section), so locking unmounts the whole vault UI.
-- `src/components/`: shared UI components (`Button`, `IconButton`, `CopyButton`, `Checkbox`).
+- `src/components/`: shared UI components (`Button`, `IconButton`, `CopyButton`, `Checkbox`, `PasswordInput`).
 - `src/hooks/`: shared hooks (`useLocalStorage`).
 - `src/features/<name>/`: one folder per feature (e.g. `generator`) with its main component, its logic and their tests. UI pieces used only by that feature go in its `components/` folder.
 - Each feature exposes its public API through `index.ts`. The rest of the app imports it only from there (`@/features/generator`); ESLint blocks deep imports like `@/features/generator/options`.

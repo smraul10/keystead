@@ -1,10 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Eye, EyeOff, LockKeyhole } from 'lucide-react';
+import { LockKeyhole } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/Button';
-import { IconButton } from '@/components/IconButton';
+import { PasswordInput } from '@/components/PasswordInput';
 import { DEMO_MASTER_PASSWORD, useLockStore } from './lockStore';
 
 const unlockSchema = z.object({
@@ -62,30 +62,16 @@ export function UnlockScreen() {
           >
             Master password
           </label>
-          <div className='flex items-center gap-2'>
-            <input
-              id={`${id}-password`}
-              type={revealed ? 'text' : 'password'}
-              autoFocus
-              autoComplete='current-password'
-              spellCheck={false}
-              {...register('masterPassword')}
-              aria-invalid={error ? true : undefined}
-              aria-describedby={error ? `${id}-error` : undefined}
-              className='w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 font-mono text-sm aria-invalid:border-rose-600'
-            />
-            <IconButton
-              label='Show password'
-              aria-pressed={revealed}
-              onClick={() => setRevealed((current) => !current)}
-            >
-              {revealed ? (
-                <EyeOff className='size-4' />
-              ) : (
-                <Eye className='size-4' />
-              )}
-            </IconButton>
-          </div>
+          <PasswordInput
+            id={`${id}-password`}
+            autoFocus
+            autoComplete='current-password'
+            {...register('masterPassword')}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? `${id}-error` : undefined}
+            revealed={revealed}
+            onRevealedChange={setRevealed}
+          />
           {error && (
             <p id={`${id}-error`} className='text-sm text-rose-700'>
               {error}

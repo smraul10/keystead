@@ -1,18 +1,35 @@
-import type { ReactNode } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
-interface ButtonProps {
-  children: ReactNode;
-  onClick: () => void;
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'danger-subtle';
+
+const VARIANTS: Record<ButtonVariant, string> = {
+  primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
+  secondary: 'bg-zinc-100 hover:bg-zinc-200',
+  danger: 'bg-rose-600 text-white hover:bg-rose-700',
+  'danger-subtle': 'text-rose-700 hover:bg-rose-50',
+};
+
+// Accepts every attribute of a <button> except className: buttons always
+// look the same, and the parent decides their width and position
+interface ButtonProps extends Omit<
+  ComponentPropsWithoutRef<'button'>,
+  'className' | 'type'
+> {
+  variant?: ButtonVariant;
+  // 'button' by default, so a button never submits a form by accident
+  type?: 'button' | 'submit';
 }
 
-export function Button({ children, onClick }: ButtonProps) {
+export function Button({
+  variant = 'secondary',
+  type = 'button',
+  ...props
+}: ButtonProps) {
   return (
     <button
-      type='button'
-      onClick={onClick}
-      className='flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-zinc-100 px-3 py-1.5 text-sm font-medium transition hover:bg-zinc-200 motion-safe:active:scale-95'
-    >
-      {children}
-    </button>
+      type={type}
+      {...props}
+      className={`inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition motion-safe:active:scale-95 ${VARIANTS[variant]}`}
+    />
   );
 }

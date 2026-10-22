@@ -24,4 +24,32 @@ describe('Button', () => {
     // Assert
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
   });
+
+  it('never submits a form unless asked', () => {
+    render(<Button>Cancel</Button>);
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveAttribute(
+      'type',
+      'button',
+    );
+  });
+
+  it('can submit a form', () => {
+    render(
+      <Button variant='primary' type='submit'>
+        Save
+      </Button>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute(
+      'type',
+      'submit',
+    );
+  });
+
+  it('passes other button attributes through', () => {
+    render(<Button autoFocus>Cancel</Button>);
+
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+  });
 });

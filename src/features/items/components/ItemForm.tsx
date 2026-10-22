@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dices, Eye, EyeOff } from 'lucide-react';
+import { Dices } from 'lucide-react';
 import { type ReactNode, useId, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
 import { IconButton } from '@/components/IconButton';
+import { PasswordInput } from '@/components/PasswordInput';
 import { type ItemFormValues, itemSchema } from '../itemSchema';
 import { GeneratorDialog } from './GeneratorDialog';
 
@@ -110,34 +111,22 @@ export function ItemForm({
           label='Password'
           error={errors.password?.message}
         >
-          <div className='flex items-center gap-2'>
-            <input
-              id={`${id}-password`}
-              type={revealed ? 'text' : 'password'}
-              autoComplete='new-password'
-              spellCheck={false}
-              {...register('password')}
-              {...errorProps('password')}
-              className={`${INPUT} font-mono`}
-            />
-            <IconButton
-              label='Show password'
-              aria-pressed={revealed}
-              onClick={() => setRevealed((current) => !current)}
-            >
-              {revealed ? (
-                <EyeOff className='size-4' />
-              ) : (
-                <Eye className='size-4' />
-              )}
-            </IconButton>
-            <IconButton
-              label='Generate password'
-              onClick={() => setGeneratorOpen(true)}
-            >
-              <Dices className='size-4' />
-            </IconButton>
-          </div>
+          <PasswordInput
+            id={`${id}-password`}
+            autoComplete='new-password'
+            {...register('password')}
+            {...errorProps('password')}
+            revealed={revealed}
+            onRevealedChange={setRevealed}
+            actions={
+              <IconButton
+                label='Generate password'
+                onClick={() => setGeneratorOpen(true)}
+              >
+                <Dices className='size-4' />
+              </IconButton>
+            }
+          />
         </Field>
 
         <Field id={`${id}-url`} label='Website' error={errors.url?.message}>

@@ -16,7 +16,12 @@ import { OptionsPanel } from './components/OptionsPanel';
 import { Check, Copy, RefreshCw } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
-export function PasswordGenerator() {
+interface PasswordGeneratorProps {
+  // Given inside the item form: shows a "Use password" button
+  onUse?: (password: string) => void;
+}
+
+export function PasswordGenerator({ onUse }: PasswordGeneratorProps) {
   // Saved options can be anything (edited, corrupted, older version): validate them
   const [storedOptions, setStoredOptions] = useLocalStorage<unknown>(
     'generator.options',
@@ -72,6 +77,16 @@ export function PasswordGenerator() {
             {copied ? 'Copied' : 'Copy'}
           </Button>
         </div>
+
+        {onUse && (
+          <button
+            type='button'
+            onClick={() => onUse(password)}
+            className='cursor-pointer rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 motion-safe:active:scale-95'
+          >
+            Use password
+          </button>
+        )}
       </div>
 
       <LengthControl

@@ -21,6 +21,7 @@ const TRASHED = makeItem({
 
 function renderDetails(item: Item = ITEM) {
   const actions = {
+    onEdit: vi.fn(),
     onToggleFavorite: vi.fn(),
     onMoveToTrash: vi.fn(),
     onRestore: vi.fn(),
@@ -135,6 +136,15 @@ describe('ItemDetails', () => {
     expect(onToggleFavorite).toHaveBeenCalledOnce();
   });
 
+  it('asks to edit the item', async () => {
+    const user = userEvent.setup();
+    const { onEdit } = renderDetails();
+
+    await user.click(screen.getByRole('button', { name: 'Edit' }));
+
+    expect(onEdit).toHaveBeenCalledOnce();
+  });
+
   it('asks to move the item to the trash', async () => {
     const user = userEvent.setup();
     const { onMoveToTrash } = renderDetails();
@@ -159,6 +169,14 @@ describe('ItemDetails', () => {
 
       expect(
         screen.queryByRole('button', { name: 'Favorite' }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('cannot be edited until restored', () => {
+      renderDetails(TRASHED);
+
+      expect(
+        screen.queryByRole('button', { name: 'Edit' }),
       ).not.toBeInTheDocument();
     });
 

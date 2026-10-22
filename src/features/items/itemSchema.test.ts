@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { type ItemFormValues, itemSchema } from './itemSchema';
+import { type ItemFormValues, itemSchema, toFormValues } from './itemSchema';
+import { makeItem } from './makeItem';
 
 const VALID: ItemFormValues = {
   title: 'GitHub',
@@ -67,5 +68,13 @@ describe('itemSchema', () => {
     const values = { ...VALID, password: ' secret ' };
 
     expect(itemSchema.parse(values).password).toBe(' secret ');
+  });
+});
+
+describe('toFormValues', () => {
+  it('takes only the form fields from an item', () => {
+    const item = makeItem({ ...VALID, id: '1', deletedAt: null });
+
+    expect(toFormValues(item)).toEqual(VALID);
   });
 });

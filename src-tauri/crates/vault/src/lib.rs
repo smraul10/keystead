@@ -3,6 +3,10 @@
 //! This crate doesn't depend on Tauri or the UI, so it can be tested on its
 //! own (`cargo test -p keystead-vault`) and stays small enough to review.
 
+mod model;
+
+pub use model::{Item, Vault};
+
 /// The first bytes of every vault file, to recognize it before reading more.
 pub const MAGIC: [u8; 4] = *b"KSTD";
 

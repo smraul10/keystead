@@ -10,6 +10,7 @@ interface ItemsState {
   restore: (id: string) => void;
   deleteForever: (id: string) => void;
   addItem: (values: ItemFormValues) => string;
+  updateItem: (id: string, values: ItemFormValues) => void;
 }
 
 export const useItemsStore = create<ItemsState>()((set) => ({
@@ -54,4 +55,13 @@ export const useItemsStore = create<ItemsState>()((set) => ({
     set((state) => ({ items: [...state.items, item] }));
     return item.id;
   },
+  // Keeps the id, the creation date and the trash state
+  updateItem: (id, values) =>
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === id
+          ? { ...item, ...values, updatedAt: new Date().toISOString() }
+          : item,
+      ),
+    })),
 }));

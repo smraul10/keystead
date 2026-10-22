@@ -35,6 +35,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Each feature exposes its public API through `index.ts`. The rest of the app imports it only from there (`@/features/generator`); ESLint blocks deep imports like `@/features/generator/options`.
 - `@/` is an alias for `src/`: use it to import from another folder (`@/components/Button`). Inside a feature, use relative imports (`./options`, `../styles`).
 - Tests sit next to the file they test (`options.ts` → `options.test.ts`).
+- `src-tauri/`: a Cargo workspace. The root crate (`keystead`) is the Tauri app; `src-tauri/crates/vault/` (`keystead-vault`) is the crypto core: key derivation, encryption and the vault file. It doesn't depend on Tauri or the UI, so it builds and tests in seconds anywhere and stays small enough to review. Its lints forbid `unsafe` and warn on `unwrap`, `expect` and `panic` outside tests (a panic could lose data: return errors instead); CI runs clippy with `-D warnings`.
 - `src/test/setup.ts`: shared test setup (jest-dom matchers, cleanup, and a minimal `<dialog>` stand-in, because jsdom doesn't implement `showModal()` yet).
 
 ## Security architecture (target)
@@ -84,3 +85,5 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 - `pnpm tauri dev` — run the app
 - `pnpm build` — type-check and build the frontend
+- `pnpm test:rust` — run the vault crate tests (`cargo test -p keystead-vault`)
+- `cargo clippy -p keystead-vault --all-targets -- -D warnings` (from `src-tauri/`) — lint the vault crate like CI does

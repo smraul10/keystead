@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { EMPTY_ITEM_VALUES, type ItemFormValues } from '../itemSchema';
@@ -106,5 +106,51 @@ describe('ItemForm', () => {
     // Assert
     expect(onCancel).toHaveBeenCalledOnce();
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  describe('password generator', () => {
+    it('fills the password from the generator', async () => {
+      // Arrange: open the generator and read the password it shows
+      const user = userEvent.setup();
+      renderForm();
+      await user.click(
+        screen.getByRole('button', { name: 'Generate password' }),
+      );
+      const dialog = screen.getByRole('dialog', { name: 'Generate password' });
+      const generated =
+        within(dialog).getByRole('status', { name: 'Generated password' })
+          .textContent ?? '';
+
+      // Act
+      await user.click(
+        within(dialog).getByRole('button', { name: 'Use password' }),
+      );
+
+      // Assert: the dialog is closed and the password is in the field, shown
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      const password = screen.getByLabelText('Password');
+      expect(password).toHaveValue(generated);
+      expect(password).toHaveAttribute('type', 'text');
+    });
+
+    it('closes the generator without changing the password', async () => {
+      // Arrange
+      const user = userEvent.setup();
+      renderForm({ ...EMPTY_ITEM_VALUES, password: 'old-password' });
+      await user.click(
+        screen.getByRole('button', { name: 'Generate password' }),
+      );
+
+      // Act
+      await user.click(
+        within(screen.getByRole('dialog')).getByRole('button', {
+          name: 'Close',
+        }),
+      );
+
+      // Assert
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByLabelText('Password')).toHaveValue('old-password');
+    });
   });
 });

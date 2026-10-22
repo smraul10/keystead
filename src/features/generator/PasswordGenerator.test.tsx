@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PasswordGenerator } from './PasswordGenerator';
 import { DEFAULT_PASSWORD_OPTIONS } from './options';
 
@@ -330,6 +330,29 @@ describe('PasswordGenerator', () => {
 
       // Assert
       expect(getPassword()).toHaveLength(20);
+    });
+  });
+
+  describe('use password', () => {
+    it('hands over the shown password when asked', async () => {
+      // Arrange: inside the item form, the generator gets an onUse callback
+      const user = userEvent.setup();
+      const onUse = vi.fn();
+      render(<PasswordGenerator onUse={onUse} />);
+
+      // Act
+      await user.click(screen.getByRole('button', { name: 'Use password' }));
+
+      // Assert
+      expect(onUse).toHaveBeenCalledWith(getPassword());
+    });
+
+    it('is not offered in the standalone generator', () => {
+      render(<PasswordGenerator />);
+
+      expect(
+        screen.queryByRole('button', { name: 'Use password' }),
+      ).not.toBeInTheDocument();
     });
   });
 });

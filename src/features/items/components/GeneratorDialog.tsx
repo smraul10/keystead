@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useId, useRef } from 'react';
+import { IconButton } from '@/components/IconButton';
 import { PasswordGenerator } from '@/features/generator';
 
 interface GeneratorDialogProps {
@@ -40,14 +41,9 @@ export function GeneratorDialog({ onUse, onClose }: GeneratorDialogProps) {
           <h2 id={titleId} className='text-lg font-bold'>
             Generate password
           </h2>
-          <button
-            type='button'
-            aria-label='Close'
-            onClick={close}
-            className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-200 hover:text-zinc-900'
-          >
+          <IconButton label='Close' onClick={close}>
             <X className='size-5' />
-          </button>
+          </IconButton>
         </div>
         <PasswordGenerator
           onUse={(password) => {

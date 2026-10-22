@@ -79,13 +79,9 @@ export function PasswordGenerator({ onUse }: PasswordGeneratorProps) {
         </div>
 
         {onUse && (
-          <button
-            type='button'
-            onClick={() => onUse(password)}
-            className='cursor-pointer rounded-lg bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-emerald-700 motion-safe:active:scale-95'
-          >
+          <Button variant='primary' onClick={() => onUse(password)}>
             Use password
-          </button>
+          </Button>
         )}
       </div>
 

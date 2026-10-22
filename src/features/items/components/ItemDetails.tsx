@@ -4,6 +4,7 @@ import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
 import { Button } from '@/components/Button';
 import { CopyButton } from '@/components/CopyButton';
+import { IconButton } from '@/components/IconButton';
 
 // Always the same number of dots, so the password length is not revealed
 const PASSWORD_MASK = '••••••••';
@@ -57,20 +58,13 @@ export function ItemDetails({
         {/* Trashed items can't be edited or marked until they are restored */}
         {item.deletedAt === null && (
           <div className='flex items-center gap-1'>
-            <button
-              type='button'
-              aria-label='Edit'
-              onClick={onEdit}
-              className='cursor-pointer rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900'
-            >
+            <IconButton label='Edit' onClick={onEdit}>
               <Pencil className='size-5' />
-            </button>
-            <button
-              type='button'
-              aria-label='Favorite'
+            </IconButton>
+            <IconButton
+              label='Favorite'
               aria-pressed={item.favorite}
               onClick={onToggleFavorite}
-              className='cursor-pointer rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-900'
             >
               <Star
                 className={
@@ -79,13 +73,13 @@ export function ItemDetails({
                     : 'size-5'
                 }
               />
-            </button>
+            </IconButton>
           </div>
         )}
       </div>
 
       {item.deletedAt !== null && (
-        <div className='flex flex-col gap-3 rounded-lg bg-zinc-100 p-4 text-sm'>
+        <div className='flex flex-col gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm'>
           <p className='flex gap-1 text-zinc-600'>
             <span>In the trash since</span>
             <time dateTime={item.deletedAt}>
@@ -98,22 +92,13 @@ export function ItemDetails({
                 Delete forever? This can't be undone.
               </p>
               <div className='flex gap-2'>
-                <button
-                  type='button'
-                  onClick={onDeleteForever}
-                  className='cursor-pointer rounded-lg bg-rose-600 px-3 py-1.5 font-medium text-white transition hover:bg-rose-700 motion-safe:active:scale-95'
-                >
+                <Button variant='danger' onClick={onDeleteForever}>
                   Yes, delete forever
-                </button>
+                </Button>
                 {/* The safe option gets the focus, so a stray Enter deletes nothing */}
-                <button
-                  type='button'
-                  autoFocus
-                  onClick={() => setConfirmingDelete(false)}
-                  className='cursor-pointer rounded-lg bg-white px-3 py-1.5 font-medium transition hover:bg-zinc-200 motion-safe:active:scale-95'
-                >
+                <Button autoFocus onClick={() => setConfirmingDelete(false)}>
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           ) : (
@@ -122,14 +107,13 @@ export function ItemDetails({
                 <RotateCcw className='size-4' />
                 Restore
               </Button>
-              <button
-                type='button'
+              <Button
+                variant='danger-subtle'
                 onClick={() => setConfirmingDelete(true)}
-                className='flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 font-medium text-rose-700 transition hover:bg-rose-50 motion-safe:active:scale-95'
               >
                 <Trash2 className='size-4' />
                 Delete forever
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -150,19 +134,17 @@ export function ItemDetails({
               <span className='font-mono break-all'>
                 {revealed ? item.password : PASSWORD_MASK}
               </span>
-              <button
-                type='button'
-                aria-label='Show password'
+              <IconButton
+                label='Show password'
                 aria-pressed={revealed}
                 onClick={() => setRevealed((current) => !current)}
-                className='cursor-pointer rounded-md p-1 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
               >
                 {revealed ? (
                   <EyeOff className='size-4' />
                 ) : (
                   <Eye className='size-4' />
                 )}
-              </button>
+              </IconButton>
               <CopyButton text={item.password} label='Copy password' />
             </div>
           </Field>
@@ -183,14 +165,13 @@ export function ItemDetails({
       </p>
 
       {item.deletedAt === null && (
-        <button
-          type='button'
-          onClick={onMoveToTrash}
-          className='flex cursor-pointer items-center gap-1.5 self-start rounded-lg px-3 py-1.5 text-sm font-medium text-rose-700 transition hover:bg-rose-50 motion-safe:active:scale-95'
-        >
-          <Trash2 className='size-4' />
-          Move to trash
-        </button>
+        // The wrapper keeps the button as wide as its text
+        <div>
+          <Button variant='danger-subtle' onClick={onMoveToTrash}>
+            <Trash2 className='size-4' />
+            Move to trash
+          </Button>
+        </div>
       )}
     </div>
   );

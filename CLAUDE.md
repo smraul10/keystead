@@ -42,6 +42,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 
 - The master key lives only in Rust memory (zeroized on lock) and never crosses IPC to the webview.
 - KDF: Argon2id. Encryption: XChaCha20-Poly1305 (RustCrypto crates). No custom crypto.
+- Key derivation (`keystead-vault`, `kdf.rs`): Argon2id v1.3 with RFC 9106's second recommended parameters (64 MiB, 3 passes, 4 lanes; about 0.1 s), a 16-byte salt from the OS's secure random generator, and a 32-byte key in `Zeroizing` (wiped when dropped; Argon2's working memory is wiped too). Each vault stores its own parameters, so they can be raised later. A known-answer test checks the derivation against Node's independent Argon2 implementation: changing the derivation would lock users out of existing vaults.
 - Vault file: authenticated header (format version, KDF params, salt, nonce) + ciphertext. Atomic writes.
 - Strict CSP in `tauri.conf.json`: only bundled resources (`'self'`), and the UI can only talk to Rust (`connect-src ipc: http://ipc.localhost`). Never loosen it for convenience. On desktop, `pnpm tauri dev` does not apply the CSP: test it with `pnpm tauri build --debug --no-bundle`.
 - Least privilege: no unused plugins, commands or capability permissions.

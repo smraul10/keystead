@@ -12,6 +12,8 @@ jobs:
   checks:
     name: Lint, typecheck and test
     runs-on: ubuntu-latest
+    # Fail instead of waiting for hours if something gets stuck
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -46,6 +48,7 @@ jobs:
   rust:
     name: Rust format, lint and test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: src-tauri
@@ -76,6 +79,8 @@ jobs:
   rust-app:
     name: Rust app lint and test
     runs-on: ubuntu-latest
+    # Compiling Tauri without a cache takes several minutes
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: src-tauri
@@ -85,11 +90,27 @@ jobs:
         with:
           persist-credentials: false
 
-      # What Tauri needs to compile on Linux (WebKitGTK and friends)
+      # Ubuntu's mirrors are sometimes very slow (once 30 minutes for 40 MB):
+      # keep the downloaded packages in GitHub's cache instead. Bump the
+      # version in the key when the list of packages changes
+      - name: Cache system packages
+        uses: actions/cache@v6
+        with:
+          path: ~/apt-archives
+          key: apt-${{ runner.os }}-tauri-v1
+
+      # What Tauri needs to compile on Linux (WebKitGTK and friends), without
+      # the "recommended" extras. Packages already in the cache aren't downloaded
       - name: Install system libraries
         run: |
+          mkdir -p ~/apt-archives/partial
           sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev
+          sudo apt-get install -y --no-install-recommends \
+            -o Dir::Cache::Archives="$HOME/apt-archives" \
+            -o APT::Keep-Downloaded-Packages=true \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev
+          # apt runs as root: give the files back, so the cache can save them
+          sudo chown -R "$USER" ~/apt-archives
 
       - name: Install Rust
         run: |

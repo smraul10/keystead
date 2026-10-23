@@ -2,6 +2,7 @@
 //! `AppState`, where the logic lives and is tested; each one also needs its
 //! own permission (see `build.rs` and `capabilities/default.json`).
 
+use keystead_vault::Item;
 use tauri::State;
 use zeroize::Zeroizing;
 
@@ -26,6 +27,25 @@ pub async fn create_vault(
     // Wiped from memory as soon as this command ends
     let master_password = Zeroizing::new(master_password);
     state.create(&master_password)
+}
+
+/// Opens the vault with this master password and keeps it unlocked.
+///
+/// `async` like `create_vault`: Argon2 runs outside the main thread.
+#[tauri::command]
+pub async fn unlock_vault(
+    state: State<'_, AppState>,
+    master_password: String,
+) -> Result<(), CommandError> {
+    // Wiped from memory as soon as this command ends
+    let master_password = Zeroizing::new(master_password);
+    state.unlock(&master_password)
+}
+
+/// The items in the unlocked vault.
+#[tauri::command]
+pub fn vault_items(state: State<'_, AppState>) -> Result<Vec<Item>, CommandError> {
+    state.items()
 }
 
 /// Locks the vault: wipes its key and its items from memory.

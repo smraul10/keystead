@@ -1,10 +1,7 @@
 import { create } from 'zustand';
 // `api.createVault` reads as "ask Rust", next to the store's own createVault
 import * as api from '@/api';
-
-// Until the next PR: unlocking still opens the demo vault with a fixed
-// master password, shown on the unlock screen. Then unlock() will ask Rust.
-export const DEMO_MASTER_PASSWORD = 'keystead';
+import { useItemsStore } from '@/features/items';
 
 // What the app shows: Rust's VaultStatus, or 'checking' while waiting for
 // it to say, at launch, whether there is a vault to create or to unlock
@@ -15,32 +12,43 @@ interface LockState {
   // These ask Rust and throw a CommandFailedError if it fails
   checkStatus: () => Promise<void>;
   createVault: (masterPassword: string) => Promise<void>;
-  // Async on purpose: in the next PR it will ask Rust, which takes a moment
-  // (Argon2 is slow by design), and the unlock screen won't need to change
-  unlock: (masterPassword: string) => Promise<boolean>;
+  unlock: (masterPassword: string) => Promise<void>;
   lock: () => Promise<void>;
 }
 
-export const useLockStore = create<LockState>()((set) => ({
-  status: 'checking',
-  checkStatus: async () => {
-    set({ status: await api.getVaultStatus() });
-  },
-  // A new vault is left unlocked, like in other password managers
-  createVault: async (masterPassword) => {
-    await api.createVault(masterPassword);
+export const useLockStore = create<LockState>()((set) => {
+  // Every way into the vault ends here: load its items, then show them
+  async function showVault() {
+    useItemsStore.getState().loadItems(await api.getVaultItems());
     set({ status: 'unlocked' });
-  },
-  unlock: (masterPassword) => {
-    const correct = masterPassword === DEMO_MASTER_PASSWORD;
-    if (correct) {
-      set({ status: 'unlocked' });
-    }
-    return Promise.resolve(correct);
-  },
-  lock: () => {
-    // Hide the vault at once, without waiting for Rust to wipe it
-    set({ status: 'locked' });
-    return api.lockVault();
-  },
-}));
+  }
+
+  return {
+    status: 'checking',
+    checkStatus: async () => {
+      const status = await api.getVaultStatus();
+      if (status === 'unlocked') {
+        // The window was reloaded while the vault was open in Rust
+        await showVault();
+      } else {
+        set({ status });
+      }
+    },
+    // A new vault is left unlocked, like in other password managers
+    createVault: async (masterPassword) => {
+      await api.createVault(masterPassword);
+      await showVault();
+    },
+    unlock: async (masterPassword) => {
+      await api.unlockVault(masterPassword);
+      await showVault();
+    },
+    lock: () => {
+      // Hide the vault and forget its items at once, without waiting for
+      // Rust to wipe them too
+      set({ status: 'locked' });
+      useItemsStore.getState().clearItems();
+      return api.lockVault();
+    },
+  };
+});

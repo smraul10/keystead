@@ -85,6 +85,10 @@ describe('CreateVaultScreen', () => {
         received = args;
         return null;
       }
+      // A new vault has no items
+      if (command === 'vault_items') {
+        return [];
+      }
     });
     render(<CreateVaultScreen />);
 

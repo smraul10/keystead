@@ -1,11 +1,34 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DEMO_MASTER_PASSWORD, useLockStore } from './lockStore';
+import type { Item } from '@/api';
+import { useItemsStore } from '@/features/items';
+import { useLockStore } from './lockStore';
+
+const PASSWORD = 'correct horse battery staple';
+
+const GITHUB: Item = {
+  id: '1',
+  title: 'GitHub',
+  username: 'raul-dev',
+  password: 'b,YjHm4^9aBBNC[zP]GD',
+  url: 'https://github.com',
+  notes: '',
+  favorite: true,
+  createdAt: '2026-03-14T10:12:00.000Z',
+  updatedAt: '2026-09-02T18:40:00.000Z',
+  deletedAt: null,
+};
+
+// What Rust answers to each command (any other one fails)
+function rustAnswers(answers: Record<string, unknown>) {
+  mockIPC((command) => answers[command]);
+}
 
 describe('lockStore', () => {
-  // The store lives outside React and survives between tests: reset it
+  // The stores live outside React and survive between tests: reset them
   beforeEach(() => {
     useLockStore.setState(useLockStore.getInitialState());
+    useItemsStore.setState(useItemsStore.getInitialState());
   });
 
   it('waits for Rust before showing anything', () => {
@@ -13,22 +36,32 @@ describe('lockStore', () => {
   });
 
   it('asks Rust whether there is a vault', async () => {
-    mockIPC((command) =>
-      command === 'vault_status' ? 'notCreated' : undefined,
-    );
+    rustAnswers({ vault_status: 'notCreated' });
 
     await useLockStore.getState().checkStatus();
 
     expect(useLockStore.getState().status).toBe('notCreated');
   });
 
+  it('shows the items of a vault that is still open in Rust', async () => {
+    // Arrange: the window was reloaded while the vault was unlocked
+    rustAnswers({ vault_status: 'unlocked', vault_items: [GITHUB] });
+
+    // Act
+    await useLockStore.getState().checkStatus();
+
+    // Assert
+    expect(useLockStore.getState().status).toBe('unlocked');
+    expect(useItemsStore.getState().items).toEqual([GITHUB]);
+  });
+
   it('opens the vault it creates', async () => {
     // Arrange
     useLockStore.setState({ status: 'notCreated' });
-    mockIPC(() => null);
+    rustAnswers({ create_vault: null, vault_items: [] });
 
     // Act
-    await useLockStore.getState().createVault('correct horse battery staple');
+    await useLockStore.getState().createVault(PASSWORD);
 
     // Assert
     expect(useLockStore.getState().status).toBe('unlocked');
@@ -40,9 +73,7 @@ describe('lockStore', () => {
     mockIPC(() => Promise.reject({ kind: 'storage' }));
 
     // Act
-    const creating = useLockStore
-      .getState()
-      .createVault('correct horse battery staple');
+    const creating = useLockStore.getState().createVault(PASSWORD);
 
     // Assert: the caller gets the error, to show it
     await expect(creating).rejects.toMatchObject({
@@ -51,27 +82,39 @@ describe('lockStore', () => {
     expect(useLockStore.getState().status).toBe('notCreated');
   });
 
-  it('unlocks with the right master password', async () => {
+  it('unlocks the vault and loads its items', async () => {
+    // Arrange
     useLockStore.setState({ status: 'locked' });
+    rustAnswers({ unlock_vault: null, vault_items: [GITHUB] });
 
-    const unlocked = await useLockStore.getState().unlock(DEMO_MASTER_PASSWORD);
+    // Act
+    await useLockStore.getState().unlock(PASSWORD);
 
-    expect(unlocked).toBe(true);
+    // Assert
     expect(useLockStore.getState().status).toBe('unlocked');
+    expect(useItemsStore.getState().items).toEqual([GITHUB]);
   });
 
   it('stays locked with a wrong master password', async () => {
+    // Arrange
     useLockStore.setState({ status: 'locked' });
+    mockIPC(() => Promise.reject({ kind: 'wrongPassword' }));
 
-    const unlocked = await useLockStore.getState().unlock('wrong');
+    // Act
+    const unlocking = useLockStore.getState().unlock('wrong');
 
-    expect(unlocked).toBe(false);
+    // Assert
+    await expect(unlocking).rejects.toMatchObject({
+      error: { kind: 'wrongPassword' },
+    });
     expect(useLockStore.getState().status).toBe('locked');
+    expect(useItemsStore.getState().items).toEqual([]);
   });
 
-  it('hides the vault at once and asks Rust to lock it', async () => {
+  it('hides the vault and its items at once, and asks Rust to lock it', async () => {
     // Arrange
     useLockStore.setState({ status: 'unlocked' });
+    useItemsStore.setState({ items: [GITHUB] });
     const commands: string[] = [];
     mockIPC((command) => {
       commands.push(command);
@@ -81,8 +124,9 @@ describe('lockStore', () => {
     // Act
     const locking = useLockStore.getState().lock();
 
-    // Assert: the UI doesn't wait for Rust to hide the vault
+    // Assert: the UI doesn't wait for Rust to forget the vault
     expect(useLockStore.getState().status).toBe('locked');
+    expect(useItemsStore.getState().items).toEqual([]);
     await locking;
     expect(commands).toEqual(['lock_vault']);
   });

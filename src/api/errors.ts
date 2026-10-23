@@ -8,6 +8,7 @@ const commandErrorSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('newerVersion'), version: z.number().int() }),
   z.object({ kind: z.literal('notFound') }),
   z.object({ kind: z.literal('alreadyExists') }),
+  z.object({ kind: z.literal('locked') }),
   z.object({ kind: z.literal('storage') }),
   z.object({ kind: z.literal('internal') }),
 ]);
@@ -59,6 +60,8 @@ export function errorMessage(error: CommandError): string {
       return 'No vault was found';
     case 'alreadyExists':
       return 'A vault already exists';
+    case 'locked':
+      return 'The vault is locked';
     case 'storage':
       return "The vault couldn't be read or saved. Check the disk and its permissions";
     case 'internal':

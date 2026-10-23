@@ -1,13 +1,3 @@
-export interface Item {
-  id: string;
-  title: string;
-  username: string;
-  password: string;
-  url: string;
-  notes: string;
-  favorite: boolean;
-  createdAt: string;
-  updatedAt: string;
-  // When the item was moved to the trash; null if it is not in the trash
-  deletedAt: string | null;
-}
+// Defined by the bridge to Rust (src/api/item.ts), which checks every item
+// Rust sends against it
+export type { Item } from '@/api';

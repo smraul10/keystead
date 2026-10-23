@@ -27,6 +27,24 @@ describe('itemsStore', () => {
     vi.useRealTimers();
   });
 
+  it('starts empty, until a vault is unlocked', () => {
+    expect(useItemsStore.getInitialState().items).toEqual([]);
+  });
+
+  it('loads the items of the unlocked vault', () => {
+    const items = [makeItem({ id: '3', title: 'Netflix' })];
+
+    useItemsStore.getState().loadItems(items);
+
+    expect(useItemsStore.getState().items).toEqual(items);
+  });
+
+  it('forgets every item', () => {
+    useItemsStore.getState().clearItems();
+
+    expect(useItemsStore.getState().items).toEqual([]);
+  });
+
   it('marks an item as favorite', () => {
     useItemsStore.getState().toggleFavorite('1');
 

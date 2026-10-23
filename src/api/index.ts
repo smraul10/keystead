@@ -1,5 +1,6 @@
 export {
   createVault,
+  downloadIcon,
   getVaultItems,
   getVaultStatus,
   lockVault,

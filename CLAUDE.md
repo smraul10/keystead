@@ -46,6 +46,7 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 - Encryption (`keystead-vault`, `cipher.rs`): XChaCha20-Poly1305 with a new random 24-byte nonce on every save and the file header as associated data (not encrypted, but authenticated: changing it, e.g. lowering the KDF params, makes decryption fail). Decryption checks the tag before decrypting and returns a single error, "wrong master password, or the vault file is damaged" (the two can't be told apart). The decrypted bytes are `Zeroizing`. The official test vector of draft-irtf-cfrg-xchacha-03 (A.3.1) is a test.
 - Vault file (`.kstd`, `format.rs`): a 58-byte header in clear (magic `KSTD`, format version, Argon2 params, salt, nonce; little endian, layout documented in the code) followed by the encrypted JSON vault and its tag; the header is the associated data. Before deriving the key, opening rejects other magic bytes, other format versions and Argon2 params above 1 GiB, 10 passes or 16 lanes (they are read before the tag can be checked, and absurd values could hang the app). `tests/fixtures/v1.kstd` is a vault saved with format 1 and opened by a test: never regenerate it; a new format version adds its own fixture, and old ones must keep opening. `.gitattributes` marks `*.kstd` as binary.
 - Files on disk (`file.rs`): `UnlockedVault::create` / `open` / `save`. An `UnlockedVault` keeps the vault and the derived key (never exposed, wiped when dropped: locking = dropping it), so saving doesn't run Argon2 again. Saves are atomic: write a temporary file in the same folder, `sync_all`, then rename it over the vault (`tempfile`), plus syncing the folder on Unix; a crash leaves the old file or the new one, never half of it. `create` never replaces an existing file.
+- Secrets in memory (`keystead-vault`): `Item` and `Vault` derive `Zeroize` + `ZeroizeOnDrop` (every field is wiped when dropped, i.e. on lock), the key is `Zeroizing`, and the JSON is written into a buffer of the exact size (a growing buffer leaves unwiped copies behind; a test checks capacity == length). Types that hold secrets have a hand-written `Debug` that prints `<redacted>` (`Item`'s password and notes, `UnlockedVault`'s key); never derive `Debug` on them. Known limits: the OS may swap memory to disk, serde's parsing scratch space isn't wiped, and in phase 4 the master password `String` received from the UI must be wiped after use.
 - Strict CSP in `tauri.conf.json`: only bundled resources (`'self'`), and the UI can only talk to Rust (`connect-src ipc: http://ipc.localhost`). Never loosen it for convenience. On desktop, `pnpm tauri dev` does not apply the CSP: test it with `pnpm tauri build --debug --no-bundle`.
 - Least privilege: no unused plugins, commands or capability permissions.
 - Locking must leave no vault data in the webview: today it unmounts the vault UI; in phase 4 it must also clear the decrypted items from the items store.
@@ -79,8 +80,8 @@ Local-first desktop password manager (KeePass-style). Tauri 2 + React 19 + TypeS
 1. Password generator (TDD) ✅
    - Tauri setup before phase 2: remember window size/position (`tauri-plugin-window-state`), strict CSP ✅
 2. UI with fake data: unlock, item list, search, create/edit, favorites, trash (Zustand, React Hook Form + Zod) ✅
-3. Rust crypto core: create/open/save vault, with `cargo test` ← current
-4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests, on-demand favicon download
+3. Rust crypto core: create/open/save vault, with `cargo test` ✅
+4. Wire UI to Rust: Tauri commands, typed errors, `mockIPC` in tests, on-demand favicon download ← current
 5. Auto-lock, clipboard clearing, strength meter
 6. Polish and packaging: dark mode, shortcuts, `.msi`, third-party licenses notice
 

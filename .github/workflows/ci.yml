@@ -79,8 +79,9 @@ jobs:
   rust-app:
     name: Rust app lint and test
     runs-on: ubuntu-latest
-    # Compiling Tauri without a cache takes several minutes
-    timeout-minutes: 20
+    # Without caches, compiling Tauri takes minutes and downloading the system
+    # libraries from a slow mirror has taken up to 30
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: src-tauri
@@ -93,8 +94,9 @@ jobs:
       # Ubuntu's mirrors are sometimes very slow (once 30 minutes for 40 MB):
       # keep the downloaded packages in GitHub's cache instead. Bump the
       # version in the key when the list of packages changes
-      - name: Cache system packages
-        uses: actions/cache@v6
+      - name: Restore system packages
+        id: apt-cache
+        uses: actions/cache/restore@v6
         with:
           path: ~/apt-archives
           key: apt-${{ runner.os }}-tauri-v1
@@ -111,6 +113,15 @@ jobs:
             libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev libxdo-dev libssl-dev
           # apt runs as root: give the files back, so the cache can save them
           sudo chown -R "$USER" ~/apt-archives
+
+      # Saved right away instead of at the end of the job (which only happens
+      # if the job passes): a slow download is never lost to a failing test
+      - name: Save system packages
+        if: steps.apt-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/apt-archives
+          key: ${{ steps.apt-cache.outputs.cache-primary-key }}
 
       - name: Install Rust
         run: |

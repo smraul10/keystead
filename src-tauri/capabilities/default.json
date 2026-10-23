@@ -9,6 +9,7 @@
     "allow-create-vault",
     "allow-unlock-vault",
     "allow-vault-items",
+    "allow-save-vault",
     "allow-lock-vault"
   ]
 }

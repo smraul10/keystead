@@ -31,6 +31,7 @@ pub fn run() {
             commands::create_vault,
             commands::unlock_vault,
             commands::vault_items,
+            commands::save_vault,
             commands::lock_vault,
         ])
         .run(tauri::generate_context!())

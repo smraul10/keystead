@@ -98,6 +98,21 @@ impl AppState {
         Ok(unlocked.vault().items.clone())
     }
 
+    /// Replaces the items of the unlocked vault and saves it to its file.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CommandError::Locked`] if the vault isn't unlocked, or
+    /// [`CommandError::Storage`] if the file can't be written.
+    pub fn save(&self, items: Vec<Item>) -> Result<(), CommandError> {
+        let mut vault = self.vault.lock().map_err(|_| CommandError::Internal)?;
+        let unlocked = vault.as_mut().ok_or(CommandError::Locked)?;
+        // The old items are dropped here, and so wiped from memory
+        unlocked.vault_mut().items = items;
+        unlocked.save(&self.path)?;
+        Ok(())
+    }
+
     /// Locks the vault: drops it, which wipes the key and the items.
     pub fn lock(&self) {
         // Locking must always work, even if a command panicked while using
@@ -276,6 +291,31 @@ mod tests {
         let result = state.unlock("correct horse battery staple");
 
         assert_eq!(result, Err(CommandError::NotFound));
+    }
+
+    #[test]
+    fn saving_writes_the_items_to_the_file() {
+        let folder = folder();
+        let state = locked_vault_with_an_item(&folder);
+        state.unlock("correct horse battery staple").unwrap();
+        let mut gitlab = github();
+        gitlab.id = "2".to_string();
+        gitlab.title = "GitLab".to_string();
+
+        state.save(vec![github(), gitlab.clone()]).unwrap();
+
+        // Opened again from the file, as after restarting the app
+        let reopened = AppState::new(state.path.clone());
+        reopened.unlock("correct horse battery staple").unwrap();
+        assert_eq!(reopened.items().unwrap(), vec![github(), gitlab]);
+    }
+
+    #[test]
+    fn a_locked_vault_cannot_be_saved() {
+        let folder = folder();
+        let state = locked_vault_with_an_item(&folder);
+
+        assert_eq!(state.save(Vec::new()), Err(CommandError::Locked));
     }
 
     #[test]

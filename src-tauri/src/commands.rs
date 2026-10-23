@@ -48,6 +48,14 @@ pub fn vault_items(state: State<'_, AppState>) -> Result<Vec<Item>, CommandError
     state.items()
 }
 
+/// Replaces the items of the unlocked vault and saves it to its file.
+///
+/// `async` so encrypting and writing the file happen outside the main thread.
+#[tauri::command]
+pub async fn save_vault(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), CommandError> {
+    state.save(items)
+}
+
 /// Locks the vault: wipes its key and its items from memory.
 #[tauri::command]
 pub fn lock_vault(state: State<'_, AppState>) {

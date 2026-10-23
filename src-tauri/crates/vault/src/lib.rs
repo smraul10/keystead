@@ -5,12 +5,14 @@
 
 mod cipher;
 mod error;
+mod file;
 mod format;
 mod kdf;
 mod model;
 
 pub use cipher::{NONCE_LEN, Nonce, TAG_LEN, decrypt, encrypt, random_nonce};
 pub use error::Error;
+pub use file::UnlockedVault;
 pub use format::{
     FORMAT_VERSION, HEADER_LEN, Header, MAGIC, MAX_ITERATIONS, MAX_MEMORY_KIB, MAX_PARALLELISM,
     Unsealed, decode_header, encode_header, seal, unseal,

@@ -34,4 +34,24 @@ pub enum Error {
 
     #[error("the vault file is damaged")]
     InvalidFile,
+
+    #[error("the vault file was not found")]
+    NotFound,
+
+    // Creating a vault never replaces an existing file
+    #[error("a file already exists there")]
+    AlreadyExists,
+
+    #[error("the vault file could not be read or written")]
+    Io(#[source] std::io::Error),
+}
+
+impl From<std::io::Error> for Error {
+    fn from(error: std::io::Error) -> Self {
+        match error.kind() {
+            std::io::ErrorKind::NotFound => Self::NotFound,
+            std::io::ErrorKind::AlreadyExists => Self::AlreadyExists,
+            _ => Self::Io(error),
+        }
+    }
 }

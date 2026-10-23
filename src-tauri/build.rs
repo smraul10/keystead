@@ -7,6 +7,7 @@ fn main() {
         "create_vault",
         "unlock_vault",
         "vault_items",
+        "save_vault",
         "lock_vault",
     ]);
 

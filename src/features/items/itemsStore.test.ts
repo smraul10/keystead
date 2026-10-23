@@ -1,3 +1,4 @@
+import { mockIPC } from '@tauri-apps/api/mocks';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ItemFormValues } from './itemSchema';
 import { useItemsStore } from './itemsStore';
@@ -20,10 +21,15 @@ describe('itemsStore', () => {
         makeItem({ id: '1', title: 'GitHub' }),
         makeItem({ id: '2', title: 'Gmail', favorite: true }),
       ],
+      saveError: null,
     });
+    // Rust accepts every save, unless a test says otherwise
+    mockIPC(() => null);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
+    // Let the saves of this test end before the next one starts
+    await useItemsStore.getState().waitForSaves();
     vi.useRealTimers();
   });
 
@@ -43,6 +49,59 @@ describe('itemsStore', () => {
     useItemsStore.getState().clearItems();
 
     expect(useItemsStore.getState().items).toEqual([]);
+  });
+
+  it('saves every change in the vault', async () => {
+    // Arrange: remember what Rust receives
+    const saved: unknown[] = [];
+    mockIPC((command, args) => {
+      if (command === 'save_vault') {
+        saved.push(args);
+      }
+      return null;
+    });
+
+    // Act
+    useItemsStore.getState().toggleFavorite('1');
+    await useItemsStore.getState().waitForSaves();
+
+    // Assert: Rust got the list as it is now
+    expect(saved).toEqual([{ items: useItemsStore.getState().items }]);
+  });
+
+  it('does not save when loading or forgetting the items', async () => {
+    // Arrange
+    const commands: string[] = [];
+    mockIPC((command) => {
+      commands.push(command);
+      return null;
+    });
+
+    // Act
+    useItemsStore
+      .getState()
+      .loadItems([makeItem({ id: '3', title: 'Netflix' })]);
+    useItemsStore.getState().clearItems();
+    await useItemsStore.getState().waitForSaves();
+
+    // Assert: saving the empty list would empty the vault on disk
+    expect(commands).toEqual([]);
+  });
+
+  it('remembers why saving failed, until a save works', async () => {
+    // Arrange: the disk fails
+    mockIPC(() => Promise.reject({ kind: 'storage' }));
+    useItemsStore.getState().toggleFavorite('1');
+    await useItemsStore.getState().waitForSaves();
+    expect(useItemsStore.getState().saveError).toEqual({ kind: 'storage' });
+
+    // Act: the disk works again
+    mockIPC(() => null);
+    useItemsStore.getState().retrySave();
+    await useItemsStore.getState().waitForSaves();
+
+    // Assert
+    expect(useItemsStore.getState().saveError).toBeNull();
   });
 
   it('marks an item as favorite', () => {

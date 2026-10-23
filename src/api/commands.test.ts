@@ -5,6 +5,7 @@ import {
   getVaultItems,
   getVaultStatus,
   lockVault,
+  saveVault,
   unlockVault,
 } from './commands';
 import { CommandFailedError } from './errors';
@@ -121,6 +122,22 @@ describe('getVaultItems', () => {
     await expect(getVaultItems()).rejects.toMatchObject({
       error: { kind: 'internal' },
     });
+  });
+});
+
+describe('saveVault', () => {
+  it('sends every item to Rust', async () => {
+    let received: unknown;
+    mockIPC((command, args) => {
+      if (command === 'save_vault') {
+        received = args;
+        return null;
+      }
+    });
+
+    await saveVault([GITHUB]);
+
+    expect(received).toEqual({ items: [GITHUB] });
   });
 });
 

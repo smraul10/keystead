@@ -1,7 +1,9 @@
 export {
   createVault,
+  getVaultItems,
   getVaultStatus,
   lockVault,
+  unlockVault,
   type VaultStatus,
 } from './commands';
 export {
@@ -10,3 +12,4 @@ export {
   commandErrorOf,
   errorMessage,
 } from './errors';
+export { type Item } from './item';

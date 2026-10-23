@@ -2,22 +2,53 @@ import { mockIPC } from '@tauri-apps/api/mocks';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
-import type { VaultStatus } from '@/api';
-import { DEMO_MASTER_PASSWORD, useLockStore } from '@/features/lock';
+import type { Item, VaultStatus } from '@/api';
+import { useItemsStore } from '@/features/items';
+import { useLockStore } from '@/features/lock';
 import { App } from './App';
 
 const PASSWORD = 'correct horse battery staple';
 
-// A stand-in for Rust that remembers whether the vault exists and is open
+const GITHUB: Item = {
+  id: '1',
+  title: 'GitHub',
+  username: 'raul-dev',
+  password: 'b,YjHm4^9aBBNC[zP]GD',
+  url: 'https://github.com',
+  notes: '',
+  favorite: true,
+  createdAt: '2026-03-14T10:12:00.000Z',
+  updatedAt: '2026-09-02T18:40:00.000Z',
+  deletedAt: null,
+};
+
+// A stand-in for Rust that remembers whether the vault exists and is open.
+// Its vault holds GITHUB and only PASSWORD opens it; a new one is empty
 function fakeRust(initial: VaultStatus) {
   let status = initial;
-  mockIPC((command) => {
+  let items = [GITHUB];
+  mockIPC((command, args) => {
     switch (command) {
       case 'vault_status':
         return status;
       case 'create_vault':
         status = 'unlocked';
+        items = [];
         return null;
+      case 'unlock_vault':
+        if (
+          args &&
+          'masterPassword' in args &&
+          args.masterPassword === PASSWORD
+        ) {
+          status = 'unlocked';
+          return null;
+        }
+        return Promise.reject({ kind: 'wrongPassword' });
+      case 'vault_items':
+        return status === 'unlocked'
+          ? items
+          : Promise.reject({ kind: 'locked' });
       case 'lock_vault':
         status = 'locked';
         return null;
@@ -34,9 +65,10 @@ async function renderUnlocked() {
 }
 
 describe('App', () => {
-  // The store lives outside React: start every test as a fresh launch
+  // The stores live outside React: start every test as a fresh launch
   beforeEach(() => {
     useLockStore.setState(useLockStore.getInitialState());
+    useItemsStore.setState(useItemsStore.getInitialState());
   });
 
   it('asks to create a vault on first launch', async () => {
@@ -89,7 +121,7 @@ describe('App', () => {
     );
   });
 
-  it('shows the vault after unlocking', async () => {
+  it('shows the items of the vault after unlocking it', async () => {
     // Arrange
     const user = userEvent.setup();
     fakeRust('locked');
@@ -98,13 +130,21 @@ describe('App', () => {
     // Act
     await user.type(
       await screen.findByLabelText('Master password'),
-      `${DEMO_MASTER_PASSWORD}{Enter}`,
+      `${PASSWORD}{Enter}`,
     );
 
     // Assert
     expect(
       await screen.findByRole('heading', { name: 'All items' }),
     ).toBeInTheDocument();
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
+  });
+
+  it('shows the items again after reloading the window', async () => {
+    // Rust kept the vault open: no need to unlock it again
+    await renderUnlocked();
+
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
   });
 
   it('locks the vault', async () => {
@@ -132,7 +172,7 @@ describe('App', () => {
     // Act
     await user.type(
       screen.getByLabelText('Master password'),
-      `${DEMO_MASTER_PASSWORD}{Enter}`,
+      `${PASSWORD}{Enter}`,
     );
 
     // Assert: back to the default section

@@ -1,6 +1,7 @@
 import { invoke, type InvokeArgs } from '@tauri-apps/api/core';
 import { z } from 'zod';
 import { CommandFailedError, toCommandError } from './errors';
+import { itemSchema, type Item } from './item';
 
 /**
  * Calls a Rust command and validates its answer with `schema`: what comes
@@ -42,6 +43,16 @@ const nothingSchema = z.null();
 /** Creates the vault with this master password and leaves it unlocked. */
 export async function createVault(masterPassword: string): Promise<void> {
   await call('create_vault', nothingSchema, { masterPassword });
+}
+
+/** Opens the vault with this master password and keeps it unlocked. */
+export async function unlockVault(masterPassword: string): Promise<void> {
+  await call('unlock_vault', nothingSchema, { masterPassword });
+}
+
+/** The items in the unlocked vault. */
+export function getVaultItems(): Promise<Item[]> {
+  return call('vault_items', z.array(itemSchema));
 }
 
 /** Locks the vault: Rust wipes its key and its items from memory. */

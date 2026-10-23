@@ -1,10 +1,13 @@
 import { create } from 'zustand';
-import { FAKE_ITEMS } from './fakeItems';
 import type { Item } from './item';
 import type { ItemFormValues } from './itemSchema';
 
 interface ItemsState {
   items: readonly Item[];
+  // The items of the vault that was just unlocked
+  loadItems: (items: readonly Item[]) => void;
+  // On lock: no item stays in the webview
+  clearItems: () => void;
   toggleFavorite: (id: string) => void;
   moveToTrash: (id: string) => void;
   restore: (id: string) => void;
@@ -14,7 +17,10 @@ interface ItemsState {
 }
 
 export const useItemsStore = create<ItemsState>()((set) => ({
-  items: FAKE_ITEMS,
+  // Empty until a vault is unlocked: its items come from Rust
+  items: [],
+  loadItems: (items) => set({ items }),
+  clearItems: () => set({ items: [] }),
   toggleFavorite: (id) =>
     set((state) => ({
       items: state.items.map((item) =>

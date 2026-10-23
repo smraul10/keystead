@@ -2,10 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { commandErrorOf, errorMessage } from '@/api';
 import { Button } from '@/components/Button';
 import { CardScreen } from '@/components/CardScreen';
 import { PasswordInput } from '@/components/PasswordInput';
-import { DEMO_MASTER_PASSWORD, useLockStore } from './lockStore';
+import { useLockStore } from './lockStore';
 
 const unlockSchema = z.object({
   masterPassword: z.string().min(1, 'Enter your master password'),
@@ -30,16 +31,26 @@ export function UnlockScreen() {
     defaultValues: { masterPassword: '' },
   });
   const error = errors.masterPassword?.message;
+  const failure = errors.root?.message;
 
   async function submit({ masterPassword }: UnlockValues) {
-    if (await unlock(masterPassword)) {
-      return;
+    try {
+      await unlock(masterPassword);
+    } catch (thrown) {
+      const commandError = commandErrorOf(thrown);
+      if (commandError.kind === 'wrongPassword') {
+        // Only Rust knows the right password, so this error can't come from
+        // the schema: set it by hand, like any other
+        setError('masterPassword', { message: errorMessage(commandError) });
+        // Keep what was typed, selected: typing replaces it, or the eye
+        // shows the typo
+        setFocus('masterPassword', { shouldSelect: true });
+      } else {
+        // Not about the password (e.g. a damaged file): an error for the
+        // whole form, cleared when it is submitted again
+        setError('root', { message: errorMessage(commandError) });
+      }
     }
-    // Only the store (Rust, in the next PR) knows the right password, so this
-    // error can't come from the schema: set it by hand, like any other
-    setError('masterPassword', { message: 'Wrong master password' });
-    // Keep what was typed, selected: typing replaces it, or the eye shows it
-    setFocus('masterPassword', { shouldSelect: true });
   }
 
   return (
@@ -73,17 +84,15 @@ export function UnlockScreen() {
           )}
         </div>
 
+        {failure && (
+          <p role='alert' className='text-sm text-rose-700'>
+            {failure}
+          </p>
+        )}
+
         <Button variant='primary' type='submit' disabled={isSubmitting}>
           {isSubmitting ? 'Unlocking…' : 'Unlock'}
         </Button>
-
-        {/* TODO(phase 4): remove when unlocking opens the real vault */}
-        <p className='text-center text-xs text-zinc-500'>
-          Demo vault: the master password is{' '}
-          <span className='font-mono text-zinc-700'>
-            {DEMO_MASTER_PASSWORD}
-          </span>
-        </p>
       </form>
     </CardScreen>
   );

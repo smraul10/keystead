@@ -1,7 +1,27 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { describe, expect, it } from 'vitest';
-import { createVault, getVaultStatus, lockVault } from './commands';
+import {
+  createVault,
+  getVaultItems,
+  getVaultStatus,
+  lockVault,
+  unlockVault,
+} from './commands';
 import { CommandFailedError } from './errors';
+import type { Item } from './item';
+
+const GITHUB: Item = {
+  id: '1',
+  title: 'GitHub',
+  username: 'raul-dev',
+  password: 'b,YjHm4^9aBBNC[zP]GD',
+  url: 'https://github.com',
+  notes: '',
+  favorite: true,
+  createdAt: '2026-03-14T10:12:00.000Z',
+  updatedAt: '2026-09-02T18:40:00.000Z',
+  deletedAt: null,
+};
 
 describe('getVaultStatus', () => {
   it('asks Rust for the vault status', async () => {
@@ -58,6 +78,49 @@ describe('createVault', () => {
     await expect(
       createVault('correct horse battery staple'),
     ).rejects.toMatchObject({ error: { kind: 'alreadyExists' } });
+  });
+});
+
+describe('unlockVault', () => {
+  it('sends the master password to Rust', async () => {
+    let received: unknown;
+    mockIPC((command, args) => {
+      if (command === 'unlock_vault') {
+        received = args;
+        return null;
+      }
+    });
+
+    await unlockVault('correct horse battery staple');
+
+    expect(received).toEqual({
+      masterPassword: 'correct horse battery staple',
+    });
+  });
+
+  it('fails with a wrong master password', async () => {
+    mockIPC(() => Promise.reject({ kind: 'wrongPassword' }));
+
+    await expect(unlockVault('wrong')).rejects.toMatchObject({
+      error: { kind: 'wrongPassword' },
+    });
+  });
+});
+
+describe('getVaultItems', () => {
+  it('gives the items of the unlocked vault', async () => {
+    mockIPC((command) => (command === 'vault_items' ? [GITHUB] : undefined));
+
+    await expect(getVaultItems()).resolves.toEqual([GITHUB]);
+  });
+
+  it('rejects an item it does not expect', async () => {
+    // E.g. a field renamed in Rust but not here
+    mockIPC(() => [{ id: '1', name: 'GitHub' }]);
+
+    await expect(getVaultItems()).rejects.toMatchObject({
+      error: { kind: 'internal' },
+    });
   });
 });
 

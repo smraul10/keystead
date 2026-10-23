@@ -20,4 +20,18 @@ pub enum Error {
     // in both cases the tag doesn't match
     #[error("wrong master password, or the vault file is damaged")]
     Decryption,
+
+    #[error("this file is not a Keystead vault")]
+    NotAVault,
+
+    #[error("this vault was saved by a newer version of Keystead (format {0})")]
+    UnsupportedVersion(u16),
+
+    // Read before the tag can be checked: a file asking for absurd values
+    // could hang or crash the app, so they are capped
+    #[error("this vault asks for key derivation settings beyond the safe limits")]
+    UnsupportedKdfParams,
+
+    #[error("the vault file is damaged")]
+    InvalidFile,
 }

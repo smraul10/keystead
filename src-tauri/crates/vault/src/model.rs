@@ -1,10 +1,16 @@
 //! The data inside the vault: the same items as the UI, as JSON.
 
+use std::fmt;
+
 use serde::{Deserialize, Serialize};
+use zeroize::{Zeroize, ZeroizeOnDrop};
 
 /// A login item. Mirrors the UI's `Item` type: with `rename_all`, the JSON
 /// uses the same camelCase names (`createdAt`), so it crosses to the UI as is.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+///
+/// Every field is overwritten with zeros when the item is dropped (when the
+/// vault is locked), so passwords don't stay in memory.
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize, Zeroize, ZeroizeOnDrop)]
 #[serde(rename_all = "camelCase")]
 pub struct Item {
     pub id: String,
@@ -21,8 +27,28 @@ pub struct Item {
     pub deleted_at: Option<String>,
 }
 
-/// Everything stored, encrypted, in a vault file.
-#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+// Written by hand: a derived Debug would print the password and the notes in
+// logs and error messages
+impl fmt::Debug for Item {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("Item")
+            .field("id", &self.id)
+            .field("title", &self.title)
+            .field("username", &self.username)
+            .field("password", &"<redacted>")
+            .field("url", &self.url)
+            .field("notes", &"<redacted>")
+            .field("favorite", &self.favorite)
+            .field("created_at", &self.created_at)
+            .field("updated_at", &self.updated_at)
+            .field("deleted_at", &self.deleted_at)
+            .finish()
+    }
+}
+
+/// Everything stored, encrypted, in a vault file. Wiped when dropped, like its items.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, Zeroize, ZeroizeOnDrop)]
 pub struct Vault {
     pub items: Vec<Item>,
 }
@@ -57,15 +83,13 @@ mod tests {
 
     #[test]
     fn a_vault_survives_a_round_trip_through_json() {
+        // `..github()` can't be used: it would move fields out of an item that
+        // wipes itself when dropped, so change a copy instead
+        let mut trashed = github();
+        trashed.id = "2".to_string();
+        trashed.deleted_at = Some("2026-10-22T10:00:00.000Z".to_string());
         let vault = Vault {
-            items: vec![
-                github(),
-                Item {
-                    id: "2".to_string(),
-                    deleted_at: Some("2026-10-22T10:00:00.000Z".to_string()),
-                    ..github()
-                },
-            ],
+            items: vec![github(), trashed],
         };
 
         let json = serde_json::to_string(&vault).unwrap();
@@ -97,5 +121,41 @@ mod tests {
     #[test]
     fn a_new_vault_is_empty() {
         assert!(Vault::default().items.is_empty());
+    }
+
+    #[test]
+    fn debug_output_hides_the_password_and_the_notes() {
+        let mut item = github();
+        item.notes = "Recovery codes: 1234-5678".to_string();
+
+        // What logs and error messages would show
+        let printed = format!("{item:?}");
+
+        assert!(printed.contains("GitHub"));
+        assert!(!printed.contains("b,YjHm4^9aBBNC[zP]GD"));
+        assert!(!printed.contains("1234-5678"));
+    }
+
+    #[test]
+    fn zeroize_wipes_every_text_field() {
+        let mut item = github();
+
+        item.zeroize();
+
+        assert!(item.password.is_empty());
+        assert!(item.title.is_empty());
+        assert!(item.username.is_empty());
+        assert!(item.url.is_empty());
+    }
+
+    #[test]
+    fn zeroize_wipes_every_item_of_the_vault() {
+        let mut vault = Vault {
+            items: vec![github()],
+        };
+
+        vault.zeroize();
+
+        assert!(vault.items.is_empty());
     }
 }

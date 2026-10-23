@@ -29,6 +29,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::vault_status,
             commands::create_vault,
+            commands::unlock_vault,
+            commands::vault_items,
             commands::lock_vault,
         ])
         .run(tauri::generate_context!())

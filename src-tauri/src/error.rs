@@ -18,6 +18,8 @@ pub enum CommandError {
     NotFound,
     /// There is already a vault, so a new one can't be created
     AlreadyExists,
+    /// The vault must be unlocked first
+    Locked,
     /// The disk couldn't be read or written (permissions, full disk...)
     Storage,
     /// Something that should never happen: a bug

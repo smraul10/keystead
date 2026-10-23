@@ -3,7 +3,7 @@
 use std::path::PathBuf;
 use std::sync::{Mutex, PoisonError};
 
-use keystead_vault::UnlockedVault;
+use keystead_vault::{Item, UnlockedVault};
 use serde::Serialize;
 
 use crate::error::CommandError;
@@ -71,6 +71,31 @@ impl AppState {
         }
         *vault = Some(UnlockedVault::create(&self.path, master_password)?);
         Ok(())
+    }
+
+    /// Opens the vault with `master_password` and keeps it unlocked.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CommandError::WrongPassword`] if the master password doesn't
+    /// open it, [`CommandError::NotFound`] if there is no vault, and the
+    /// other errors of reading the file.
+    pub fn unlock(&self, master_password: &str) -> Result<(), CommandError> {
+        let mut vault = self.vault.lock().map_err(|_| CommandError::Internal)?;
+        *vault = Some(UnlockedVault::open(&self.path, master_password)?);
+        Ok(())
+    }
+
+    /// A copy of the items in the unlocked vault, for the UI. The copy is
+    /// wiped too when it is dropped, once it has been sent.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CommandError::Locked`] if the vault isn't unlocked.
+    pub fn items(&self) -> Result<Vec<Item>, CommandError> {
+        let vault = self.vault.lock().map_err(|_| CommandError::Internal)?;
+        let unlocked = vault.as_ref().ok_or(CommandError::Locked)?;
+        Ok(unlocked.vault().items.clone())
     }
 
     /// Locks the vault: drops it, which wipes the key and the items.
@@ -195,6 +220,70 @@ mod tests {
         state.lock();
 
         assert_eq!(state.status().unwrap(), VaultStatus::Locked);
+    }
+
+    fn github() -> Item {
+        Item {
+            id: "1".to_string(),
+            title: "GitHub".to_string(),
+            username: "raul-dev".to_string(),
+            password: "b,YjHm4^9aBBNC[zP]GD".to_string(),
+            url: "https://github.com".to_string(),
+            notes: String::new(),
+            favorite: true,
+            created_at: "2026-03-14T10:12:00.000Z".to_string(),
+            updated_at: "2026-09-02T18:40:00.000Z".to_string(),
+            deleted_at: None,
+        }
+    }
+
+    // A vault on disk with one item, locked: as when the app starts
+    fn locked_vault_with_an_item(folder: &tempfile::TempDir) -> AppState {
+        let path = folder.path().join(VAULT_FILE_NAME);
+        let mut vault = UnlockedVault::create(&path, "correct horse battery staple").unwrap();
+        vault.vault_mut().items.push(github());
+        vault.save(&path).unwrap();
+        AppState::new(path)
+    }
+
+    #[test]
+    fn unlocking_opens_the_vault_with_its_items() {
+        let folder = folder();
+        let state = locked_vault_with_an_item(&folder);
+
+        state.unlock("correct horse battery staple").unwrap();
+
+        assert_eq!(state.status().unwrap(), VaultStatus::Unlocked);
+        assert_eq!(state.items().unwrap(), vec![github()]);
+    }
+
+    #[test]
+    fn a_wrong_master_password_keeps_the_vault_locked() {
+        let folder = folder();
+        let state = locked_vault_with_an_item(&folder);
+
+        let result = state.unlock("wrong password");
+
+        assert_eq!(result, Err(CommandError::WrongPassword));
+        assert_eq!(state.status().unwrap(), VaultStatus::Locked);
+    }
+
+    #[test]
+    fn there_is_nothing_to_unlock_before_creating_a_vault() {
+        let folder = folder();
+        let state = AppState::new(folder.path().join(VAULT_FILE_NAME));
+
+        let result = state.unlock("correct horse battery staple");
+
+        assert_eq!(result, Err(CommandError::NotFound));
+    }
+
+    #[test]
+    fn a_locked_vault_shows_no_items() {
+        let folder = folder();
+        let state = locked_vault_with_an_item(&folder);
+
+        assert_eq!(state.items(), Err(CommandError::Locked));
     }
 
     #[test]

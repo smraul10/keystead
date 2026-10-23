@@ -7,6 +7,8 @@
     "core:default",
     "allow-vault-status",
     "allow-create-vault",
+    "allow-unlock-vault",
+    "allow-vault-items",
     "allow-lock-vault"
   ]
 }

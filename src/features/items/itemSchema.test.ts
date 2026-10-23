@@ -9,6 +9,7 @@ const VALID: ItemFormValues = {
   url: 'https://github.com',
   notes: 'Recovery codes are in the safe.',
   favorite: false,
+  icon: null,
 };
 
 // The first error message for a field, or undefined if the field is valid

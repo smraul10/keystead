@@ -10,6 +10,7 @@
     "allow-unlock-vault",
     "allow-vault-items",
     "allow-save-vault",
+    "allow-download-icon",
     "allow-lock-vault"
   ]
 }

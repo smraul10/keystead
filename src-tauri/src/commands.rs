@@ -7,6 +7,7 @@ use tauri::State;
 use zeroize::Zeroizing;
 
 use crate::error::CommandError;
+use crate::icon;
 use crate::state::{AppState, VaultStatus};
 
 /// Whether there is a vault to create, to unlock, or an unlocked one.
@@ -54,6 +55,18 @@ pub fn vault_items(state: State<'_, AppState>) -> Result<Vec<Item>, CommandError
 #[tauri::command]
 pub async fn save_vault(state: State<'_, AppState>, items: Vec<Item>) -> Result<(), CommandError> {
     state.save(items)
+}
+
+/// Downloads the icon of the website at `url`, for the item form: a PNG of
+/// at most 64×64 pixels, in base64. The only command that uses the network.
+///
+/// The download runs on a thread meant for blocking work: waiting for a slow
+/// website must block neither the window nor the other commands.
+#[tauri::command]
+pub async fn download_icon(url: String) -> Result<String, CommandError> {
+    tauri::async_runtime::spawn_blocking(move || icon::download_icon(&url))
+        .await
+        .map_err(|_| CommandError::Internal)?
 }
 
 /// Locks the vault: wipes its key and its items from memory.

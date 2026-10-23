@@ -8,6 +8,7 @@ fn main() {
         "unlock_vault",
         "vault_items",
         "save_vault",
+        "download_icon",
         "lock_vault",
     ]);
 

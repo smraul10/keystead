@@ -16,6 +16,8 @@ export const itemSchema = z.object({
   url: z.string().trim().max(2000, 'Use 2000 characters or fewer'),
   notes: z.string().max(10000, 'Use 10000 characters or fewer'),
   favorite: z.boolean(),
+  // Not typed: downloaded from the website, or removed (see ItemForm)
+  icon: z.base64().nullable(),
 });
 
 export type ItemFormValues = z.infer<typeof itemSchema>;
@@ -28,6 +30,7 @@ export const EMPTY_ITEM_VALUES: ItemFormValues = {
   url: '',
   notes: '',
   favorite: false,
+  icon: null,
 };
 
 // What the form shows when editing an item: only the fields the user can change
@@ -39,5 +42,6 @@ export function toFormValues(item: Item): ItemFormValues {
     url: item.url,
     notes: item.notes,
     favorite: item.favorite,
+    icon: item.icon,
   };
 }

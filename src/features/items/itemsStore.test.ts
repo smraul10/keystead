@@ -11,6 +11,7 @@ const NEW_ITEM: ItemFormValues = {
   url: 'https://www.netflix.com',
   notes: '',
   favorite: false,
+  icon: null,
 };
 
 describe('itemsStore', () => {

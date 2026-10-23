@@ -5,32 +5,15 @@
 
 mod cipher;
 mod error;
+mod format;
 mod kdf;
 mod model;
 
 pub use cipher::{NONCE_LEN, Nonce, TAG_LEN, decrypt, encrypt, random_nonce};
 pub use error::Error;
+pub use format::{
+    FORMAT_VERSION, HEADER_LEN, Header, MAGIC, MAX_ITERATIONS, MAX_MEMORY_KIB, MAX_PARALLELISM,
+    Unsealed, decode_header, encode_header, seal, unseal,
+};
 pub use kdf::{KEY_LEN, KdfParams, Key, SALT_LEN, Salt, derive_key, random_salt};
 pub use model::{Item, Vault};
-
-/// The first bytes of every vault file, to recognize it before reading more.
-pub const MAGIC: [u8; 4] = *b"KSTD";
-
-/// The version of the vault file format. It goes up when the format changes,
-/// so newer versions of the app can still open older files.
-pub const FORMAT_VERSION: u16 = 1;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn vault_files_start_with_the_magic_bytes() {
-        assert_eq!(&MAGIC, b"KSTD");
-    }
-
-    #[test]
-    fn the_format_starts_at_version_1() {
-        assert_eq!(FORMAT_VERSION, 1);
-    }
-}

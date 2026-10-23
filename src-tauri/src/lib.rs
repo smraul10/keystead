@@ -1,5 +1,6 @@
 mod commands;
 mod error;
+mod icon;
 mod state;
 
 use tauri::Manager;
@@ -32,6 +33,7 @@ pub fn run() {
             commands::unlock_vault,
             commands::vault_items,
             commands::save_vault,
+            commands::download_icon,
             commands::lock_vault,
         ])
         .run(tauri::generate_context!())

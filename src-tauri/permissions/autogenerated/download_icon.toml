@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-download-icon"
+description = "Enables the download_icon command without any pre-configured scope."
+commands.allow = ["download_icon"]
+
+[[permission]]
+identifier = "deny-download-icon"
+description = "Denies the download_icon command without any pre-configured scope."
+commands.deny = ["download_icon"]

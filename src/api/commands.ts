@@ -55,6 +55,11 @@ export function getVaultItems(): Promise<Item[]> {
   return call('vault_items', z.array(itemSchema));
 }
 
+/** Replaces the items of the unlocked vault and saves it to its file. */
+export async function saveVault(items: readonly Item[]): Promise<void> {
+  await call('save_vault', nothingSchema, { items });
+}
+
 /** Locks the vault: Rust wipes its key and its items from memory. */
 export async function lockVault(): Promise<void> {
   await call('lock_vault', nothingSchema);

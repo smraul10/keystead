@@ -130,4 +130,26 @@ describe('lockStore', () => {
     await locking;
     expect(commands).toEqual(['lock_vault']);
   });
+
+  it('saves the last changes before Rust locks the vault', async () => {
+    // Arrange: a slow disk, and a change made just before locking
+    useLockStore.setState({ status: 'unlocked' });
+    useItemsStore.setState({ items: [GITHUB] });
+    const commands: string[] = [];
+    mockIPC(async (command) => {
+      commands.push(command);
+      if (command === 'save_vault') {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        commands.push('saved');
+      }
+      return null;
+    });
+    useItemsStore.getState().toggleFavorite('1');
+
+    // Act
+    await useLockStore.getState().lock();
+
+    // Assert: locking waited for the save
+    expect(commands).toEqual(['save_vault', 'saved', 'lock_vault']);
+  });
 });

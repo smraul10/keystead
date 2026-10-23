@@ -3,6 +3,7 @@ export {
   getVaultItems,
   getVaultStatus,
   lockVault,
+  saveVault,
   unlockVault,
   type VaultStatus,
 } from './commands';

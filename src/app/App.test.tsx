@@ -49,6 +49,11 @@ function fakeRust(initial: VaultStatus) {
         return status === 'unlocked'
           ? items
           : Promise.reject({ kind: 'locked' });
+      case 'save_vault':
+        if (args && 'items' in args && Array.isArray(args.items)) {
+          items = args.items;
+        }
+        return null;
       case 'lock_vault':
         status = 'locked';
         return null;
@@ -179,6 +184,44 @@ describe('App', () => {
     expect(
       await screen.findByRole('heading', { name: 'All items' }),
     ).toBeInTheDocument();
+  });
+
+  it('keeps the changes after locking and unlocking', async () => {
+    // Arrange: GitHub starts as a favorite
+    const user = userEvent.setup();
+    await renderUnlocked();
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    // Act: unmark it, lock and unlock
+    await user.click(screen.getByRole('button', { name: 'Favorite' }));
+    await user.click(screen.getByRole('button', { name: 'Lock' }));
+    await user.type(
+      await screen.findByLabelText('Master password'),
+      `${PASSWORD}{Enter}`,
+    );
+    await user.click(await screen.findByRole('button', { name: /GitHub/ }));
+
+    // Assert: the change came back from the vault
+    expect(screen.getByRole('button', { name: 'Favorite' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('warns when the changes could not be saved', async () => {
+    // Arrange: the vault opens, but the disk can't be written
+    const user = userEvent.setup();
+    await renderUnlocked();
+    mockIPC(() => Promise.reject({ kind: 'storage' }));
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Favorite' }));
+
+    // Assert
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      "Your changes couldn't be saved",
+    );
   });
 
   it('shows all items by default', async () => {

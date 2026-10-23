@@ -43,12 +43,15 @@ export const useLockStore = create<LockState>()((set) => {
       await api.unlockVault(masterPassword);
       await showVault();
     },
-    lock: () => {
-      // Hide the vault and forget its items at once, without waiting for
-      // Rust to wipe them too
+    lock: async () => {
+      // Hide the vault and forget its items at once, without waiting for Rust
       set({ status: 'locked' });
-      useItemsStore.getState().clearItems();
-      return api.lockVault();
+      const items = useItemsStore.getState();
+      items.clearItems();
+      // The last changes may still be on their way: let them reach the file
+      // before Rust closes the vault
+      await items.waitForSaves();
+      await api.lockVault();
     },
   };
 });

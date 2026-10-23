@@ -25,6 +25,10 @@ pub struct Item {
     pub updated_at: String,
     /// When the item was moved to the trash; `None` (`null` in JSON) if not
     pub deleted_at: Option<String>,
+    /// The site's icon: a PNG of at most 64×64 pixels, in base64. Vaults
+    /// saved before icons existed don't have it, so it may be missing
+    #[serde(default)]
+    pub icon: Option<String>,
 }
 
 // Written by hand: a derived Debug would print the password and the notes in
@@ -43,6 +47,8 @@ impl fmt::Debug for Item {
             .field("created_at", &self.created_at)
             .field("updated_at", &self.updated_at)
             .field("deleted_at", &self.deleted_at)
+            // Long and useless in logs: only say whether there is one
+            .field("icon", &self.icon.as_ref().map(|_| "<png>"))
             .finish()
     }
 }
@@ -69,6 +75,7 @@ mod tests {
             created_at: "2026-03-14T10:12:00.000Z".to_string(),
             updated_at: "2026-09-02T18:40:00.000Z".to_string(),
             deleted_at: None,
+            icon: None,
         }
     }
 
@@ -78,6 +85,7 @@ mod tests {
 
         assert_eq!(json["createdAt"], "2026-03-14T10:12:00.000Z");
         assert_eq!(json["deletedAt"], serde_json::Value::Null);
+        assert_eq!(json["icon"], serde_json::Value::Null);
         assert!(json.get("created_at").is_none());
     }
 
@@ -105,6 +113,17 @@ mod tests {
         let result = serde_json::from_str::<Item>(json);
 
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn reads_items_saved_before_icons_existed() {
+        // Vaults saved by older versions have no `icon`: they must still open
+        let mut json = serde_json::to_value(github()).unwrap();
+        json.as_object_mut().unwrap().remove("icon");
+
+        let item: Item = serde_json::from_value(json).unwrap();
+
+        assert_eq!(item.icon, None);
     }
 
     #[test]

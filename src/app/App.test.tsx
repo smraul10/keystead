@@ -20,6 +20,7 @@ const GITHUB: Item = {
   createdAt: '2026-03-14T10:12:00.000Z',
   updatedAt: '2026-09-02T18:40:00.000Z',
   deletedAt: null,
+  icon: null,
 };
 
 // A stand-in for Rust that remembers whether the vault exists and is open.

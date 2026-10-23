@@ -22,6 +22,7 @@ const GITHUB: Item = {
   createdAt: '2026-03-14T10:12:00.000Z',
   updatedAt: '2026-09-02T18:40:00.000Z',
   deletedAt: null,
+  icon: null,
 };
 
 describe('getVaultStatus', () => {
@@ -113,6 +114,14 @@ describe('getVaultItems', () => {
     mockIPC((command) => (command === 'vault_items' ? [GITHUB] : undefined));
 
     await expect(getVaultItems()).resolves.toEqual([GITHUB]);
+  });
+
+  it('rejects an icon that is not an image in base64', async () => {
+    mockIPC(() => [{ ...GITHUB, icon: '<svg onload="alert(1)">' }]);
+
+    await expect(getVaultItems()).rejects.toMatchObject({
+      error: { kind: 'internal' },
+    });
   });
 
   it('rejects an item it does not expect', async () => {

@@ -13,6 +13,7 @@ export function makeItem(overrides: Partial<Item> = {}): Item {
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
     deletedAt: null,
+    icon: null,
     ...overrides,
   };
 }

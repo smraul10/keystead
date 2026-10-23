@@ -12,4 +12,12 @@ pub enum Error {
 
     #[error("the system could not provide random bytes")]
     Random,
+
+    #[error("the vault could not be encrypted")]
+    Encryption,
+
+    // Authenticated encryption can't tell a wrong key from a changed file:
+    // in both cases the tag doesn't match
+    #[error("wrong master password, or the vault file is damaged")]
+    Decryption,
 }

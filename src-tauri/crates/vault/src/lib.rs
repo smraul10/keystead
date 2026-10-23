@@ -3,10 +3,12 @@
 //! This crate doesn't depend on Tauri or the UI, so it can be tested on its
 //! own (`cargo test -p keystead-vault`) and stays small enough to review.
 
+mod cipher;
 mod error;
 mod kdf;
 mod model;
 
+pub use cipher::{NONCE_LEN, Nonce, TAG_LEN, decrypt, encrypt, random_nonce};
 pub use error::Error;
 pub use kdf::{KEY_LEN, KdfParams, Key, SALT_LEN, Salt, derive_key, random_salt};
 pub use model::{Item, Vault};

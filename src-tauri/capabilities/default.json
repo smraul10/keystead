@@ -3,5 +3,10 @@
   "identifier": "default",
   "description": "Capability for the main window",
   "windows": ["main"],
-  "permissions": ["core:default", "allow-vault-status"]
+  "permissions": [
+    "core:default",
+    "allow-vault-status",
+    "allow-create-vault",
+    "allow-lock-vault"
+  ]
 }

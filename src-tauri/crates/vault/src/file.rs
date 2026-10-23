@@ -165,6 +165,7 @@ mod tests {
             created_at: "2026-10-23T10:00:00.000Z".to_string(),
             updated_at: "2026-10-23T10:00:00.000Z".to_string(),
             deleted_at: None,
+            icon: None,
         }
     }
 

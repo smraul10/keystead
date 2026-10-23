@@ -51,7 +51,7 @@ export function ItemDetails({
   return (
     <div className='flex flex-col gap-6'>
       <div className='flex items-center gap-4'>
-        <ItemAvatar title={item.title} size='lg' />
+        <ItemAvatar title={item.title} icon={item.icon} size='lg' />
         <h2 className='min-w-0 flex-1 text-2xl font-bold wrap-break-word'>
           {item.title}
         </h2>

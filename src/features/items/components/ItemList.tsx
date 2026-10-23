@@ -29,7 +29,7 @@ export function ItemList({
             aria-current={item.id === selectedId ? 'true' : undefined}
             className='flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition hover:bg-zinc-100 aria-current:bg-zinc-200'
           >
-            <ItemAvatar title={item.title} />
+            <ItemAvatar title={item.title} icon={item.icon} />
             <div className='flex min-w-0 flex-col'>
               <span className='flex items-center gap-1 text-sm font-medium'>
                 <span className='truncate'>{item.title}</span>

@@ -83,6 +83,7 @@ export const useItemsStore = create<ItemsState>()((set, get) => {
         createdAt: now,
         updatedAt: now,
         deletedAt: null,
+        icon: null,
       };
       change((items) => [...items, item]);
       return item.id;

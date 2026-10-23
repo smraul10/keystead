@@ -15,6 +15,9 @@ export const itemSchema = z.object({
   updatedAt: z.string(),
   // When the item was moved to the trash; null if it is not in the trash
   deletedAt: z.string().nullable(),
+  // The site's icon: a PNG of at most 64×64 pixels, in base64; null if none.
+  // Anything else (e.g. an SVG with code) is rejected
+  icon: z.base64().nullable(),
 });
 
 export type Item = z.infer<typeof itemSchema>;

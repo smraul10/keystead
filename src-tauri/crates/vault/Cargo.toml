@@ -13,6 +13,12 @@ argon2 = { version = "0.6.0", default-features = false, features = [
   "alloc",
   "zeroize",
 ] }
+# Without its own random generator (we use getrandom); `zeroize` wipes its
+# copy of the key when it is dropped
+chacha20poly1305 = { version = "0.11.0", default-features = false, features = [
+  "alloc",
+  "zeroize",
+] }
 getrandom = "0.4.3"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"

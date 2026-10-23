@@ -7,8 +7,17 @@ edition = "2024"
 publish = false
 
 [dependencies]
+# Only the raw key derivation (no password-hash strings); `zeroize` wipes
+# Argon2's own working memory when it finishes
+argon2 = { version = "0.6.0", default-features = false, features = [
+  "alloc",
+  "zeroize",
+] }
+getrandom = "0.4.3"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.154"
+thiserror = "2.0.21"
+zeroize = "1.9.1"
 
 [lints.rust]
 # The crypto core never needs unsafe code: forbid it, so it can't sneak in

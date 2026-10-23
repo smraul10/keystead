@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest';
+import { clearMocks } from '@tauri-apps/api/mocks';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
@@ -18,4 +19,6 @@ if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  // Forget the fake Rust answers of mockIPC, so no test sees another's
+  clearMocks();
 });

@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LockKeyhole } from 'lucide-react';
 import { useId, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/Button';
+import { CardScreen } from '@/components/CardScreen';
 import { PasswordInput } from '@/components/PasswordInput';
 import { DEMO_MASTER_PASSWORD, useLockStore } from './lockStore';
 
@@ -35,7 +35,7 @@ export function UnlockScreen() {
     if (await unlock(masterPassword)) {
       return;
     }
-    // Only the store (Rust, in phase 4) knows the right password, so this
+    // Only the store (Rust, in the next PR) knows the right password, so this
     // error can't come from the schema: set it by hand, like any other
     setError('masterPassword', { message: 'Wrong master password' });
     // Keep what was typed, selected: typing replaces it, or the eye shows it
@@ -43,18 +43,12 @@ export function UnlockScreen() {
   }
 
   return (
-    <main className='flex h-screen items-center justify-center bg-zinc-100 p-6 text-zinc-900'>
+    <CardScreen subtitle='Your vault is locked'>
       <form
         noValidate
         onSubmit={handleSubmit(submit)}
-        className='flex w-full max-w-sm flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-8 shadow-sm'
+        className='flex flex-col gap-5'
       >
-        <div className='flex flex-col items-center gap-2 text-center'>
-          <LockKeyhole className='size-8 text-emerald-600' />
-          <h1 className='text-2xl font-bold'>Keystead</h1>
-          <p className='text-sm text-zinc-500'>Your vault is locked</p>
-        </div>
-
         <div className='flex flex-col gap-1.5'>
           <label
             htmlFor={`${id}-password`}
@@ -83,7 +77,7 @@ export function UnlockScreen() {
           {isSubmitting ? 'Unlocking…' : 'Unlock'}
         </Button>
 
-        {/* TODO(phase 4): remove when the real vault exists */}
+        {/* TODO(phase 4): remove when unlocking opens the real vault */}
         <p className='text-center text-xs text-zinc-500'>
           Demo vault: the master password is{' '}
           <span className='font-mono text-zinc-700'>
@@ -91,6 +85,6 @@ export function UnlockScreen() {
           </span>
         </p>
       </form>
-    </main>
+    </CardScreen>
   );
 }

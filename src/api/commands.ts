@@ -35,3 +35,16 @@ export type VaultStatus = z.infer<typeof vaultStatusSchema>;
 export function getVaultStatus(): Promise<VaultStatus> {
   return call('vault_status', vaultStatusSchema);
 }
+
+// Commands that answer nothing: Rust's `()` arrives as `null`
+const nothingSchema = z.null();
+
+/** Creates the vault with this master password and leaves it unlocked. */
+export async function createVault(masterPassword: string): Promise<void> {
+  await call('create_vault', nothingSchema, { masterPassword });
+}
+
+/** Locks the vault: Rust wipes its key and its items from memory. */
+export async function lockVault(): Promise<void> {
+  await call('lock_vault', nothingSchema);
+}

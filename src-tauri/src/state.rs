@@ -1,7 +1,7 @@
 //! What the app keeps in memory between commands.
 
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{Mutex, PoisonError};
 
 use keystead_vault::UnlockedVault;
 use serde::Serialize;
@@ -54,6 +54,34 @@ impl AppState {
             Ok(VaultStatus::NotCreated)
         }
     }
+
+    /// Creates the vault, protected by `master_password`, and leaves it
+    /// unlocked.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CommandError::AlreadyExists`] if there is a vault already
+    /// (it is never replaced), or [`CommandError::Storage`] if it can't be
+    /// written.
+    pub fn create(&self, master_password: &str) -> Result<(), CommandError> {
+        let mut vault = self.vault.lock().map_err(|_| CommandError::Internal)?;
+        // On first launch, the app's data folder doesn't exist yet
+        if let Some(folder) = self.path.parent() {
+            std::fs::create_dir_all(folder).map_err(|_| CommandError::Storage)?;
+        }
+        *vault = Some(UnlockedVault::create(&self.path, master_password)?);
+        Ok(())
+    }
+
+    /// Locks the vault: drops it, which wipes the key and the items.
+    pub fn lock(&self) {
+        // Locking must always work, even if a command panicked while using
+        // the vault (a "poisoned" lock): take the vault out anyway
+        let mut vault = self.vault.lock().unwrap_or_else(PoisonError::into_inner);
+        *vault = None;
+        // Nothing of the old vault is left half-changed: the app can go on
+        self.vault.clear_poison();
+    }
 }
 
 #[cfg(test)]
@@ -95,6 +123,78 @@ mod tests {
         *state.vault.lock().unwrap() = Some(vault);
 
         assert_eq!(state.status().unwrap(), VaultStatus::Unlocked);
+    }
+
+    #[test]
+    fn creating_the_vault_leaves_it_unlocked() {
+        let folder = folder();
+        let path = folder.path().join(VAULT_FILE_NAME);
+        let state = AppState::new(path.clone());
+
+        state.create("correct horse battery staple").unwrap();
+
+        assert!(path.exists());
+        assert_eq!(state.status().unwrap(), VaultStatus::Unlocked);
+    }
+
+    #[test]
+    fn creating_the_vault_creates_its_folder() {
+        // On first launch, the app's data folder doesn't exist yet
+        let folder = folder();
+        let path = folder.path().join("missing").join(VAULT_FILE_NAME);
+        let state = AppState::new(path.clone());
+
+        state.create("correct horse battery staple").unwrap();
+
+        assert!(path.exists());
+    }
+
+    #[test]
+    fn never_replaces_an_existing_vault() {
+        let folder = folder();
+        let path = folder.path().join(VAULT_FILE_NAME);
+        std::fs::write(&path, b"a vault").unwrap();
+        let state = AppState::new(path.clone());
+
+        let result = state.create("correct horse battery staple");
+
+        assert_eq!(result, Err(CommandError::AlreadyExists));
+        assert_eq!(std::fs::read(&path).unwrap(), b"a vault");
+        assert_eq!(state.status().unwrap(), VaultStatus::Locked);
+    }
+
+    #[test]
+    fn locking_forgets_the_open_vault() {
+        let folder = folder();
+        let state = AppState::new(folder.path().join(VAULT_FILE_NAME));
+        state.create("correct horse battery staple").unwrap();
+
+        state.lock();
+
+        assert_eq!(state.status().unwrap(), VaultStatus::Locked);
+    }
+
+    #[test]
+    #[allow(clippy::panic)] // The panic is what this test is about
+    fn locking_works_even_after_a_command_panicked() {
+        let folder = folder();
+        let state = AppState::new(folder.path().join(VAULT_FILE_NAME));
+        state.create("correct horse battery staple").unwrap();
+        // A panic while holding the lock "poisons" it
+        let panicked = std::thread::scope(|scope| {
+            scope
+                .spawn(|| {
+                    let _vault = state.vault.lock().unwrap();
+                    panic!("a bug in some command");
+                })
+                .join()
+                .is_err()
+        });
+        assert!(panicked);
+
+        state.lock();
+
+        assert_eq!(state.status().unwrap(), VaultStatus::Locked);
     }
 
     #[test]

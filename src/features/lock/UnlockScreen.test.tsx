@@ -6,7 +6,7 @@ import { UnlockScreen } from './UnlockScreen';
 
 describe('UnlockScreen', () => {
   beforeEach(() => {
-    useLockStore.setState({ locked: true });
+    useLockStore.setState({ status: 'locked' });
   });
 
   it('asks for the master password', () => {
@@ -34,7 +34,7 @@ describe('UnlockScreen', () => {
     await waitFor(() =>
       expect(field).toHaveAccessibleDescription('Enter your master password'),
     );
-    expect(useLockStore.getState().locked).toBe(true);
+    expect(useLockStore.getState().status).toBe('locked');
   });
 
   it('rejects a wrong master password and keeps it selected', async () => {
@@ -51,7 +51,7 @@ describe('UnlockScreen', () => {
     await waitFor(() =>
       expect(field).toHaveAccessibleDescription('Wrong master password'),
     );
-    expect(useLockStore.getState().locked).toBe(true);
+    expect(useLockStore.getState().status).toBe('locked');
     // Kept and selected: typing replaces it, or the eye shows the typo
     expect(field).toHaveValue('wrong');
     expect(field).toHaveFocus();
@@ -71,6 +71,8 @@ describe('UnlockScreen', () => {
     );
 
     // Assert
-    await waitFor(() => expect(useLockStore.getState().locked).toBe(false));
+    await waitFor(() =>
+      expect(useLockStore.getState().status).toBe('unlocked'),
+    );
   });
 });

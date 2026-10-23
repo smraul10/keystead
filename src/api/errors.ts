@@ -35,6 +35,16 @@ export function toCommandError(error: unknown): CommandError {
   return parsed.success ? parsed.data : { kind: 'internal' };
 }
 
+/**
+ * The typed error of a failed command, for a `catch` (where TypeScript only
+ * knows `unknown`). Any other failure is an internal error.
+ */
+export function commandErrorOf(error: unknown): CommandError {
+  return error instanceof CommandFailedError
+    ? error.error
+    : { kind: 'internal' };
+}
+
 /** What the UI shows for each error. */
 export function errorMessage(error: CommandError): string {
   // A switch over every kind: TypeScript fails if one is missing

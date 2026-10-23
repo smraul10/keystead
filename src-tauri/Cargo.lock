@@ -1812,6 +1812,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-window-state",
  "tempfile",
+ "zeroize",
 ]
 
 [[package]]

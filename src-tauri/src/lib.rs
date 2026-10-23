@@ -26,7 +26,11 @@ pub fn run() {
             app.manage(AppState::new(folder.join(VAULT_FILE_NAME)));
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![commands::vault_status])
+        .invoke_handler(tauri::generate_handler![
+            commands::vault_status,
+            commands::create_vault,
+            commands::lock_vault,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

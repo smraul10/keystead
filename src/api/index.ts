@@ -1,2 +1,12 @@
-export { getVaultStatus, type VaultStatus } from './commands';
-export { type CommandError, CommandFailedError, errorMessage } from './errors';
+export {
+  createVault,
+  getVaultStatus,
+  lockVault,
+  type VaultStatus,
+} from './commands';
+export {
+  type CommandError,
+  CommandFailedError,
+  commandErrorOf,
+  errorMessage,
+} from './errors';

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { errorMessage, toCommandError } from './errors';
+import {
+  CommandFailedError,
+  commandErrorOf,
+  errorMessage,
+  toCommandError,
+} from './errors';
 
 describe('toCommandError', () => {
   it('keeps an error sent by Rust', () => {
@@ -14,6 +19,18 @@ describe('toCommandError', () => {
     for (const unknown of ['boom', { kind: 'nope' }, null, new Error('x')]) {
       expect(toCommandError(unknown)).toEqual({ kind: 'internal' });
     }
+  });
+});
+
+describe('commandErrorOf', () => {
+  it('gives the error of a failed command', () => {
+    const failure = new CommandFailedError({ kind: 'storage' });
+
+    expect(commandErrorOf(failure)).toEqual({ kind: 'storage' });
+  });
+
+  it('treats any other failure as an internal error', () => {
+    expect(commandErrorOf(new TypeError('x'))).toEqual({ kind: 'internal' });
   });
 });
 

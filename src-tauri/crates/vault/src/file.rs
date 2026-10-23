@@ -1,5 +1,6 @@
 //! Creating, opening and saving a vault file on disk.
 
+use std::fmt;
 use std::io::Write;
 use std::path::Path;
 
@@ -10,12 +11,24 @@ use crate::{Error, KdfParams, Key, Salt, Vault, derive_key, random_salt, seal, u
 /// An open vault: its data and the key to save it again. The key never
 /// leaves this struct, and it is wiped from memory when this is dropped
 /// (when the vault is locked).
-#[derive(Debug)]
 pub struct UnlockedVault {
     vault: Vault,
     key: Key,
     salt: Salt,
     params: KdfParams,
+}
+
+// Written by hand: a derived Debug would print the key in logs and errors
+impl fmt::Debug for UnlockedVault {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("UnlockedVault")
+            .field("vault", &self.vault)
+            .field("key", &"<redacted>")
+            .field("salt", &self.salt)
+            .field("params", &self.params)
+            .finish()
+    }
 }
 
 impl UnlockedVault {
@@ -246,6 +259,18 @@ mod tests {
         let result = UnlockedVault::open(&path, "correct horse battery stapler");
 
         assert!(matches!(result, Err(Error::Decryption)));
+    }
+
+    #[test]
+    fn debug_output_hides_the_key() {
+        let folder = folder();
+        let path = folder.path().join("Personal.kstd");
+        let vault = UnlockedVault::create_with_params(&path, PASSWORD, &FAST).unwrap();
+
+        let printed = format!("{vault:?}");
+
+        assert!(printed.contains("<redacted>"));
+        assert!(!printed.contains(&format!("{:?}", *vault.key)));
     }
 
     #[test]

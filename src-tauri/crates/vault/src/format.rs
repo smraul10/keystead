@@ -51,7 +51,7 @@ pub struct Header {
 
 /// An opened vault, with what it takes to save it again without asking for
 /// the master password: the key is wiped from memory when this is dropped.
-#[derive(Debug)]
+// No Debug: it would print the key
 pub struct Unsealed {
     pub vault: Vault,
     pub key: Key,
@@ -135,8 +135,7 @@ pub fn seal(vault: &Vault, key: &Key, salt: &Salt, params: &KdfParams) -> Result
         salt: *salt,
         nonce,
     });
-    // The vault as JSON, wiped from memory once it is encrypted
-    let json = Zeroizing::new(serde_json::to_vec(vault).map_err(|_| Error::Encryption)?);
+    let json = vault_to_json(vault)?;
     // The header is the associated data: authenticated, not encrypted
     let ciphertext = encrypt(key, &nonce, &json, &header)?;
 
@@ -144,6 +143,33 @@ pub fn seal(vault: &Vault, key: &Key, salt: &Salt, params: &KdfParams) -> Result
     file.extend_from_slice(&header);
     file.extend_from_slice(&ciphertext);
     Ok(file)
+}
+
+/// The vault as JSON, wiped from memory when dropped.
+fn vault_to_json(vault: &Vault) -> Result<Zeroizing<Vec<u8>>, Error> {
+    // A buffer that grows moves its contents to a bigger place and frees the
+    // old one without wiping it, leaving copies of the passwords behind.
+    // So: count the bytes first, then write into a buffer of exactly that size
+    let mut counter = ByteCounter(0);
+    serde_json::to_writer(&mut counter, vault).map_err(|_| Error::Encryption)?;
+
+    let mut json = Zeroizing::new(Vec::with_capacity(counter.0));
+    serde_json::to_writer(&mut *json, vault).map_err(|_| Error::Encryption)?;
+    Ok(json)
+}
+
+/// A writer that only counts the bytes written to it.
+struct ByteCounter(usize);
+
+impl std::io::Write for ByteCounter {
+    fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+        self.0 += bytes.len();
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
 }
 
 /// Opens the bytes of a vault file with the master password.
@@ -356,6 +382,16 @@ mod tests {
             Some("2026-10-22T10:00:00.000Z")
         );
         assert_eq!(opened.params, FAST);
+    }
+
+    #[test]
+    fn writes_the_json_into_a_buffer_of_the_exact_size() {
+        // A buffer that grows leaves copies of its earlier contents in memory,
+        // where nobody wipes them: this one never has to grow
+        let json = vault_to_json(&vault()).unwrap();
+
+        assert_eq!(json.capacity(), json.len());
+        assert_eq!(serde_json::from_slice::<Vault>(&json).unwrap(), vault());
     }
 
     #[test]

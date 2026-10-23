@@ -22,7 +22,7 @@ pre-commit:
       run: cargo fmt --manifest-path src-tauri/Cargo.toml --all --check
     rust-lint:
       glob: '*.rs'
-      run: cargo clippy --manifest-path src-tauri/Cargo.toml -p keystead-vault --all-targets -- -D warnings
+      run: cargo clippy --manifest-path src-tauri/Cargo.toml --workspace --all-targets -- -D warnings
     rust-test:
       glob: '*.rs'
-      run: cargo test --manifest-path src-tauri/Cargo.toml -p keystead-vault
+      run: cargo test --manifest-path src-tauri/Cargo.toml --workspace

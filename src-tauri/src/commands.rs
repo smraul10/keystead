@@ -3,9 +3,10 @@
 //! own permission (see `build.rs` and `capabilities/default.json`).
 
 use keystead_vault::Item;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 use zeroize::Zeroizing;
 
+use crate::clipboard::{CLEAR_AFTER, SecretClipboard};
 use crate::error::CommandError;
 use crate::icon;
 use crate::state::{AppState, VaultStatus};
@@ -69,8 +70,30 @@ pub async fn download_icon(url: String) -> Result<String, CommandError> {
         .map_err(|_| CommandError::Internal)?
 }
 
-/// Locks the vault: wipes its key and its items from memory.
+/// Copies `text` to the clipboard, kept out of the Windows clipboard history,
+/// and wipes it after 30 seconds if the clipboard still holds it.
 #[tauri::command]
-pub fn lock_vault(state: State<'_, AppState>) {
+pub fn copy_to_clipboard(
+    app: AppHandle,
+    clipboard: State<'_, SecretClipboard>,
+    text: String,
+) -> Result<(), CommandError> {
+    // Wiped from memory as soon as this command ends
+    let text = Zeroizing::new(text);
+    let copy = clipboard.copy(&text)?;
+    // A thread that only sleeps: it blocks nothing, and newer copies have
+    // their own (an older timer leaves them alone)
+    std::thread::spawn(move || {
+        std::thread::sleep(CLEAR_AFTER);
+        app.state::<SecretClipboard>().clear_copy(copy);
+    });
+    Ok(())
+}
+
+/// Locks the vault: wipes its key and its items from memory, and what was
+/// copied from it from the clipboard.
+#[tauri::command]
+pub fn lock_vault(state: State<'_, AppState>, clipboard: State<'_, SecretClipboard>) {
     state.lock();
+    clipboard.clear();
 }

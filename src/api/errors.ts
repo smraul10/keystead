@@ -12,6 +12,7 @@ const commandErrorSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('invalidUrl') }),
   z.object({ kind: z.literal('iconNotFound') }),
   z.object({ kind: z.literal('network') }),
+  z.object({ kind: z.literal('clipboard') }),
   z.object({ kind: z.literal('storage') }),
   z.object({ kind: z.literal('internal') }),
 ]);
@@ -71,6 +72,8 @@ export function errorMessage(error: CommandError): string {
       return 'This website has no icon Keystead can use';
     case 'network':
       return "Couldn't connect to the website. Check your internet connection";
+    case 'clipboard':
+      return "Couldn't copy: another app may be using the clipboard";
     case 'storage':
       return "The vault couldn't be read or saved. Check the disk and its permissions";
     case 'internal':

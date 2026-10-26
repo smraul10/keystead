@@ -13,7 +13,7 @@ import { PasswordDisplay } from './components/PasswordDisplay';
 import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';
 import { OptionsPanel } from './components/OptionsPanel';
-import { Check, Copy, RefreshCw } from 'lucide-react';
+import { Check, Copy, RefreshCw, X } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
 
 interface PasswordGeneratorProps {
@@ -33,7 +33,7 @@ export function PasswordGenerator({ onUse }: PasswordGeneratorProps) {
 
   const [turns, setTurns] = useState(0);
 
-  const { copied, copy, reset } = useCopyToClipboard();
+  const { copied, failed, copy, reset } = useCopyToClipboard();
 
   function updateOptions(next: PasswordOptions) {
     setStoredOptions(next);
@@ -69,12 +69,10 @@ export function PasswordGenerator({ onUse }: PasswordGeneratorProps) {
           </Button>
 
           <Button onClick={() => copy(password)}>
-            {copied ? (
-              <Check className='size-4' />
-            ) : (
-              <Copy className='size-4' />
-            )}
-            {copied ? 'Copied' : 'Copy'}
+            {copied && <Check className='size-4' />}
+            {failed && <X className='size-4' />}
+            {!copied && !failed && <Copy className='size-4' />}
+            {copied ? 'Copied' : failed ? "Couldn't copy" : 'Copy'}
           </Button>
         </div>
 

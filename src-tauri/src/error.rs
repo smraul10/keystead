@@ -26,6 +26,8 @@ pub enum CommandError {
     IconNotFound,
     /// The website couldn't be reached (no connection, a timeout...)
     Network,
+    /// The clipboard couldn't be used (another app may be holding it)
+    Clipboard,
     /// The disk couldn't be read or written (permissions, full disk...)
     Storage,
     /// Something that should never happen: a bug

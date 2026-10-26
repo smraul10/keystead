@@ -1,7 +1,7 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Item, VaultStatus } from '@/api';
 import { useItemsStore } from '@/features/items';
 import { useLockStore } from '@/features/lock';
@@ -75,6 +75,10 @@ describe('App', () => {
   beforeEach(() => {
     useLockStore.setState(useLockStore.getInitialState());
     useItemsStore.setState(useItemsStore.getInitialState());
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it('asks to create a vault on first launch', async () => {
@@ -185,6 +189,21 @@ describe('App', () => {
     expect(
       await screen.findByRole('heading', { name: 'All items' }),
     ).toBeInTheDocument();
+  });
+
+  it('locks by itself after ten minutes without activity', async () => {
+    // Arrange: a fake clock that also moves on its own, so waiting for the
+    // fake Rust still works
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    await renderUnlocked();
+
+    // Act
+    act(() => {
+      vi.advanceTimersByTime(10 * 60 * 1000);
+    });
+
+    // Assert
+    expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
   });
 
   it('keeps the changes after locking and unlocking', async () => {

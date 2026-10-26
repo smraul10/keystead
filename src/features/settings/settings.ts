@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { shortcutsSchema } from './shortcuts';
 
 // The choices Settings offers. No "Never": the vault always locks in the
 // end, and a copy is always wiped
@@ -20,6 +21,7 @@ const settingsSchema = z.object({
   autoLockMinutes: autoLockMinutesSchema,
   clipboardSeconds: clipboardSecondsSchema,
   theme: themeSchema,
+  shortcuts: shortcutsSchema,
 });
 
 export type Settings = z.infer<typeof settingsSchema>;

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS, parseSettings } from './settings';
+import { DEFAULT_SHORTCUTS } from './shortcuts';
 
 describe('parseSettings', () => {
   it('uses the defaults when nothing valid was saved', () => {
@@ -12,7 +13,12 @@ describe('parseSettings', () => {
   });
 
   it('keeps every valid setting', () => {
-    const saved = { autoLockMinutes: 5, clipboardSeconds: 90, theme: 'dark' };
+    const saved = {
+      autoLockMinutes: 5,
+      clipboardSeconds: 90,
+      theme: 'dark',
+      shortcuts: { ...DEFAULT_SHORTCUTS, lock: 'Control+K' },
+    };
 
     expect(parseSettings(saved)).toEqual(saved);
   });
@@ -25,6 +31,8 @@ describe('parseSettings', () => {
       autoLockMinutes: 10,
       clipboardSeconds: 90,
       theme: 'system',
+      // Saved before shortcuts existed: the defaults
+      shortcuts: DEFAULT_SHORTCUTS,
     });
   });
 });

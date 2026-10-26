@@ -55,4 +55,14 @@ describe('SettingsView', () => {
 
     expect(useSettingsStore.getState().theme).toBe('dark');
   });
+
+  it('lists the keyboard shortcuts', () => {
+    render(<SettingsView />);
+
+    const shortcuts = screen.getByRole('region', {
+      name: 'Keyboard shortcuts',
+    });
+    expect(shortcuts).toHaveTextContent('LockCtrl+L');
+    expect(shortcuts).toHaveTextContent('Move through the list↑ ↓');
+  });
 });

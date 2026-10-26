@@ -3,7 +3,11 @@ import { ClipboardStatusBar } from '@/features/clipboard';
 import { PasswordGenerator } from '@/features/generator';
 import { ItemsView, SaveErrorBanner } from '@/features/items';
 import { useAutoLock, useLockStore } from '@/features/lock';
-import { SettingsView, useSettingsStore } from '@/features/settings';
+import {
+  SettingsView,
+  useSettingsStore,
+  useShortcut,
+} from '@/features/settings';
 import { Sidebar, type Section } from './Sidebar';
 
 interface SectionContentProps {
@@ -39,6 +43,7 @@ export function MainScreen() {
   const [section, setSection] = useState<Section>('all');
   // Only while the vault is open: locking unmounts MainScreen, and this stops
   useAutoLock(lock, autoLockMinutes * 60 * 1000);
+  useShortcut('lock', () => void lock(), { whileTyping: true });
 
   return (
     <div className='flex h-screen flex-col bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100'>

@@ -1,6 +1,8 @@
 import { Plus } from 'lucide-react';
-import { type ReactElement, useState } from 'react';
+import { type ReactElement, useRef, useState } from 'react';
 import { IconButton } from '@/components/IconButton';
+import { useCopyToClipboard } from '@/features/clipboard';
+import { useShortcut, useShortcutHint } from '@/features/settings';
 import { ItemDetails } from './components/ItemDetails';
 import { ItemForm } from './components/ItemForm';
 import { ItemList } from './components/ItemList';
@@ -69,6 +71,8 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   const updateItem = useItemsStore((state) => state.updateItem);
   const [panel, setPanel] = useState<Panel>(EMPTY_PANEL);
   const [query, setQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+  const { copy } = useCopyToClipboard();
   const inView = itemsInView(items, filter);
   const visibleItems = sortItems(filterItems(inView, query));
 
@@ -90,6 +94,45 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   function findItem(id: string) {
     return items.find((item) => item.id === id);
   }
+
+  function openNewItem() {
+    setPanel({ kind: 'new', returnTo: highlightedId(panel) });
+  }
+
+  // The item whose details are shown: the shortcuts act on it
+  const shown = panel.kind === 'details' ? findItem(panel.id) : undefined;
+  const shownInVault = shown !== undefined && shown.deletedAt === null;
+  const formOpen = panel.kind === 'new' || panel.kind === 'edit';
+
+  // Keyboard shortcuts (Settings can change their keys). Those that don't
+  // type anything also work while typing, e.g. in the search field
+  useShortcut('search', () => searchRef.current?.focus(), {
+    whileTyping: true,
+  });
+  useShortcut('newItem', openNewItem, {
+    enabled: filter !== 'trash' && !formOpen,
+    whileTyping: true,
+  });
+  useShortcut(
+    'editItem',
+    () => shown && setPanel({ kind: 'edit', id: shown.id }),
+    { enabled: shownInVault, whileTyping: true },
+  );
+  useShortcut(
+    'moveToTrash',
+    () => shown && runAndClose(moveToTrash, shown.id),
+    {
+      enabled: shownInVault,
+    },
+  );
+  useShortcut('copyUsername', () => shown && void copy(shown.username), {
+    enabled: shown !== undefined && shown.username !== '',
+  });
+  useShortcut('copyPassword', () => shown && void copy(shown.password), {
+    enabled: shown !== undefined && shown.password !== '',
+  });
+  const newItemHint = useShortcutHint('newItem');
+  const searchHint = useShortcutHint('search');
 
   function renderPanel(): ReactElement {
     const nothingSelected = (
@@ -156,17 +199,17 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
         <div className='flex items-center justify-between gap-2 px-3'>
           <h1 className='text-xl font-bold'>{TITLES[filter]}</h1>
           {filter !== 'trash' && (
-            <IconButton
-              label='New item'
-              onClick={() =>
-                setPanel({ kind: 'new', returnTo: highlightedId(panel) })
-              }
-            >
+            <IconButton label='New item' onClick={openNewItem} {...newItemHint}>
               <Plus className='size-5' />
             </IconButton>
           )}
         </div>
-        <SearchField value={query} onChange={setQuery} />
+        <SearchField
+          ref={searchRef}
+          value={query}
+          onChange={setQuery}
+          hint={searchHint}
+        />
         <ItemList
           items={visibleItems}
           selectedId={highlightedId(panel)}

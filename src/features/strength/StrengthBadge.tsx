@@ -5,7 +5,7 @@ import {
   TriangleAlert,
   X,
 } from 'lucide-react';
-import { getStrength, type Strength } from '../strength';
+import { getStrength, type Strength } from './levels';
 
 const STRENGTH_STYLES: Record<
   Strength,

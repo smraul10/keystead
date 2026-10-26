@@ -7,7 +7,8 @@ import { useItemsStore } from '@/features/items';
 import { useLockStore } from '@/features/lock';
 import { App } from './App';
 
-const PASSWORD = 'correct horse battery staple';
+// Strong (random): creating a vault with it doesn't ask about it
+const PASSWORD = 'tj7#Lq2v!Pz9wK*Rhm6k$Wq';
 
 const GITHUB: Item = {
   id: '1',

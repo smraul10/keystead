@@ -1,7 +1,8 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { loadEstimator } from '@/features/strength';
 import { EMPTY_ITEM_VALUES, type ItemFormValues } from '../itemSchema';
 import { ItemForm } from './ItemForm';
 
@@ -18,6 +19,20 @@ function renderForm(defaultValues: ItemFormValues = EMPTY_ITEM_VALUES) {
 }
 
 describe('ItemForm', () => {
+  // The strength dictionaries are big: load them once, before the tests
+  beforeAll(async () => {
+    await loadEstimator();
+  });
+
+  it('shows how strong the password is', async () => {
+    const user = userEvent.setup();
+    renderForm();
+
+    await user.type(screen.getByLabelText('Password'), 'password1234');
+
+    expect(await screen.findByText('Poor')).toBeInTheDocument();
+  });
+
   it('submits the typed values', async () => {
     // Arrange
     const user = userEvent.setup();

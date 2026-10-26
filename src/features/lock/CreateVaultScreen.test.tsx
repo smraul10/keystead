@@ -1,11 +1,30 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent, { type UserEvent } from '@testing-library/user-event';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { loadEstimator } from '@/features/strength';
 import { CreateVaultScreen } from './CreateVaultScreen';
 import { useLockStore } from './lockStore';
 
-const PASSWORD = 'correct horse battery staple';
+// Strong (random), so creating the vault doesn't ask about it
+const PASSWORD = 'tj7#Lq2v!Pz9wK*Rhm6k$Wq';
+// At least 12 characters, but a common password with digits
+const WEAK_PASSWORD = 'password1234';
+
+// Remembers what Rust receives, like a vault that is created
+function fakeRust() {
+  const received: unknown[] = [];
+  mockIPC((command, args) => {
+    if (command === 'create_vault') {
+      received.push(args);
+      return null;
+    }
+    if (command === 'vault_items') {
+      return [];
+    }
+  });
+  return received;
+}
 
 // Types both fields and submits the form
 async function createVault(
@@ -22,8 +41,77 @@ async function createVault(
 }
 
 describe('CreateVaultScreen', () => {
+  // The strength dictionaries are big: load them once, before the tests
+  beforeAll(async () => {
+    await loadEstimator();
+  });
+
   beforeEach(() => {
     useLockStore.setState({ status: 'notCreated' });
+  });
+
+  it('shows how strong the master password is', async () => {
+    const user = userEvent.setup();
+    render(<CreateVaultScreen />);
+
+    await user.type(screen.getByLabelText('Master password'), WEAK_PASSWORD);
+
+    expect(await screen.findByText('Poor')).toBeInTheDocument();
+  });
+
+  it('asks before using a weak master password', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const received = fakeRust();
+    render(<CreateVaultScreen />);
+
+    // Act
+    await createVault(user, WEAK_PASSWORD);
+
+    // Assert: nothing created yet, and the safe answer has the focus
+    expect(await screen.findByText(/Use it anyway\?/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Choose another' }),
+    ).toHaveFocus();
+    expect(received).toEqual([]);
+  });
+
+  it('uses a weak master password if told so', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const received = fakeRust();
+    render(<CreateVaultScreen />);
+    await createVault(user, WEAK_PASSWORD);
+
+    // Act
+    await user.click(
+      await screen.findByRole('button', { name: 'Use it anyway' }),
+    );
+
+    // Assert
+    await waitFor(() =>
+      expect(useLockStore.getState().status).toBe('unlocked'),
+    );
+    expect(received).toEqual([{ masterPassword: WEAK_PASSWORD }]);
+  });
+
+  it('lets you choose another master password', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    fakeRust();
+    render(<CreateVaultScreen />);
+    await createVault(user, WEAK_PASSWORD);
+
+    // Act
+    await user.click(
+      await screen.findByRole('button', { name: 'Choose another' }),
+    );
+
+    // Assert: back to the field, with the weak password selected
+    const field = screen.getByLabelText('Master password');
+    expect(field).toHaveFocus();
+    expect(field).toHaveProperty('selectionEnd', WEAK_PASSWORD.length);
+    expect(screen.queryByText(/Use it anyway\?/)).not.toBeInTheDocument();
   });
 
   it('asks for a master password of at least 12 characters', () => {

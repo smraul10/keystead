@@ -12,10 +12,17 @@ const zxcvbn = new ZxcvbnFactory({
     ...english.dictionary,
     ...spanish.dictionary,
   },
+  // Fewer leet guesses ("p@ssw0rd" is still found): measuring a random
+  // password of 23 characters takes about 30 ms instead of 250
+  l33tMaxSubstitutions: 10,
 });
 
 // Passphrases are split into words at spaces and common separators
 const SEPARATORS = /[\s\-_.]+/;
+
+// zxcvbn gets slow with long words: past this, characters count as random
+// (32 random characters are far beyond "Excellent" anyway)
+const MAX_ANALYZED = 32;
 
 /**
  * Estimates how strong a typed password is, in bits. Each word is measured
@@ -32,6 +39,12 @@ export function estimateBits(password: string): number {
 }
 
 function wordBits(word: string): number {
+  const analyzed = word.slice(0, MAX_ANALYZED);
+  const rest = word.slice(MAX_ANALYZED);
+  return patternBits(analyzed) + randomBits(rest);
+}
+
+function patternBits(word: string): number {
   return zxcvbn
     .check(word)
     .sequence.reduce(
@@ -46,6 +59,8 @@ function wordBits(word: string): number {
 
 // Random characters: each one could be any of the kinds it has
 function randomBits(text: string): number {
+  // Nothing to count (and log2 of an empty alphabet isn't a number)
+  if (text === '') return 0;
   return text.length * Math.log2(alphabetSize(text));
 }
 

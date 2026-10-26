@@ -8,9 +8,17 @@ use zeroize::Zeroizing;
 
 use crate::error::CommandError;
 
-/// How long a copied text stays in the clipboard (KeePassXC: 10 s,
-/// 1Password: 90 s).
-pub const CLEAR_AFTER: Duration = Duration::from_secs(30);
+/// The shortest and the longest time a copy may stay in the clipboard,
+/// whatever the UI asks (Settings offers 10 to 90 seconds).
+const MIN_CLEAR_AFTER_SECS: u64 = 5;
+const MAX_CLEAR_AFTER_SECS: u64 = 10 * 60;
+
+/// How long a copy stays in the clipboard: the seconds chosen in Settings,
+/// kept within limits, because they come from the UI.
+#[must_use]
+pub fn clear_after(seconds: u64) -> Duration {
+    Duration::from_secs(seconds.clamp(MIN_CLEAR_AFTER_SECS, MAX_CLEAR_AFTER_SECS))
+}
 
 /// What Keystead needs from a clipboard: the system's ([`SystemClipboard`]),
 /// or a fake one in tests.
@@ -172,6 +180,18 @@ mod tests {
     fn clipboard() -> (SecretClipboard<FakeClipboard>, FakeClipboard) {
         let fake = FakeClipboard::default();
         (SecretClipboard::new(fake.clone()), fake)
+    }
+
+    #[test]
+    fn keeps_a_copy_as_long_as_settings_say() {
+        assert_eq!(clear_after(30), Duration::from_secs(30));
+    }
+
+    #[test]
+    fn never_keeps_a_copy_too_little_or_too_long() {
+        // Whatever the UI asks: it is data from outside
+        assert_eq!(clear_after(0), Duration::from_secs(5));
+        assert_eq!(clear_after(86_400), Duration::from_secs(10 * 60));
     }
 
     #[test]

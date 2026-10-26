@@ -172,10 +172,19 @@ describe('downloadIcon', () => {
 });
 
 describe('copyToClipboard', () => {
-  it('says how long until Rust wipes the copy', async () => {
-    mockIPC((command) => (command === 'copy_to_clipboard' ? 30 : undefined));
+  it('asks Rust to wipe the copy after the given seconds', async () => {
+    // Arrange: Rust answers how long it will really keep it
+    let received: unknown;
+    mockIPC((command, args) => {
+      if (command === 'copy_to_clipboard') {
+        received = args;
+        return 90;
+      }
+    });
 
-    await expect(copyToClipboard('secret')).resolves.toBe(30);
+    // Act + Assert
+    await expect(copyToClipboard('secret', 90)).resolves.toBe(90);
+    expect(received).toEqual({ text: 'secret', clearAfterSeconds: 90 });
   });
 });
 

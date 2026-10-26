@@ -32,6 +32,14 @@ describe('estimateBits', () => {
     expect(strengthOf('correct horse battery staple')).toBe('poor');
   });
 
+  it('measures long random passwords in full', () => {
+    // 40 characters: zxcvbn checks the first 32 (it gets slow with long
+    // words) and the rest count as random, so none is lost
+    const password = 'tj7#Lq2v!Pz9wK*Rhm6k$Wqtj7#Lq2v!Pz9wK*Rh';
+
+    expect(estimateBits(password)).toBeCloseTo(40 * Math.log2(95), 0);
+  });
+
   it('gives no strength to an empty password', () => {
     expect(estimateBits('')).toBe(0);
   });

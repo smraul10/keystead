@@ -1,11 +1,17 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { act, renderHook } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { useSettingsStore } from '@/features/settings';
 import { fakeClipboard } from '@/test/fakeClipboard';
 import { useClipboardStore } from './clipboardStore';
 import { useCopyToClipboard } from './useCopyToClipboard';
 
 describe('useCopyToClipboard', () => {
+  // The settings store survives between tests: start with the defaults
+  beforeEach(() => {
+    useSettingsStore.setState({ clipboardSeconds: 30 });
+  });
+
   afterEach(() => {
     vi.useRealTimers();
   });
@@ -30,6 +36,20 @@ describe('useCopyToClipboard', () => {
     await act(() => result.current.copy('secret'));
 
     expect(useClipboardStore.getState().countdown?.totalMs).toBe(30 * 1000);
+  });
+
+  it('keeps the copy as long as Settings say', async () => {
+    // Arrange
+    useSettingsStore.setState({ clipboardSeconds: 90 });
+    const clipboard = fakeClipboard();
+    const { result } = renderHook(() => useCopyToClipboard());
+
+    // Act
+    await act(() => result.current.copy('secret'));
+
+    // Assert
+    expect(clipboard.clearAfterSeconds).toBe(90);
+    expect(useClipboardStore.getState().countdown?.totalMs).toBe(90 * 1000);
   });
 
   it('keeps the confirmation for 2 seconds', async () => {

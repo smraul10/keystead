@@ -2,15 +2,20 @@ import {
   Dices,
   Lock,
   type LucideIcon,
+  Settings,
   Star,
   Trash2,
   Vault,
 } from 'lucide-react';
 import type { ItemFilter } from '@/features/items';
 
-export type Section = ItemFilter | 'generator';
+export type Section = ItemFilter | 'generator' | 'settings';
 
-const SECTIONS: { id: Section; label: string; icon: LucideIcon }[] = [
+const SECTIONS: {
+  id: Exclude<Section, 'settings'>;
+  label: string;
+  icon: LucideIcon;
+}[] = [
   { id: 'all', label: 'All items', icon: Vault },
   { id: 'favorites', label: 'Favorites', icon: Star },
   { id: 'trash', label: 'Trash', icon: Trash2 },
@@ -31,7 +36,7 @@ export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
   return (
     <div className='flex w-56 shrink-0 flex-col gap-6 border-r border-zinc-200 bg-zinc-50 p-4'>
       <p className='px-3 text-lg font-bold'>Keystead</p>
-      {/* flex-1 pushes the Lock button to the bottom */}
+      {/* flex-1 pushes Settings and Lock to the bottom */}
       <nav aria-label='Sections' className='flex-1'>
         <ul className='flex flex-col gap-1'>
           {SECTIONS.map(({ id, label, icon: Icon }) => (
@@ -49,7 +54,16 @@ export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
           ))}
         </ul>
       </nav>
-      <div className='border-t border-zinc-200 pt-4'>
+      <div className='flex flex-col gap-1 border-t border-zinc-200 pt-4'>
+        <button
+          type='button'
+          onClick={() => onSelect('settings')}
+          aria-current={current === 'settings' ? 'page' : undefined}
+          className={ROW}
+        >
+          <Settings className='size-4' />
+          Settings
+        </button>
         <button type='button' onClick={onLock} className={ROW}>
           <Lock className='size-4' />
           Lock

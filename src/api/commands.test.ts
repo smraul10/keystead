@@ -2,6 +2,7 @@ import { mockIPC } from '@tauri-apps/api/mocks';
 import { describe, expect, it } from 'vitest';
 import {
   createVault,
+  downloadIcon,
   getVaultItems,
   getVaultStatus,
   lockVault,
@@ -147,6 +148,24 @@ describe('saveVault', () => {
     await saveVault([GITHUB]);
 
     expect(received).toEqual({ items: [GITHUB] });
+  });
+});
+
+describe('downloadIcon', () => {
+  it("asks Rust for the website's icon", async () => {
+    // A 1×1 PNG, in base64
+    const icon =
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    let received: unknown;
+    mockIPC((command, args) => {
+      if (command === 'download_icon') {
+        received = args;
+        return icon;
+      }
+    });
+
+    await expect(downloadIcon('github.com')).resolves.toBe(icon);
+    expect(received).toEqual({ url: 'github.com' });
   });
 });
 

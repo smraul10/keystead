@@ -1,13 +1,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dices } from 'lucide-react';
+import { Dices, Download } from 'lucide-react';
 import { type ReactNode, useId, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
+import { commandErrorOf, downloadIcon, errorMessage } from '@/api';
 import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
 import { IconButton } from '@/components/IconButton';
 import { PasswordInput } from '@/components/PasswordInput';
 import { type ItemFormValues, itemSchema } from '../itemSchema';
 import { GeneratorDialog } from './GeneratorDialog';
+import { ItemAvatar } from './ItemAvatar';
 
 const INPUT =
   'w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm aria-invalid:border-rose-600';
@@ -52,18 +54,40 @@ export function ItemForm({
   const id = useId();
   const [revealed, setRevealed] = useState(false);
   const [generatorOpen, setGeneratorOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [iconError, setIconError] = useState<string | null>(null);
   const {
     register,
     control,
     handleSubmit,
     setValue,
+    getValues,
     formState: { errors },
   } = useForm({ resolver: zodResolver(itemSchema), defaultValues });
+  // Re-render when these change: the icon preview and its buttons use them
+  const [title, url, icon] = useWatch({
+    control,
+    name: ['title', 'url', 'icon'],
+  });
 
   function applyGeneratedPassword(password: string) {
     setValue('password', password, { shouldDirty: true, shouldValidate: true });
     // Show it, so the user sees which password was set
     setRevealed(true);
+  }
+
+  // Only when asked: the website learns that someone wanted its icon
+  async function downloadSiteIcon() {
+    setDownloading(true);
+    setIconError(null);
+    try {
+      const downloaded = await downloadIcon(getValues('url'));
+      setValue('icon', downloaded, { shouldDirty: true });
+    } catch (error) {
+      setIconError(errorMessage(commandErrorOf(error)));
+    } finally {
+      setDownloading(false);
+    }
   }
 
   // Props that link a control to its error message, if it has one
@@ -138,6 +162,38 @@ export function ItemForm({
             className={INPUT}
           />
         </Field>
+
+        <div
+          role='group'
+          aria-labelledby={`${id}-icon`}
+          className='flex flex-col gap-1.5'
+        >
+          <span id={`${id}-icon`} className='text-sm font-medium text-zinc-700'>
+            Icon
+          </span>
+          <div className='flex items-center gap-3'>
+            <ItemAvatar title={title} icon={icon} size='lg' />
+            <Button
+              onClick={downloadSiteIcon}
+              disabled={url.trim() === '' || downloading}
+            >
+              <Download className='size-4' />
+              {downloading ? 'Downloading…' : 'Download from website'}
+            </Button>
+            {icon && (
+              <Button
+                onClick={() => setValue('icon', null, { shouldDirty: true })}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
+          {iconError && (
+            <p role='alert' className='text-sm text-rose-700'>
+              {iconError}
+            </p>
+          )}
+        </div>
 
         <Field id={`${id}-notes`} label='Notes' error={errors.notes?.message}>
           <textarea

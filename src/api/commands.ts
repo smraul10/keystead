@@ -60,6 +60,14 @@ export async function saveVault(items: readonly Item[]): Promise<void> {
   await call('save_vault', nothingSchema, { items });
 }
 
+/**
+ * Asks Rust to download the icon of the website at `url` (the only command
+ * that uses the network): a PNG of at most 64×64 pixels, in base64.
+ */
+export function downloadIcon(url: string): Promise<string> {
+  return call('download_icon', z.base64(), { url });
+}
+
 /** Locks the vault: Rust wipes its key and its items from memory. */
 export async function lockVault(): Promise<void> {
   await call('lock_vault', nothingSchema);

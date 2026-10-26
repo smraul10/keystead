@@ -20,6 +20,12 @@ pub enum CommandError {
     AlreadyExists,
     /// The vault must be unlocked first
     Locked,
+    /// The text in the item's URL isn't a website address
+    InvalidUrl,
+    /// The website was reached, but it has no icon that can be used
+    IconNotFound,
+    /// The website couldn't be reached (no connection, a timeout...)
+    Network,
     /// The disk couldn't be read or written (permissions, full disk...)
     Storage,
     /// Something that should never happen: a bug

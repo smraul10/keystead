@@ -1,8 +1,13 @@
+import { mockIPC } from '@tauri-apps/api/mocks';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { EMPTY_ITEM_VALUES, type ItemFormValues } from '../itemSchema';
 import { ItemForm } from './ItemForm';
+
+// A 1×1 PNG, in base64
+const ICON =
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 
 function renderForm(defaultValues: ItemFormValues = EMPTY_ITEM_VALUES) {
   const actions = { onSubmit: vi.fn(), onCancel: vi.fn() };
@@ -36,6 +41,7 @@ describe('ItemForm', () => {
         url: 'netflix.com',
         notes: 'Family plan',
         favorite: true,
+        icon: null,
       }),
     );
   });
@@ -152,5 +158,75 @@ describe('ItemForm', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(screen.getByLabelText('Password')).toHaveValue('old-password');
     });
+  });
+
+  it("downloads the website's icon and saves it", async () => {
+    // Arrange
+    const user = userEvent.setup();
+    mockIPC((command) => (command === 'download_icon' ? ICON : undefined));
+    const { onSubmit } = renderForm({
+      ...EMPTY_ITEM_VALUES,
+      title: 'GitHub',
+      url: 'github.com',
+    });
+
+    // Act
+    await user.click(
+      screen.getByRole('button', { name: 'Download from website' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    // Assert
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ icon: ICON }),
+      ),
+    );
+  });
+
+  it('needs a website to download its icon', () => {
+    renderForm();
+
+    expect(
+      screen.getByRole('button', { name: 'Download from website' }),
+    ).toBeDisabled();
+  });
+
+  it('explains why the icon could not be downloaded', async () => {
+    // Arrange: the website has no favicon.ico
+    const user = userEvent.setup();
+    mockIPC(() => Promise.reject({ kind: 'iconNotFound' }));
+    renderForm({ ...EMPTY_ITEM_VALUES, url: 'example.com' });
+
+    // Act
+    await user.click(
+      screen.getByRole('button', { name: 'Download from website' }),
+    );
+
+    // Assert
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'no icon Keystead can use',
+    );
+  });
+
+  it('removes the icon', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    const { onSubmit } = renderForm({
+      ...EMPTY_ITEM_VALUES,
+      title: 'GitHub',
+      icon: ICON,
+    });
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Remove' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    // Assert
+    await waitFor(() =>
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({ icon: null }),
+      ),
+    );
   });
 });

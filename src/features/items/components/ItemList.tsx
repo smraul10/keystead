@@ -1,4 +1,5 @@
 import { Star } from 'lucide-react';
+import type { KeyboardEvent } from 'react';
 import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
 
@@ -23,8 +24,28 @@ export function ItemList({
     );
   }
 
+  // ↑ ↓ select the previous or next item, and move the focus to it, so a
+  // screen reader follows. A convention: not a setting
+  function moveWithArrows(event: KeyboardEvent<HTMLUListElement>) {
+    const step = { ArrowDown: 1, ArrowUp: -1 }[event.key];
+    if (step === undefined) return;
+    const rows = [...event.currentTarget.querySelectorAll('button')];
+    const current = rows.findIndex((row) => row === document.activeElement);
+    const next = Math.min(Math.max(current + step, 0), rows.length - 1);
+    const item = items[next];
+    if (item === undefined) return;
+    // Instead of scrolling the list
+    event.preventDefault();
+    rows[next]?.focus();
+    onSelect(item.id);
+  }
+
   return (
-    <ul aria-label='Items' className='flex flex-col gap-1'>
+    <ul
+      aria-label='Items'
+      onKeyDown={moveWithArrows}
+      className='flex flex-col gap-1'
+    >
       {items.map((item) => (
         <li key={item.id}>
           <button

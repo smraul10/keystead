@@ -179,6 +179,27 @@ describe('App', () => {
     expect(screen.getByText('GitHub')).toBeInTheDocument();
   });
 
+  it('locks the vault with Ctrl+L', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await renderUnlocked();
+
+    // Act
+    await user.keyboard('{Control>}l{/Control}');
+
+    // Assert
+    expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
+  });
+
+  it('tells the shortcut of the Lock button', async () => {
+    await renderUnlocked();
+
+    expect(screen.getByRole('button', { name: 'Lock' })).toHaveAttribute(
+      'aria-keyshortcuts',
+      'Control+L',
+    );
+  });
+
   it('locks the vault', async () => {
     // Arrange
     const user = userEvent.setup();

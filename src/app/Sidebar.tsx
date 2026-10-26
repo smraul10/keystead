@@ -8,6 +8,7 @@ import {
   Vault,
 } from 'lucide-react';
 import type { ItemFilter } from '@/features/items';
+import { useShortcutHint } from '@/features/settings';
 
 export type Section = ItemFilter | 'generator' | 'settings';
 
@@ -33,6 +34,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
+  const lockHint = useShortcutHint('lock');
+
   return (
     <div className='flex w-56 shrink-0 flex-col gap-6 border-r border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950'>
       <p className='px-3 text-lg font-bold'>Keystead</p>
@@ -64,7 +67,7 @@ export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
           <Settings className='size-4' />
           Settings
         </button>
-        <button type='button' onClick={onLock} className={ROW}>
+        <button type='button' onClick={onLock} {...lockHint} className={ROW}>
           <Lock className='size-4' />
           Lock
         </button>

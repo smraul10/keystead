@@ -1,6 +1,7 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { fakeClipboard } from '@/test/fakeClipboard';
 import { ItemsView } from './ItemsView';
 import { makeItem } from './makeItem';
 import { useItemsStore } from './itemsStore';
@@ -267,6 +268,102 @@ describe('ItemsView', () => {
 
     // Assert
     expect(screen.getByText('The trash is empty')).toBeInTheDocument();
+  });
+
+  describe('keyboard shortcuts', () => {
+    it('opens a new item with Ctrl+N', async () => {
+      const user = userEvent.setup();
+      render(<ItemsView />);
+
+      await user.keyboard('{Control>}n{/Control}');
+
+      expect(
+        screen.getByRole('heading', { name: 'New item' }),
+      ).toBeInTheDocument();
+    });
+
+    it('goes to the search with Ctrl+F', async () => {
+      const user = userEvent.setup();
+      render(<ItemsView />);
+
+      await user.keyboard('{Control>}f{/Control}');
+
+      expect(screen.getByRole('searchbox')).toHaveFocus();
+    });
+
+    it('edits the selected item with Ctrl+E', async () => {
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+      await user.keyboard('{Control>}e{/Control}');
+
+      expect(
+        screen.getByRole('heading', { name: 'Edit item' }),
+      ).toBeInTheDocument();
+    });
+
+    it('moves the selected item to the trash with Delete', async () => {
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+      await user.keyboard('{Delete}');
+
+      expect(
+        screen.queryByRole('button', { name: /GitHub/ }),
+      ).not.toBeInTheDocument();
+    });
+
+    it('copies the password of the selected item with Ctrl+C', async () => {
+      const user = userEvent.setup();
+      const clipboard = fakeClipboard();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+      await user.keyboard('{Control>}c{/Control}');
+
+      expect(clipboard.text).toBe('github-pass');
+    });
+
+    it('copies the username of the selected item with Ctrl+B', async () => {
+      const user = userEvent.setup();
+      const clipboard = fakeClipboard();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+      await user.keyboard('{Control>}b{/Control}');
+
+      expect(clipboard.text).toBe('raul-dev');
+    });
+
+    it('moves through the list with the arrow keys', async () => {
+      // Arrange: the list is amazon, GitHub, Netflix
+      const user = userEvent.setup();
+      render(<ItemsView />);
+      await user.click(screen.getByRole('button', { name: /amazon/ }));
+
+      // Act + Assert: the selection and the focus move together
+      await user.keyboard('{ArrowDown}');
+      expect(
+        screen.getByRole('heading', { name: 'GitHub' }),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /GitHub/ })).toHaveFocus();
+
+      await user.keyboard('{ArrowUp}');
+      expect(
+        screen.getByRole('heading', { name: 'amazon' }),
+      ).toBeInTheDocument();
+    });
+
+    it('tells the shortcut of its buttons', () => {
+      render(<ItemsView />);
+
+      expect(screen.getByRole('button', { name: 'New item' })).toHaveAttribute(
+        'aria-keyshortcuts',
+        'Control+N',
+      );
+    });
   });
 
   describe('creating an item', () => {

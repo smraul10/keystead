@@ -129,6 +129,16 @@ describe('ItemForm', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('cancels with Esc', async () => {
+    const user = userEvent.setup();
+    const { onCancel } = renderForm();
+
+    // The title has the focus when the form opens
+    await user.keyboard('{Escape}');
+
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
   describe('password generator', () => {
     it('fills the password from the generator', async () => {
       // Arrange: open the generator and read the password it shows

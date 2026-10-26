@@ -4,6 +4,7 @@ import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
 import { Button } from '@/components/Button';
 import { CopyButton } from '@/features/clipboard';
+import { useShortcutHint } from '@/features/settings';
 import { IconButton } from '@/components/IconButton';
 
 // Always the same number of dots, so the password length is not revealed
@@ -47,6 +48,11 @@ export function ItemDetails({
 }: ItemDetailsProps) {
   const [revealed, setRevealed] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // The shortcuts themselves live in ItemsView: these tell them
+  const editHint = useShortcutHint('editItem');
+  const copyUsernameHint = useShortcutHint('copyUsername');
+  const copyPasswordHint = useShortcutHint('copyPassword');
+  const moveToTrashHint = useShortcutHint('moveToTrash');
 
   return (
     <div className='flex flex-col gap-6'>
@@ -58,7 +64,7 @@ export function ItemDetails({
         {/* Trashed items can't be edited or marked until they are restored */}
         {item.deletedAt === null && (
           <div className='flex items-center gap-1'>
-            <IconButton label='Edit' onClick={onEdit}>
+            <IconButton label='Edit' onClick={onEdit} {...editHint}>
               <Pencil className='size-5' />
             </IconButton>
             <IconButton
@@ -124,7 +130,11 @@ export function ItemDetails({
           <Field label='Username'>
             <div className='flex items-center gap-2'>
               <span className='min-w-0 wrap-break-word'>{item.username}</span>
-              <CopyButton text={item.username} label='Copy username' />
+              <CopyButton
+                text={item.username}
+                label='Copy username'
+                hint={copyUsernameHint}
+              />
             </div>
           </Field>
         )}
@@ -145,7 +155,11 @@ export function ItemDetails({
                   <Eye className='size-4' />
                 )}
               </IconButton>
-              <CopyButton text={item.password} label='Copy password' />
+              <CopyButton
+                text={item.password}
+                label='Copy password'
+                hint={copyPasswordHint}
+              />
             </div>
           </Field>
         )}
@@ -167,7 +181,11 @@ export function ItemDetails({
       {item.deletedAt === null && (
         // The wrapper keeps the button as wide as its text
         <div>
-          <Button variant='danger-subtle' onClick={onMoveToTrash}>
+          <Button
+            variant='danger-subtle'
+            onClick={onMoveToTrash}
+            {...moveToTrashHint}
+          >
             <Trash2 className='size-4' />
             Move to trash
           </Button>

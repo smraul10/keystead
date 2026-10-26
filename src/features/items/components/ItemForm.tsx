@@ -115,6 +115,13 @@ export function ItemForm({
       <form
         noValidate
         onSubmit={handleSubmit((values) => onSubmit(values))}
+        // Esc cancels, like the Cancel button. A convention: not a setting
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.preventDefault();
+            onCancel();
+          }
+        }}
         className='flex max-w-lg flex-col gap-5'
       >
         <h2 className='text-2xl font-bold'>{heading}</h2>

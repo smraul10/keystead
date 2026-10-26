@@ -1,6 +1,7 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { Item } from '@/api';
+import { useClipboardStore } from '@/features/clipboard';
 import { useItemsStore } from '@/features/items';
 import { useLockStore } from './lockStore';
 
@@ -130,6 +131,19 @@ describe('lockStore', () => {
     expect(useItemsStore.getState().items).toEqual([]);
     await locking;
     expect(commands).toEqual(['lock_vault']);
+  });
+
+  it('stops the countdown of the clipboard', async () => {
+    // Arrange: something was copied (Rust wipes it when locking)
+    useLockStore.setState({ status: 'unlocked' });
+    useClipboardStore.getState().startCountdown(30);
+    mockIPC(() => null);
+
+    // Act
+    await useLockStore.getState().lock();
+
+    // Assert
+    expect(useClipboardStore.getState().countdown).toBeNull();
   });
 
   it('saves the last changes before Rust locks the vault', async () => {

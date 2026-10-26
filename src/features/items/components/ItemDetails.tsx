@@ -3,7 +3,7 @@ import { type ReactNode, useState } from 'react';
 import type { Item } from '../item';
 import { ItemAvatar } from './ItemAvatar';
 import { Button } from '@/components/Button';
-import { CopyButton } from '@/components/CopyButton';
+import { CopyButton } from '@/features/clipboard';
 import { IconButton } from '@/components/IconButton';
 
 // Always the same number of dots, so the password length is not revealed

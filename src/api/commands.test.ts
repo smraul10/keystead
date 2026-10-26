@@ -1,6 +1,8 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { describe, expect, it } from 'vitest';
 import {
+  clearClipboard,
+  copyToClipboard,
   createVault,
   downloadIcon,
   getVaultItems,
@@ -166,6 +168,28 @@ describe('downloadIcon', () => {
 
     await expect(downloadIcon('github.com')).resolves.toBe(icon);
     expect(received).toEqual({ url: 'github.com' });
+  });
+});
+
+describe('copyToClipboard', () => {
+  it('says how long until Rust wipes the copy', async () => {
+    mockIPC((command) => (command === 'copy_to_clipboard' ? 30 : undefined));
+
+    await expect(copyToClipboard('secret')).resolves.toBe(30);
+  });
+});
+
+describe('clearClipboard', () => {
+  it('asks Rust to wipe the copy now', async () => {
+    const commands: string[] = [];
+    mockIPC((command) => {
+      commands.push(command);
+      return null;
+    });
+
+    await clearClipboard();
+
+    expect(commands).toEqual(['clear_clipboard']);
   });
 });
 

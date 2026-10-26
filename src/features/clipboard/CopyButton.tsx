@@ -1,6 +1,6 @@
 import { Check, Copy, X } from 'lucide-react';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
-import { IconButton } from './IconButton';
+import { IconButton } from '@/components/IconButton';
+import { useCopyToClipboard } from './useCopyToClipboard';
 
 interface CopyButtonProps {
   text: string;

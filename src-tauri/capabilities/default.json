@@ -12,6 +12,7 @@
     "allow-save-vault",
     "allow-download-icon",
     "allow-copy-to-clipboard",
+    "allow-clear-clipboard",
     "allow-lock-vault"
   ]
 }

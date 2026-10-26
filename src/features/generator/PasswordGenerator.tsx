@@ -14,7 +14,7 @@ import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';
 import { OptionsPanel } from './components/OptionsPanel';
 import { Check, Copy, RefreshCw, X } from 'lucide-react';
-import { useCopyToClipboard } from '@/hooks/useCopyToClipboard';
+import { useCopyToClipboard } from '@/features/clipboard';
 
 interface PasswordGeneratorProps {
   // Given inside the item form: shows a "Use password" button

@@ -111,8 +111,8 @@ impl<C: Clipboard> SecretClipboard<C> {
         }
     }
 
-    /// Wipes what Keystead copied, if the clipboard still holds it: on lock
-    /// and when the app closes.
+    /// Wipes what Keystead copied, if the clipboard still holds it: on lock,
+    /// when the app closes, and with "Clear now".
     pub fn clear(&self) {
         self.copies().clear();
     }

@@ -2,6 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { clearMocks } from '@tauri-apps/api/mocks';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
+import { useClipboardStore } from '@/features/clipboard';
 
 // jsdom (v30) doesn't implement <dialog> yet: a minimal stand-in, only for
 // tests, so components that call showModal() and close() can be tested.
@@ -21,4 +22,6 @@ afterEach(() => {
   localStorage.clear();
   // Forget the fake Rust answers of mockIPC, so no test sees another's
   clearMocks();
+  // A copy starts a countdown timer: stop it, so it doesn't outlive the test
+  useClipboardStore.getState().stopCountdown();
 });

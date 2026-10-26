@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import { Checkbox } from '@/components/Checkbox';
 import { IconButton } from '@/components/IconButton';
 import { PasswordInput } from '@/components/PasswordInput';
+import { PasswordStrength } from '@/features/strength';
 import { type ItemFormValues, itemSchema } from '../itemSchema';
 import { GeneratorDialog } from './GeneratorDialog';
 import { ItemAvatar } from './ItemAvatar';
@@ -18,16 +19,21 @@ interface FieldProps {
   id: string;
   label: string;
   error: string | undefined;
+  // Shown on the right of the label (e.g. the password's strength)
+  aside?: ReactNode;
   children: ReactNode;
 }
 
 // A label, its control and the error message linked to it
-function Field({ id, label, error, children }: FieldProps) {
+function Field({ id, label, error, aside, children }: FieldProps) {
   return (
     <div className='flex flex-col gap-1.5'>
-      <label htmlFor={id} className='text-sm font-medium text-zinc-700'>
-        {label}
-      </label>
+      <div className='flex items-center justify-between gap-2'>
+        <label htmlFor={id} className='text-sm font-medium text-zinc-700'>
+          {label}
+        </label>
+        {aside}
+      </div>
       {children}
       {error && (
         <p id={`${id}-error`} className='text-sm text-rose-700'>
@@ -64,10 +70,11 @@ export function ItemForm({
     getValues,
     formState: { errors },
   } = useForm({ resolver: zodResolver(itemSchema), defaultValues });
-  // Re-render when these change: the icon preview and its buttons use them
-  const [title, url, icon] = useWatch({
+  // Re-render when these change: the icon preview, its buttons and the
+  // password's strength use them
+  const [title, url, icon, password] = useWatch({
     control,
-    name: ['title', 'url', 'icon'],
+    name: ['title', 'url', 'icon', 'password'],
   });
 
   function applyGeneratedPassword(password: string) {
@@ -134,6 +141,7 @@ export function ItemForm({
           id={`${id}-password`}
           label='Password'
           error={errors.password?.message}
+          aside={<PasswordStrength password={password} />}
         >
           <PasswordInput
             id={`${id}-password`}

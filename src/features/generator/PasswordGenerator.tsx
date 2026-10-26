@@ -6,9 +6,9 @@ import {
   sanitizeOptions,
 } from './options';
 import { Button } from '@/components/Button';
+import { StrengthBadge } from '@/features/strength';
 import { getEntropy } from './strength';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { StrengthBadge } from './components/StrengthBadge';
 import { PasswordDisplay } from './components/PasswordDisplay';
 import { SECTION_TITLE } from './styles';
 import { LengthControl } from './components/LengthControl';

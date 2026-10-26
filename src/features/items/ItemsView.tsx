@@ -104,19 +104,15 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   const shownInVault = shown !== undefined && shown.deletedAt === null;
   const formOpen = panel.kind === 'new' || panel.kind === 'edit';
 
-  // Keyboard shortcuts (Settings can change their keys). Those that don't
-  // type anything also work while typing, e.g. in the search field
-  useShortcut('search', () => searchRef.current?.focus(), {
-    whileTyping: true,
-  });
+  // Keyboard shortcuts (Settings can change their keys)
+  useShortcut('search', () => searchRef.current?.focus());
   useShortcut('newItem', openNewItem, {
     enabled: filter !== 'trash' && !formOpen,
-    whileTyping: true,
   });
   useShortcut(
     'editItem',
     () => shown && setPanel({ kind: 'edit', id: shown.id }),
-    { enabled: shownInVault, whileTyping: true },
+    { enabled: shownInVault },
   );
   useShortcut(
     'moveToTrash',

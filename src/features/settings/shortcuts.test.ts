@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  checkShortcut,
   DEFAULT_SHORTCUTS,
   eventToShortcut,
   formatShortcut,
@@ -22,6 +23,12 @@ describe('eventToShortcut', () => {
   it('keeps the names of special keys', () => {
     expect(eventToShortcut(keydown('Delete'))).toBe('Delete');
     expect(eventToShortcut(keydown(' ', { altKey: true }))).toBe('Alt+Space');
+  });
+
+  it('names the plus key, which also joins the parts', () => {
+    expect(eventToShortcut(keydown('+', { ctrlKey: true }))).toBe(
+      'Control+Plus',
+    );
   });
 
   it('ignores a modifier pressed alone', () => {
@@ -49,6 +56,46 @@ describe('isTyping', () => {
     expect(isTyping(checkbox)).toBe(false);
     expect(isTyping(document.createElement('button'))).toBe(false);
     expect(isTyping(null)).toBe(false);
+  });
+});
+
+describe('checkShortcut', () => {
+  it('accepts a free shortcut', () => {
+    expect(checkShortcut('lock', 'Control+K', DEFAULT_SHORTCUTS)).toBeNull();
+  });
+
+  it('accepts keeping the same shortcut', () => {
+    expect(checkShortcut('lock', 'Control+L', DEFAULT_SHORTCUTS)).toBeNull();
+  });
+
+  it('refuses a shortcut that another action uses', () => {
+    expect(checkShortcut('lock', 'Control+F', DEFAULT_SHORTCUTS)).toBe(
+      'Already used by Search',
+    );
+  });
+
+  it('refuses a key that would get in the way of typing', () => {
+    for (const shortcut of ['K', 'Shift+K', 'Enter', 'Escape', 'ArrowDown']) {
+      expect(checkShortcut('lock', shortcut, DEFAULT_SHORTCUTS)).toBe(
+        'Add Ctrl or Alt: alone, that key would get in the way of typing',
+      );
+    }
+  });
+
+  it('accepts alone the keys that type nothing', () => {
+    expect(checkShortcut('lock', 'F2', DEFAULT_SHORTCUTS)).toBeNull();
+    expect(checkShortcut('lock', 'Insert', DEFAULT_SHORTCUTS)).toBeNull();
+  });
+
+  it('keeps the text editing keys for actions that work while typing', () => {
+    // Locking works while typing: on Ctrl+V, it would never paste again
+    expect(checkShortcut('lock', 'Control+V', DEFAULT_SHORTCUTS)).toBe(
+      'Ctrl+V edits text, and Lock works while typing: choose another',
+    );
+    // Copying a password doesn't act in text fields: there, Ctrl+V pastes
+    expect(
+      checkShortcut('copyPassword', 'Control+V', DEFAULT_SHORTCUTS),
+    ).toBeNull();
   });
 });
 

@@ -43,7 +43,7 @@ export function MainScreen() {
   const [section, setSection] = useState<Section>('all');
   // Only while the vault is open: locking unmounts MainScreen, and this stops
   useAutoLock(lock, autoLockMinutes * 60 * 1000);
-  useShortcut('lock', () => void lock(), { whileTyping: true });
+  useShortcut('lock', () => void lock());
 
   return (
     <div className='flex h-screen flex-col bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100'>

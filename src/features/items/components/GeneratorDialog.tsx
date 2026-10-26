@@ -34,7 +34,7 @@ export function GeneratorDialog({ onUse, onClose }: GeneratorDialogProps) {
       ref={ref}
       aria-labelledby={titleId}
       onClose={onClose}
-      className='m-auto rounded-xl bg-zinc-50 p-4 shadow-xl backdrop:bg-zinc-900/40'
+      className='m-auto rounded-xl bg-zinc-50 p-4 shadow-xl backdrop:bg-zinc-900/40 dark:bg-zinc-950 dark:text-zinc-100 dark:backdrop:bg-black/60'
     >
       <div className='flex flex-col gap-3'>
         <div className='flex items-center justify-between gap-4'>

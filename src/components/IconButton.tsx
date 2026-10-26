@@ -17,7 +17,7 @@ export function IconButton({ label, ...props }: IconButtonProps) {
       type='button'
       aria-label={label}
       {...props}
-      className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900'
+      className='cursor-pointer rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
     />
   );
 }

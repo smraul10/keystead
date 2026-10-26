@@ -63,7 +63,7 @@ export function UnlockScreen() {
         <div className='flex flex-col gap-1.5'>
           <label
             htmlFor={`${id}-password`}
-            className='text-sm font-medium text-zinc-700'
+            className='text-sm font-medium text-zinc-700 dark:text-zinc-300'
           >
             Master password
           </label>
@@ -78,14 +78,17 @@ export function UnlockScreen() {
             onRevealedChange={setRevealed}
           />
           {error && (
-            <p id={`${id}-error`} className='text-sm text-rose-700'>
+            <p
+              id={`${id}-error`}
+              className='text-sm text-rose-700 dark:text-rose-400'
+            >
               {error}
             </p>
           )}
         </div>
 
         {failure && (
-          <p role='alert' className='text-sm text-rose-700'>
+          <p role='alert' className='text-sm text-rose-700 dark:text-rose-400'>
             {failure}
           </p>
         )}

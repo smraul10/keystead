@@ -13,14 +13,14 @@ export function CopyButton({ text, label }: CopyButtonProps) {
   if (copied) {
     return (
       <IconButton label='Copied' onClick={() => copy(text)}>
-        <Check className='size-4 text-emerald-600' />
+        <Check className='size-4 text-emerald-600 dark:text-emerald-400' />
       </IconButton>
     );
   }
   if (failed) {
     return (
       <IconButton label="Couldn't copy" onClick={() => copy(text)}>
-        <X className='size-4 text-rose-600' />
+        <X className='size-4 text-rose-600 dark:text-rose-400' />
       </IconButton>
     );
   }

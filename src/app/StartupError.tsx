@@ -10,7 +10,10 @@ interface StartupErrorProps {
 export function StartupError({ error }: StartupErrorProps) {
   return (
     <CardScreen subtitle="Couldn't start">
-      <p role='alert' className='text-center text-sm text-rose-700'>
+      <p
+        role='alert'
+        className='text-center text-sm text-rose-700 dark:text-rose-400'
+      >
         {errorMessage(error)}
       </p>
     </CardScreen>

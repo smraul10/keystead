@@ -92,7 +92,9 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
   }
 
   function renderPanel(): ReactElement {
-    const nothingSelected = <p className='text-zinc-500'>Select an item</p>;
+    const nothingSelected = (
+      <p className='text-zinc-500 dark:text-zinc-400'>Select an item</p>
+    );
 
     switch (panel.kind) {
       case 'empty':
@@ -150,7 +152,7 @@ export function ItemsView({ filter = 'all' }: ItemsViewProps) {
 
   return (
     <div className='flex h-full'>
-      <section className='flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-zinc-200 p-4'>
+      <section className='flex w-72 shrink-0 flex-col gap-4 overflow-y-auto border-r border-zinc-200 p-4 dark:border-zinc-800'>
         <div className='flex items-center justify-between gap-2 px-3'>
           <h1 className='text-xl font-bold'>{TITLES[filter]}</h1>
           {filter !== 'trash' && (

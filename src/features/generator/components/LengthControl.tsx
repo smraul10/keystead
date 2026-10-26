@@ -33,7 +33,7 @@ export function LengthControl({ length, onChange }: LengthControlProps) {
           max={MAX_LENGTH}
           value={length}
           onChange={(event) => onChange(Number(event.target.value))}
-          className='flex-1 cursor-pointer accent-emerald-600'
+          className='flex-1 cursor-pointer accent-emerald-600 dark:accent-emerald-500'
         />
         <input
           type='number'
@@ -43,7 +43,7 @@ export function LengthControl({ length, onChange }: LengthControlProps) {
           value={draft ?? length}
           onChange={(event) => changeDraft(event.target.value)}
           onBlur={() => setDraft(null)}
-          className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono'
+          className='w-16 rounded-md border border-zinc-300 bg-zinc-50 px-2 py-1 text-right font-mono dark:border-zinc-700 dark:bg-zinc-950'
         />
       </div>
     </div>

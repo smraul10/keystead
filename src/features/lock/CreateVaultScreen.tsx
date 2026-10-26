@@ -104,7 +104,7 @@ export function CreateVaultScreen() {
           <div className='flex items-center justify-between gap-2'>
             <label
               htmlFor={`${id}-password`}
-              className='text-sm font-medium text-zinc-700'
+              className='text-sm font-medium text-zinc-700 dark:text-zinc-300'
             >
               Master password
             </label>
@@ -124,7 +124,9 @@ export function CreateVaultScreen() {
           <p
             id={`${id}-password-hint`}
             className={
-              passwordError ? 'text-sm text-rose-700' : 'text-sm text-zinc-500'
+              passwordError
+                ? 'text-sm text-rose-700 dark:text-rose-400'
+                : 'text-sm text-zinc-500 dark:text-zinc-400'
             }
           >
             {passwordError ?? `At least ${MIN_LENGTH} characters`}
@@ -134,7 +136,7 @@ export function CreateVaultScreen() {
         <div className='flex flex-col gap-1.5'>
           <label
             htmlFor={`${id}-confirmation`}
-            className='text-sm font-medium text-zinc-700'
+            className='text-sm font-medium text-zinc-700 dark:text-zinc-300'
           >
             Confirm master password
           </label>
@@ -152,27 +154,27 @@ export function CreateVaultScreen() {
           {confirmationError && (
             <p
               id={`${id}-confirmation-error`}
-              className='text-sm text-rose-700'
+              className='text-sm text-rose-700 dark:text-rose-400'
             >
               {confirmationError}
             </p>
           )}
         </div>
 
-        <p className='flex gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-900'>
+        <p className='flex gap-2 rounded-md bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-200'>
           <TriangleAlert className='mt-0.5 size-4 shrink-0' />
           Remember your master password: if you forget it, nobody can recover
           your vault.
         </p>
 
         {failure && (
-          <p role='alert' className='text-sm text-rose-700'>
+          <p role='alert' className='text-sm text-rose-700 dark:text-rose-400'>
             {failure}
           </p>
         )}
 
         {askingAboutWeak ? (
-          <div className='flex flex-col gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900'>
+          <div className='flex flex-col gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200'>
             <p id={`${id}-weak`}>
               This master password is weak: someone could guess it. Use it
               anyway?

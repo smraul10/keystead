@@ -19,7 +19,7 @@ export function Checkbox({
           checked={checked}
           disabled={disabled}
           onChange={(event) => onChange(event.target.checked)}
-          className='peer col-start-1 row-start-1 size-4 cursor-pointer appearance-none rounded border border-zinc-300 bg-white transition-colors checked:border-emerald-600 checked:bg-emerald-600 disabled:cursor-not-allowed forced-colors:appearance-auto'
+          className='peer col-start-1 row-start-1 size-4 cursor-pointer appearance-none rounded border border-zinc-300 bg-white transition-colors checked:border-emerald-600 checked:bg-emerald-600 disabled:cursor-not-allowed dark:border-zinc-600 dark:bg-zinc-900 forced-colors:appearance-auto'
         />
         <svg
           aria-hidden='true'

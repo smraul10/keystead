@@ -17,7 +17,7 @@ export function ItemAvatar({ title, icon, size = 'md' }: ItemAvatarProps) {
     return (
       <span
         aria-hidden='true'
-        className={`flex shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white p-1.5 ${SIZES[size]}`}
+        className={`flex shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-white p-1.5 dark:border-zinc-700 ${SIZES[size]}`}
       >
         {/* A PNG made by Rust from the site's icon (see the CSP's img-src) */}
         <img

@@ -15,11 +15,12 @@ describe('settingsStore', () => {
     expect(JSON.parse(localStorage.getItem('settings') ?? 'null')).toEqual({
       autoLockMinutes: 5,
       clipboardSeconds: 30,
+      theme: 'system',
     });
   });
 
   it('reads the saved settings', () => {
-    const saved = { autoLockMinutes: 15, clipboardSeconds: 10 };
+    const saved = { autoLockMinutes: 15, clipboardSeconds: 10, theme: 'dark' };
     localStorage.setItem('settings', JSON.stringify(saved));
 
     expect(loadSettings()).toEqual(saved);

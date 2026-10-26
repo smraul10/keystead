@@ -3,6 +3,7 @@ mod commands;
 mod error;
 mod icon;
 mod state;
+mod theme;
 
 use tauri::{Manager, RunEvent};
 
@@ -39,6 +40,7 @@ pub fn run() {
             commands::download_icon,
             commands::copy_to_clipboard,
             commands::clear_clipboard,
+            commands::set_window_theme,
             commands::lock_vault,
         ])
         .build(tauri::generate_context!())

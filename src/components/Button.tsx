@@ -4,9 +4,11 @@ type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'danger-subtle';
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary: 'bg-emerald-600 text-white hover:bg-emerald-700',
-  secondary: 'bg-zinc-100 hover:bg-zinc-200',
+  secondary:
+    'bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700',
   danger: 'bg-rose-600 text-white hover:bg-rose-700',
-  'danger-subtle': 'text-rose-700 hover:bg-rose-50',
+  'danger-subtle':
+    'text-rose-700 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/50',
 };
 
 // Accepts every attribute of a <button> except className: buttons always

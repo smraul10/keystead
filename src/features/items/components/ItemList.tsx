@@ -16,7 +16,11 @@ export function ItemList({
   emptyMessage,
 }: ItemListProps) {
   if (items.length === 0) {
-    return <p className='px-3 text-sm text-zinc-500'>{emptyMessage}</p>;
+    return (
+      <p className='px-3 text-sm text-zinc-500 dark:text-zinc-400'>
+        {emptyMessage}
+      </p>
+    );
   }
 
   return (
@@ -27,7 +31,7 @@ export function ItemList({
             type='button'
             onClick={() => onSelect(item.id)}
             aria-current={item.id === selectedId ? 'true' : undefined}
-            className='flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition hover:bg-zinc-100 aria-current:bg-zinc-200'
+            className='flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-left transition hover:bg-zinc-100 aria-current:bg-zinc-200 dark:hover:bg-zinc-800 dark:aria-current:bg-zinc-800'
           >
             <ItemAvatar title={item.title} icon={item.icon} />
             <div className='flex min-w-0 flex-col'>
@@ -42,7 +46,7 @@ export function ItemList({
                 )}
               </span>
               {item.username && (
-                <span className='truncate text-xs text-zinc-500'>
+                <span className='truncate text-xs text-zinc-500 dark:text-zinc-400'>
                   {item.username}
                 </span>
               )}

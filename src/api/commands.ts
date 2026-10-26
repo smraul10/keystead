@@ -88,6 +88,17 @@ export async function clearClipboard(): Promise<void> {
   await call('clear_clipboard', nothingSchema);
 }
 
+/**
+ * Asks Rust to paint the window's title bar (drawn by Windows) in the theme
+ * chosen in Settings. "system" lets Windows decide. `ThemeSetting` in
+ * src-tauri/src/theme.rs: keep both in sync.
+ */
+export async function setWindowTheme(
+  theme: 'light' | 'dark' | 'system',
+): Promise<void> {
+  await call('set_window_theme', nothingSchema, { theme });
+}
+
 /** Locks the vault: Rust wipes its key and its items from memory. */
 export async function lockVault(): Promise<void> {
   await call('lock_vault', nothingSchema);

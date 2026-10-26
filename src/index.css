@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+/* `dark:` classes follow the `dark` class of <html> (see applyTheme), not
+   only Windows' mode: Settings may choose light or dark by hand */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
@@ -7,8 +11,22 @@
 }
 
 @layer base {
+  /* What shows for a moment before the app is drawn, in the theme's color */
+  html {
+    background-color: var(--color-white);
+  }
+
+  html.dark {
+    background-color: var(--color-zinc-950);
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-emerald-600);
     outline-offset: 2px;
+  }
+
+  /* A lighter green, so the focus ring stands out on dark backgrounds */
+  .dark :focus-visible {
+    outline-color: var(--color-emerald-400);
   }
 }

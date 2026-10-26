@@ -14,22 +14,26 @@ const STRENGTH_STYLES: Record<
   poor: {
     label: 'Poor',
     icon: X,
-    className: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+    className:
+      'bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-950/50 dark:text-rose-300 dark:ring-rose-400/30',
   },
   weak: {
     label: 'Weak',
     icon: TriangleAlert,
-    className: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    className:
+      'bg-amber-50 text-amber-700 ring-amber-600/20 dark:bg-amber-950/50 dark:text-amber-300 dark:ring-amber-400/30',
   },
   good: {
     label: 'Good',
     icon: Check,
-    className: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    className:
+      'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/50 dark:text-emerald-300 dark:ring-emerald-400/30',
   },
   excellent: {
     label: 'Excellent',
     icon: CheckCheck,
-    className: 'bg-emerald-100 text-emerald-800 ring-emerald-600/30',
+    className:
+      'bg-emerald-100 text-emerald-800 ring-emerald-600/30 dark:bg-emerald-900/60 dark:text-emerald-200 dark:ring-emerald-400/40',
   },
 };
 

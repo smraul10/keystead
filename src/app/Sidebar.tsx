@@ -24,7 +24,7 @@ const SECTIONS: {
 
 // The sidebar rows share one look: a full-width row, highlighted when current
 const ROW =
-  'flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 aria-[current=page]:bg-zinc-200 aria-[current=page]:text-zinc-900';
+  'flex w-full cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 aria-[current=page]:bg-zinc-200 aria-[current=page]:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:aria-[current=page]:bg-zinc-800 dark:aria-[current=page]:text-zinc-100';
 
 interface SidebarProps {
   current: Section;
@@ -34,7 +34,7 @@ interface SidebarProps {
 
 export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
   return (
-    <div className='flex w-56 shrink-0 flex-col gap-6 border-r border-zinc-200 bg-zinc-50 p-4'>
+    <div className='flex w-56 shrink-0 flex-col gap-6 border-r border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950'>
       <p className='px-3 text-lg font-bold'>Keystead</p>
       {/* flex-1 pushes Settings and Lock to the bottom */}
       <nav aria-label='Sections' className='flex-1'>
@@ -54,7 +54,7 @@ export function Sidebar({ current, onSelect, onLock }: SidebarProps) {
           ))}
         </ul>
       </nav>
-      <div className='flex flex-col gap-1 border-t border-zinc-200 pt-4'>
+      <div className='flex flex-col gap-1 border-t border-zinc-200 pt-4 dark:border-zinc-800'>
         <button
           type='button'
           onClick={() => onSelect('settings')}

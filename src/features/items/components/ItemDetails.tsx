@@ -22,7 +22,7 @@ interface FieldProps {
 function Field({ label, children }: FieldProps) {
   return (
     <>
-      <dt className='text-zinc-500'>{label}</dt>
+      <dt className='text-zinc-500 dark:text-zinc-400'>{label}</dt>
       <dd className='min-w-0 wrap-break-word'>{children}</dd>
     </>
   );
@@ -79,8 +79,8 @@ export function ItemDetails({
       </div>
 
       {item.deletedAt !== null && (
-        <div className='flex flex-col gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm'>
-          <p className='flex gap-1 text-zinc-600'>
+        <div className='flex flex-col gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-sm dark:border-zinc-800 dark:bg-zinc-950'>
+          <p className='flex gap-1 text-zinc-600 dark:text-zinc-400'>
             <span>In the trash since</span>
             <time dateTime={item.deletedAt}>
               {DATE_FORMAT.format(new Date(item.deletedAt))}
@@ -88,7 +88,7 @@ export function ItemDetails({
           </p>
           {confirmingDelete ? (
             <div className='flex flex-col gap-2'>
-              <p className='font-medium text-rose-700'>
+              <p className='font-medium text-rose-700 dark:text-rose-400'>
                 Delete forever? This can't be undone.
               </p>
               <div className='flex gap-2'>
@@ -157,7 +157,7 @@ export function ItemDetails({
         )}
       </dl>
 
-      <p className='flex gap-1 text-xs text-zinc-500'>
+      <p className='flex gap-1 text-xs text-zinc-500 dark:text-zinc-400'>
         <span>Last edited</span>
         <time dateTime={item.updatedAt}>
           {DATE_FORMAT.format(new Date(item.updatedAt))}

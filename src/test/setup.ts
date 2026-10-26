@@ -17,6 +17,21 @@ if (typeof HTMLDialogElement.prototype.showModal !== 'function') {
   };
 }
 
+// jsdom doesn't implement matchMedia either: a stand-in where Windows is in
+// light mode and never changes (a test that needs otherwise replaces it)
+if (typeof window.matchMedia !== 'function') {
+  window.matchMedia = (query: string): MediaQueryList => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+    addListener: () => undefined,
+    removeListener: () => undefined,
+    dispatchEvent: () => false,
+  });
+}
+
 afterEach(() => {
   cleanup();
   localStorage.clear();

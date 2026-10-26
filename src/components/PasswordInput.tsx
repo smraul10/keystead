@@ -30,7 +30,7 @@ export function PasswordInput({
         spellCheck={false}
         {...props}
         // Room on the right, so the text never runs under the buttons
-        className={`w-full rounded-md border border-zinc-300 bg-white py-1.5 pl-3 font-mono text-sm aria-invalid:border-rose-600 ${actions ? 'pr-18' : 'pr-10'}`}
+        className={`w-full rounded-md border border-zinc-300 bg-white py-1.5 pl-3 font-mono text-sm aria-invalid:border-rose-600 dark:border-zinc-700 dark:bg-zinc-900 dark:aria-invalid:border-rose-500 ${actions ? 'pr-18' : 'pr-10'}`}
       />
       <div className='absolute inset-y-0 right-1 flex items-center gap-0.5'>
         <IconButton

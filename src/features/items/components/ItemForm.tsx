@@ -13,7 +13,7 @@ import { GeneratorDialog } from './GeneratorDialog';
 import { ItemAvatar } from './ItemAvatar';
 
 const INPUT =
-  'w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm aria-invalid:border-rose-600';
+  'w-full rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-sm aria-invalid:border-rose-600 dark:border-zinc-700 dark:bg-zinc-900 dark:aria-invalid:border-rose-500';
 
 interface FieldProps {
   id: string;
@@ -29,14 +29,20 @@ function Field({ id, label, error, aside, children }: FieldProps) {
   return (
     <div className='flex flex-col gap-1.5'>
       <div className='flex items-center justify-between gap-2'>
-        <label htmlFor={id} className='text-sm font-medium text-zinc-700'>
+        <label
+          htmlFor={id}
+          className='text-sm font-medium text-zinc-700 dark:text-zinc-300'
+        >
           {label}
         </label>
         {aside}
       </div>
       {children}
       {error && (
-        <p id={`${id}-error`} className='text-sm text-rose-700'>
+        <p
+          id={`${id}-error`}
+          className='text-sm text-rose-700 dark:text-rose-400'
+        >
           {error}
         </p>
       )}
@@ -176,7 +182,10 @@ export function ItemForm({
           aria-labelledby={`${id}-icon`}
           className='flex flex-col gap-1.5'
         >
-          <span id={`${id}-icon`} className='text-sm font-medium text-zinc-700'>
+          <span
+            id={`${id}-icon`}
+            className='text-sm font-medium text-zinc-700 dark:text-zinc-300'
+          >
             Icon
           </span>
           <div className='flex items-center gap-3'>
@@ -197,7 +206,10 @@ export function ItemForm({
             )}
           </div>
           {iconError && (
-            <p role='alert' className='text-sm text-rose-700'>
+            <p
+              role='alert'
+              className='text-sm text-rose-700 dark:text-rose-400'
+            >
               {iconError}
             </p>
           )}

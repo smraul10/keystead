@@ -41,7 +41,7 @@ export function MainScreen() {
   useAutoLock(lock, autoLockMinutes * 60 * 1000);
 
   return (
-    <div className='flex h-screen flex-col bg-white text-zinc-900'>
+    <div className='flex h-screen flex-col bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100'>
       <SaveErrorBanner />
       <div className='flex min-h-0 flex-1'>
         <Sidebar current={section} onSelect={setSection} onLock={lock} />

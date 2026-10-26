@@ -14,7 +14,7 @@ export function SaveErrorBanner() {
   }
 
   return (
-    <div className='flex items-center gap-3 border-b border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-900'>
+    <div className='flex items-center gap-3 border-b border-rose-200 bg-rose-50 px-4 py-2 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200'>
       <TriangleAlert className='size-4 shrink-0' />
       <p role='alert' className='flex-1'>
         <span className='font-semibold'>Your changes couldn't be saved.</span>{' '}

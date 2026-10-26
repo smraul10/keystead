@@ -9,6 +9,7 @@ fn main() {
         "vault_items",
         "save_vault",
         "download_icon",
+        "copy_to_clipboard",
         "lock_vault",
     ]);
 

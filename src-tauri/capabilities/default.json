@@ -11,6 +11,7 @@
     "allow-vault-items",
     "allow-save-vault",
     "allow-download-icon",
+    "allow-copy-to-clipboard",
     "allow-lock-vault"
   ]
 }

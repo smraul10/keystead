@@ -1,10 +1,12 @@
+mod clipboard;
 mod commands;
 mod error;
 mod icon;
 mod state;
 
-use tauri::Manager;
+use tauri::{Manager, RunEvent};
 
+use crate::clipboard::{SecretClipboard, SystemClipboard};
 use crate::state::{AppState, VAULT_FILE_NAME};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -27,6 +29,7 @@ pub fn run() {
             app.manage(AppState::new(folder.join(VAULT_FILE_NAME)));
             Ok(())
         })
+        .manage(SecretClipboard::new(SystemClipboard))
         .invoke_handler(tauri::generate_handler![
             commands::vault_status,
             commands::create_vault,
@@ -34,8 +37,15 @@ pub fn run() {
             commands::vault_items,
             commands::save_vault,
             commands::download_icon,
+            commands::copy_to_clipboard,
             commands::lock_vault,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app, event| {
+            // A copied password must not outlive the app
+            if let RunEvent::Exit = event {
+                app.state::<SecretClipboard>().clear();
+            }
+        });
 }

@@ -2,6 +2,7 @@ import { mockIPC } from '@tauri-apps/api/mocks';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fakeClipboard } from '@/test/fakeClipboard';
+import { useClipboardStore } from './clipboardStore';
 import { useCopyToClipboard } from './useCopyToClipboard';
 
 describe('useCopyToClipboard', () => {
@@ -20,6 +21,15 @@ describe('useCopyToClipboard', () => {
     // Assert
     expect(clipboard.text).toBe('secret');
     expect(result.current.copied).toBe(true);
+  });
+
+  it('starts the countdown until Rust wipes the copy', async () => {
+    fakeClipboard();
+    const { result } = renderHook(() => useCopyToClipboard());
+
+    await act(() => result.current.copy('secret'));
+
+    expect(useClipboardStore.getState().countdown?.totalMs).toBe(30 * 1000);
   });
 
   it('keeps the confirmation for 2 seconds', async () => {

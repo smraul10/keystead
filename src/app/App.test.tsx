@@ -55,6 +55,10 @@ function fakeRust(initial: VaultStatus) {
           items = args.items;
         }
         return null;
+      case 'copy_to_clipboard':
+        return 30;
+      case 'clear_clipboard':
+        return null;
       case 'lock_vault':
         status = 'locked';
         return null;
@@ -204,6 +208,21 @@ describe('App', () => {
 
     // Assert
     expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
+  });
+
+  it('shows how long until a copied password is wiped', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await renderUnlocked();
+    await user.click(screen.getByRole('button', { name: /GitHub/ }));
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Copy password' }));
+
+    // Assert: the status bar at the bottom of the window
+    expect(await screen.findByRole('timer')).toHaveTextContent(
+      'clears in 30 s',
+    );
   });
 
   it('keeps the changes after locking and unlocking', async () => {

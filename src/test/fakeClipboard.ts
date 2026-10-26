@@ -4,9 +4,12 @@ export interface FakeClipboard {
   text: string | null;
 }
 
+// Like Rust: a copy is wiped after 30 seconds
+const CLEARS_AFTER_SECONDS = 30;
+
 /**
- * Stands in for Rust's clipboard (`copy_to_clipboard`): the returned object
- * holds what the UI copied, so a test can check it.
+ * Stands in for Rust's clipboard (`copy_to_clipboard`, `clear_clipboard`):
+ * the returned object holds what the UI copied, so a test can check it.
  */
 export function fakeClipboard(): FakeClipboard {
   const clipboard: FakeClipboard = { text: null };
@@ -18,6 +21,10 @@ export function fakeClipboard(): FakeClipboard {
       typeof args.text === 'string'
     ) {
       clipboard.text = args.text;
+      return CLEARS_AFTER_SECONDS;
+    }
+    if (command === 'clear_clipboard') {
+      clipboard.text = null;
       return null;
     }
   });

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 // `api.createVault` reads as "ask Rust", next to the store's own createVault
 import * as api from '@/api';
+import { useClipboardStore } from '@/features/clipboard';
 import { useItemsStore } from '@/features/items';
 
 // What the app shows: Rust's VaultStatus, or 'checking' while waiting for
@@ -48,6 +49,8 @@ export const useLockStore = create<LockState>()((set) => {
       set({ status: 'locked' });
       const items = useItemsStore.getState();
       items.clearItems();
+      // Rust wipes the copy when it locks: nothing left to count down
+      useClipboardStore.getState().stopCountdown();
       // The last changes may still be on their way: let them reach the file
       // before Rust closes the vault
       await items.waitForSaves();

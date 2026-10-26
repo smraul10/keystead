@@ -70,10 +70,15 @@ export function downloadIcon(url: string): Promise<string> {
 
 /**
  * Asks Rust to copy `text`: it keeps it out of the Windows clipboard history
- * and wipes it after 30 seconds, on lock and on exit.
+ * and wipes it later, on lock and on exit. Returns the seconds until then.
  */
-export async function copyToClipboard(text: string): Promise<void> {
-  await call('copy_to_clipboard', nothingSchema, { text });
+export function copyToClipboard(text: string): Promise<number> {
+  return call('copy_to_clipboard', z.number().int().positive(), { text });
+}
+
+/** Asks Rust to wipe the last copy now, if the clipboard still holds it. */
+export async function clearClipboard(): Promise<void> {
+  await call('clear_clipboard', nothingSchema);
 }
 
 /** Locks the vault: Rust wipes its key and its items from memory. */

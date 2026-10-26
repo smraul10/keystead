@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_SETTINGS } from './settings';
+import { DEFAULT_SHORTCUTS } from './shortcuts';
 import { loadSettings, useSettingsStore } from './settingsStore';
 
 describe('settingsStore', () => {
@@ -16,11 +17,17 @@ describe('settingsStore', () => {
       autoLockMinutes: 5,
       clipboardSeconds: 30,
       theme: 'system',
+      shortcuts: DEFAULT_SHORTCUTS,
     });
   });
 
   it('reads the saved settings', () => {
-    const saved = { autoLockMinutes: 15, clipboardSeconds: 10, theme: 'dark' };
+    const saved = {
+      autoLockMinutes: 15,
+      clipboardSeconds: 10,
+      theme: 'dark',
+      shortcuts: DEFAULT_SHORTCUTS,
+    };
     localStorage.setItem('settings', JSON.stringify(saved));
 
     expect(loadSettings()).toEqual(saved);

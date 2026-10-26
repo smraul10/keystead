@@ -17,4 +17,5 @@ export {
   commandErrorOf,
   errorMessage,
 } from './errors';
+export { onLockRequested } from './events';
 export { type Item } from './item';

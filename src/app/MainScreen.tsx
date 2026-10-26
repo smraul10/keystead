@@ -2,7 +2,7 @@ import { type ReactElement, useState } from 'react';
 import { ClipboardStatusBar } from '@/features/clipboard';
 import { PasswordGenerator } from '@/features/generator';
 import { ItemsView, SaveErrorBanner } from '@/features/items';
-import { useAutoLock, useLockStore } from '@/features/lock';
+import { useAutoLock, useLockRequests, useLockStore } from '@/features/lock';
 import {
   SettingsView,
   useSettingsStore,
@@ -44,6 +44,8 @@ export function MainScreen() {
   // Only while the vault is open: locking unmounts MainScreen, and this stops
   useAutoLock(lock, autoLockMinutes * 60 * 1000);
   useShortcut('lock', () => void lock());
+  // When Windows locks the session (Win+L) or goes to sleep
+  useLockRequests(() => void lock());
 
   return (
     <div className='flex h-screen flex-col bg-white text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100'>

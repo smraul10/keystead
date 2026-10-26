@@ -6,7 +6,7 @@ use keystead_vault::Item;
 use tauri::{AppHandle, Manager, State};
 use zeroize::Zeroizing;
 
-use crate::clipboard::{CLEAR_AFTER, SecretClipboard};
+use crate::clipboard::{SecretClipboard, clear_after};
 use crate::error::CommandError;
 use crate::icon;
 use crate::state::{AppState, VaultStatus};
@@ -71,24 +71,27 @@ pub async fn download_icon(url: String) -> Result<String, CommandError> {
 }
 
 /// Copies `text` to the clipboard, kept out of the Windows clipboard history,
-/// and wipes it after 30 seconds if the clipboard still holds it. Returns
-/// those seconds, for the countdown the UI shows.
+/// and wipes it after the seconds chosen in Settings (within limits) if the
+/// clipboard still holds it. Returns the seconds used, for the countdown the
+/// UI shows.
 #[tauri::command]
 pub fn copy_to_clipboard(
     app: AppHandle,
     clipboard: State<'_, SecretClipboard>,
     text: String,
+    clear_after_seconds: u64,
 ) -> Result<u64, CommandError> {
     // Wiped from memory as soon as this command ends
     let text = Zeroizing::new(text);
+    let delay = clear_after(clear_after_seconds);
     let copy = clipboard.copy(&text)?;
     // A thread that only sleeps: it blocks nothing, and newer copies have
     // their own (an older timer leaves them alone)
     std::thread::spawn(move || {
-        std::thread::sleep(CLEAR_AFTER);
+        std::thread::sleep(delay);
         app.state::<SecretClipboard>().clear_copy(copy);
     });
-    Ok(CLEAR_AFTER.as_secs())
+    Ok(delay.as_secs())
 }
 
 /// Wipes what Keystead copied right away ("Clear now"), if the clipboard

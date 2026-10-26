@@ -9,6 +9,7 @@ import {
   getVaultStatus,
   lockVault,
   saveVault,
+  setWindowTheme,
   unlockVault,
 } from './commands';
 import { CommandFailedError } from './errors';
@@ -199,6 +200,22 @@ describe('clearClipboard', () => {
     await clearClipboard();
 
     expect(commands).toEqual(['clear_clipboard']);
+  });
+});
+
+describe('setWindowTheme', () => {
+  it('asks Rust to paint the title bar', async () => {
+    let received: unknown;
+    mockIPC((command, args) => {
+      if (command === 'set_window_theme') {
+        received = args;
+        return null;
+      }
+    });
+
+    await setWindowTheme('system');
+
+    expect(received).toEqual({ theme: 'system' });
   });
 });
 

@@ -26,10 +26,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => ({
   ...loadSettings(),
   update: (changes) => {
     set(changes);
-    const { autoLockMinutes, clipboardSeconds } = get();
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ autoLockMinutes, clipboardSeconds }),
-    );
+    // The schema keeps only the settings (not this function), checked
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(parseSettings(get())));
   },
 }));

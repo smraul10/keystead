@@ -7,6 +7,7 @@ export {
   getVaultStatus,
   lockVault,
   saveVault,
+  setWindowTheme,
   unlockVault,
   type VaultStatus,
 } from './commands';

@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { type CommandError, commandErrorOf } from '@/api';
 import { CreateVaultScreen, UnlockScreen, useLockStore } from '@/features/lock';
+import { useTheme } from '@/features/settings';
 import { MainScreen } from './MainScreen';
 import { StartupError } from './StartupError';
 
@@ -8,6 +9,8 @@ export function App(): ReactElement | null {
   const status = useLockStore((state) => state.status);
   const checkStatus = useLockStore((state) => state.checkStatus);
   const [startupError, setStartupError] = useState<CommandError | null>(null);
+  // Light or dark on every screen, unlock and create included
+  useTheme();
 
   // At launch, ask Rust whether there is a vault to create or to unlock
   useEffect(() => {

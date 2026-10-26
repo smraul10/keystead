@@ -46,4 +46,13 @@ describe('SettingsView', () => {
 
     expect(useSettingsStore.getState().clipboardSeconds).toBe(10);
   });
+
+  it('changes the theme', async () => {
+    const user = userEvent.setup();
+    render(<SettingsView />);
+
+    await user.selectOptions(screen.getByLabelText('Theme'), 'Dark');
+
+    expect(useSettingsStore.getState().theme).toBe('dark');
+  });
 });

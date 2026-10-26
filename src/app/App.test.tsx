@@ -1,10 +1,20 @@
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import type { Item, VaultStatus } from '@/api';
 import { useItemsStore } from '@/features/items';
 import { useLockStore } from '@/features/lock';
+import { useSettingsStore } from '@/features/settings';
+import { loadEstimator } from '@/features/strength';
 import { App } from './App';
 
 // Strong (random): creating a vault with it doesn't ask about it
@@ -76,10 +86,17 @@ async function renderUnlocked() {
 }
 
 describe('App', () => {
+  // Creating a vault measures the master password: load the strength
+  // dictionaries once, before the tests, instead of inside one of them
+  beforeAll(async () => {
+    await loadEstimator();
+  });
+
   // The stores live outside React: start every test as a fresh launch
   beforeEach(() => {
     useLockStore.setState(useLockStore.getInitialState());
     useItemsStore.setState(useItemsStore.getInitialState());
+    useSettingsStore.setState({ autoLockMinutes: 10, clipboardSeconds: 30 });
   });
 
   afterEach(() => {
@@ -196,6 +213,21 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('locks by itself after the time chosen in Settings', async () => {
+    // Arrange
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    useSettingsStore.setState({ autoLockMinutes: 1 });
+    await renderUnlocked();
+
+    // Act
+    act(() => {
+      vi.advanceTimersByTime(60 * 1000);
+    });
+
+    // Assert
+    expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
+  });
+
   it('locks by itself after ten minutes without activity', async () => {
     // Arrange: a fake clock that also moves on its own, so waiting for the
     // fake Rust still works
@@ -303,6 +335,24 @@ describe('App', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Favorites' }),
     ).toBeInTheDocument();
+  });
+
+  it('shows the settings when choosing their section', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    await renderUnlocked();
+
+    // Act
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+
+    // Assert
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Settings' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Settings' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
   it('shows the trash when choosing its section', async () => {

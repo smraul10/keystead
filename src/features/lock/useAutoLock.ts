@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
 
-// How long the vault stays open without anybody using the app (like 1Password)
-export const AUTO_LOCK_AFTER_MS = 10 * 60 * 1000;
-
 // What counts as using the app
 const ACTIVITY_EVENTS = ['pointerdown', 'pointermove', 'keydown', 'wheel'];
 

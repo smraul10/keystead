@@ -1,6 +1,7 @@
+import { mockIPC } from '@tauri-apps/api/mocks';
 import { act, renderHook } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { fakeClipboard } from '@/test/fakeClipboard';
 import { useCopyToClipboard } from './useCopyToClipboard';
 
 describe('useCopyToClipboard', () => {
@@ -8,22 +9,22 @@ describe('useCopyToClipboard', () => {
     vi.useRealTimers();
   });
 
-  it('copies the text to the clipboard', async () => {
-    // Arrange: userEvent installs a fake clipboard in the test browser
-    userEvent.setup();
+  it('asks Rust to copy the text', async () => {
+    // Arrange
+    const clipboard = fakeClipboard();
     const { result } = renderHook(() => useCopyToClipboard());
 
     // Act
     await act(() => result.current.copy('secret'));
 
     // Assert
-    expect(await navigator.clipboard.readText()).toBe('secret');
+    expect(clipboard.text).toBe('secret');
     expect(result.current.copied).toBe(true);
   });
 
   it('keeps the confirmation for 2 seconds', async () => {
     // Arrange: fake timers let the test move the clock forward
-    userEvent.setup();
+    fakeClipboard();
     vi.useFakeTimers();
     const { result } = renderHook(() => useCopyToClipboard());
     await act(() => result.current.copy('secret'));
@@ -41,7 +42,7 @@ describe('useCopyToClipboard', () => {
 
   it('resets the confirmation on demand', async () => {
     // Arrange: copy something first, so there is a confirmation to reset
-    userEvent.setup();
+    fakeClipboard();
     const { result } = renderHook(() => useCopyToClipboard());
     await act(() => result.current.copy('secret'));
 
@@ -51,6 +52,19 @@ describe('useCopyToClipboard', () => {
     });
 
     // Assert
+    expect(result.current.copied).toBe(false);
+  });
+
+  it('says when the text could not be copied', async () => {
+    // Arrange: another app is holding the clipboard
+    mockIPC(() => Promise.reject({ kind: 'clipboard' }));
+    const { result } = renderHook(() => useCopyToClipboard());
+
+    // Act
+    await act(() => result.current.copy('secret'));
+
+    // Assert
+    expect(result.current.failed).toBe(true);
     expect(result.current.copied).toBe(false);
   });
 });

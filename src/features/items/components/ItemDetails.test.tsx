@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { fakeClipboard } from '@/test/fakeClipboard';
 import { makeItem } from '../makeItem';
 import { ItemDetails } from './ItemDetails';
 import type { Item } from '../item';
@@ -96,26 +97,28 @@ describe('ItemDetails', () => {
   it('copies the password without showing it', async () => {
     // Arrange
     const user = userEvent.setup();
+    const clipboard = fakeClipboard();
     renderDetails();
 
     // Act
     await user.click(screen.getByRole('button', { name: 'Copy password' }));
 
     // Assert: copied, but still hidden on screen
-    expect(await navigator.clipboard.readText()).toBe(ITEM.password);
+    expect(clipboard.text).toBe(ITEM.password);
     expect(screen.queryByText(ITEM.password)).not.toBeInTheDocument();
   });
 
   it('copies the username', async () => {
     // Arrange
     const user = userEvent.setup();
+    const clipboard = fakeClipboard();
     renderDetails();
 
     // Act
     await user.click(screen.getByRole('button', { name: 'Copy username' }));
 
     // Assert
-    expect(await navigator.clipboard.readText()).toBe(ITEM.username);
+    expect(clipboard.text).toBe(ITEM.username);
   });
 
   it('shows whether the item is a favorite', () => {

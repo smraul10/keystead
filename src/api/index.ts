@@ -1,4 +1,5 @@
 export {
+  copyToClipboard,
   createVault,
   downloadIcon,
   getVaultItems,

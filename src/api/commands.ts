@@ -68,6 +68,14 @@ export function downloadIcon(url: string): Promise<string> {
   return call('download_icon', z.base64(), { url });
 }
 
+/**
+ * Asks Rust to copy `text`: it keeps it out of the Windows clipboard history
+ * and wipes it after 30 seconds, on lock and on exit.
+ */
+export async function copyToClipboard(text: string): Promise<void> {
+  await call('copy_to_clipboard', nothingSchema, { text });
+}
+
 /** Locks the vault: Rust wipes its key and its items from memory. */
 export async function lockVault(): Promise<void> {
   await call('lock_vault', nothingSchema);

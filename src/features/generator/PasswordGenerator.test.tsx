@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { type FakeClipboard, fakeClipboard } from '@/test/fakeClipboard';
 import { PasswordGenerator } from './PasswordGenerator';
 import { DEFAULT_PASSWORD_OPTIONS } from './options';
 
@@ -207,6 +208,12 @@ describe('PasswordGenerator', () => {
   });
 
   describe('copy', () => {
+    // Rust copies: a fake one remembers what the UI asked to copy
+    let clipboard: FakeClipboard;
+    beforeEach(() => {
+      clipboard = fakeClipboard();
+    });
+
     it('copies the password to the clipboard', async () => {
       // Arrange
       const user = userEvent.setup();
@@ -216,7 +223,7 @@ describe('PasswordGenerator', () => {
       await user.click(screen.getByRole('button', { name: 'Copy' }));
 
       // Assert
-      expect(await navigator.clipboard.readText()).toBe(getPassword());
+      expect(clipboard.text).toBe(getPassword());
     });
 
     it('confirms that the password was copied', async () => {

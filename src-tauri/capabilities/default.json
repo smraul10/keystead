@@ -13,6 +13,7 @@
     "allow-download-icon",
     "allow-copy-to-clipboard",
     "allow-clear-clipboard",
+    "allow-set-window-theme",
     "allow-lock-vault"
   ]
 }

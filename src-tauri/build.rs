@@ -11,6 +11,7 @@ fn main() {
         "download_icon",
         "copy_to_clipboard",
         "clear_clipboard",
+        "set_window_theme",
         "lock_vault",
     ]);
 

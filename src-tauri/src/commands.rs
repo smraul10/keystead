@@ -3,13 +3,14 @@
 //! own permission (see `build.rs` and `capabilities/default.json`).
 
 use keystead_vault::Item;
-use tauri::{AppHandle, Manager, State};
+use tauri::{AppHandle, Manager, State, WebviewWindow};
 use zeroize::Zeroizing;
 
 use crate::clipboard::{SecretClipboard, clear_after};
 use crate::error::CommandError;
 use crate::icon;
 use crate::state::{AppState, VaultStatus};
+use crate::theme::{ThemeSetting, window_theme};
 
 /// Whether there is a vault to create, to unlock, or an unlocked one.
 #[tauri::command]
@@ -99,6 +100,15 @@ pub fn copy_to_clipboard(
 #[tauri::command]
 pub fn clear_clipboard(clipboard: State<'_, SecretClipboard>) {
     clipboard.clear();
+}
+
+/// Paints the window's title bar (drawn by Windows) in the theme chosen in
+/// Settings, so it matches the app.
+#[tauri::command]
+pub fn set_window_theme(window: WebviewWindow, theme: ThemeSetting) -> Result<(), CommandError> {
+    window
+        .set_theme(window_theme(theme))
+        .map_err(|_| CommandError::Internal)
 }
 
 /// Locks the vault: wipes its key and its items from memory, and what was

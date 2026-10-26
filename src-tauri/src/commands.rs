@@ -71,13 +71,14 @@ pub async fn download_icon(url: String) -> Result<String, CommandError> {
 }
 
 /// Copies `text` to the clipboard, kept out of the Windows clipboard history,
-/// and wipes it after 30 seconds if the clipboard still holds it.
+/// and wipes it after 30 seconds if the clipboard still holds it. Returns
+/// those seconds, for the countdown the UI shows.
 #[tauri::command]
 pub fn copy_to_clipboard(
     app: AppHandle,
     clipboard: State<'_, SecretClipboard>,
     text: String,
-) -> Result<(), CommandError> {
+) -> Result<u64, CommandError> {
     // Wiped from memory as soon as this command ends
     let text = Zeroizing::new(text);
     let copy = clipboard.copy(&text)?;
@@ -87,7 +88,14 @@ pub fn copy_to_clipboard(
         std::thread::sleep(CLEAR_AFTER);
         app.state::<SecretClipboard>().clear_copy(copy);
     });
-    Ok(())
+    Ok(CLEAR_AFTER.as_secs())
+}
+
+/// Wipes what Keystead copied right away ("Clear now"), if the clipboard
+/// still holds it.
+#[tauri::command]
+pub fn clear_clipboard(clipboard: State<'_, SecretClipboard>) {
+    clipboard.clear();
 }
 
 /// Locks the vault: wipes its key and its items from memory, and what was

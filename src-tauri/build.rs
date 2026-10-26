@@ -10,6 +10,7 @@ fn main() {
         "save_vault",
         "download_icon",
         "copy_to_clipboard",
+        "clear_clipboard",
         "lock_vault",
     ]);
 

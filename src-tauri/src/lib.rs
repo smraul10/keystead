@@ -38,6 +38,7 @@ pub fn run() {
             commands::save_vault,
             commands::download_icon,
             commands::copy_to_clipboard,
+            commands::clear_clipboard,
             commands::lock_vault,
         ])
         .build(tauri::generate_context!())

@@ -5,10 +5,18 @@ mod icon;
 mod state;
 mod theme;
 
+#[cfg(windows)]
+use tauri::Emitter;
 use tauri::{Manager, RunEvent};
 
 use crate::clipboard::{SecretClipboard, SystemClipboard};
 use crate::state::{AppState, VAULT_FILE_NAME};
+
+/// Sent to the UI when Windows locks the session or goes to sleep: the UI
+/// locks as with "Lock". `LOCK_REQUESTED` in src/api/events.ts: keep both in
+/// sync.
+#[cfg(windows)]
+const LOCK_REQUESTED: &str = "lock-requested";
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -28,6 +36,19 @@ pub fn run() {
             // One vault, in the app's data folder (on Windows, inside %APPDATA%)
             let folder = app.path().app_data_dir()?;
             app.manage(AppState::new(folder.join(VAULT_FILE_NAME)));
+
+            // If Windows can't be watched, Keystead still starts: the
+            // auto-lock goes on working
+            #[cfg(windows)]
+            if let Some(window) = app.get_webview_window("main")
+                && let Ok(hwnd) = window.hwnd()
+            {
+                let handle = app.handle().clone();
+                let _ = keystead_os_events::watch(hwnd, move |_reason| {
+                    // The UI waits for pending saves, then asks Rust to lock
+                    let _ = handle.emit(LOCK_REQUESTED, ());
+                });
+            }
             Ok(())
         })
         .manage(SecretClipboard::new(SystemClipboard))

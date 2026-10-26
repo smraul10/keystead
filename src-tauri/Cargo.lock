@@ -1880,6 +1880,7 @@ dependencies = [
  "arboard",
  "base64 0.23.1",
  "image",
+ "keystead-os-events",
  "keystead-vault",
  "serde",
  "serde_json",
@@ -1890,6 +1891,13 @@ dependencies = [
  "ureq",
  "url",
  "zeroize",
+]
+
+[[package]]
+name = "keystead-os-events"
+version = "0.1.0"
+dependencies = [
+ "windows",
 ]
 
 [[package]]

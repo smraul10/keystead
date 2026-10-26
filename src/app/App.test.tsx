@@ -1,3 +1,4 @@
+import { emit } from '@tauri-apps/api/event';
 import { mockIPC } from '@tauri-apps/api/mocks';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -39,42 +40,45 @@ const GITHUB: Item = {
 function fakeRust(initial: VaultStatus) {
   let status = initial;
   let items = [GITHUB];
-  mockIPC((command, args) => {
-    switch (command) {
-      case 'vault_status':
-        return status;
-      case 'create_vault':
-        status = 'unlocked';
-        items = [];
-        return null;
-      case 'unlock_vault':
-        if (
-          args &&
-          'masterPassword' in args &&
-          args.masterPassword === PASSWORD
-        ) {
+  mockIPC(
+    (command, args) => {
+      switch (command) {
+        case 'vault_status':
+          return status;
+        case 'create_vault':
           status = 'unlocked';
+          items = [];
           return null;
-        }
-        return Promise.reject({ kind: 'wrongPassword' });
-      case 'vault_items':
-        return status === 'unlocked'
-          ? items
-          : Promise.reject({ kind: 'locked' });
-      case 'save_vault':
-        if (args && 'items' in args && Array.isArray(args.items)) {
-          items = args.items;
-        }
-        return null;
-      case 'copy_to_clipboard':
-        return 30;
-      case 'clear_clipboard':
-        return null;
-      case 'lock_vault':
-        status = 'locked';
-        return null;
-    }
-  });
+        case 'unlock_vault':
+          if (
+            args &&
+            'masterPassword' in args &&
+            args.masterPassword === PASSWORD
+          ) {
+            status = 'unlocked';
+            return null;
+          }
+          return Promise.reject({ kind: 'wrongPassword' });
+        case 'vault_items':
+          return status === 'unlocked'
+            ? items
+            : Promise.reject({ kind: 'locked' });
+        case 'save_vault':
+          if (args && 'items' in args && Array.isArray(args.items)) {
+            items = args.items;
+          }
+          return null;
+        case 'copy_to_clipboard':
+          return 30;
+        case 'clear_clipboard':
+          return null;
+        case 'lock_vault':
+          status = 'locked';
+          return null;
+      }
+    },
+    { shouldMockEvents: true },
+  );
 }
 
 // Most tests use the vault: launch the app with it open (as after reloading
@@ -210,6 +214,17 @@ describe('App', () => {
     ).toBeInTheDocument();
   });
 
+  it('locks when Windows locks the session or goes to sleep', async () => {
+    // Arrange
+    await renderUnlocked();
+
+    // Act: what Rust sends when Windows tells it
+    await act(() => emit('lock-requested'));
+
+    // Assert
+    expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
+  });
+
   it('tells the shortcut of the Lock button', async () => {
     await renderUnlocked();
 
@@ -324,7 +339,12 @@ describe('App', () => {
     // Arrange: the vault opens, but the disk can't be written
     const user = userEvent.setup();
     await renderUnlocked();
-    mockIPC(() => Promise.reject({ kind: 'storage' }));
+    // Only saving fails: the rest (like listening to events) still works
+    mockIPC(
+      (command) =>
+        command === 'save_vault' ? Promise.reject({ kind: 'storage' }) : null,
+      { shouldMockEvents: true },
+    );
     await user.click(screen.getByRole('button', { name: /GitHub/ }));
 
     // Act

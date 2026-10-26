@@ -68,13 +68,50 @@ jobs:
       - name: Check formatting
         run: cargo fmt --all --check
 
-      # Only the vault crate here, so its results come in seconds: the Tauri
-      # app needs system libraries and has its own job below
+      # Only the small crates here, so their results come in seconds: the
+      # Tauri app needs system libraries and has its own job below. On Linux,
+      # keystead-os-events is only its pure part (see os-events below)
       - name: Lint
-        run: cargo clippy -p keystead-vault --all-targets --locked -- -D warnings
+        run: cargo clippy -p keystead-vault -p keystead-os-events --all-targets --locked -- -D warnings
 
       - name: Test
-        run: cargo test -p keystead-vault --locked
+        run: cargo test -p keystead-vault -p keystead-os-events --locked
+
+  os-events:
+    name: Windows events lint and test
+    # The Windows glue, Keystead's only unsafe code, only compiles on Windows:
+    # clippy must check it (every unsafe block explained) on every PR
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: src-tauri
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component clippy
+          rustup default stable
+
+      - name: Cache the Rust build
+        uses: actions/cache@v6
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: os-events-${{ runner.os }}-${{ hashFiles('src-tauri/Cargo.lock') }}
+          restore-keys: os-events-${{ runner.os }}-
+
+      - name: Lint
+        run: cargo clippy -p keystead-os-events --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test -p keystead-os-events --locked
 
   rust-app:
     name: Rust app lint and test

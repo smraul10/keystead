@@ -191,6 +191,25 @@ describe('App', () => {
     expect(await screen.findByLabelText('Master password')).toBeInTheDocument();
   });
 
+  it('does not lock while a new shortcut is being pressed', async () => {
+    // Arrange: change the shortcut of Search in Settings
+    const user = userEvent.setup();
+    await renderUnlocked();
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    await user.click(
+      screen.getByRole('button', { name: /Change the shortcut for Search/ }),
+    );
+
+    // Act: Lock's own shortcut
+    await user.keyboard('{Control>}l{/Control}');
+
+    // Assert: still open, and told why it can't be used
+    expect(screen.getByRole('alert')).toHaveTextContent('Already used by Lock');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Settings' }),
+    ).toBeInTheDocument();
+  });
+
   it('tells the shortcut of the Lock button', async () => {
     await renderUnlocked();
 

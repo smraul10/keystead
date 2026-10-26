@@ -6,14 +6,12 @@ import {
   isTyping,
   SHORTCUT_LABELS,
   type ShortcutAction,
+  WORKS_WHILE_TYPING,
 } from './shortcuts';
 
 interface ShortcutOptions {
   // Off while the action has nothing to act on (e.g. no item is selected)
   enabled?: boolean;
-  // Also while typing in a field (Lock, Search...). Otherwise the key keeps
-  // its usual meaning there: Delete erases, Ctrl+C copies the selected text
-  whileTyping?: boolean;
 }
 
 function hasSelectedText(): boolean {
@@ -24,9 +22,10 @@ function hasSelectedText(): boolean {
 export function useShortcut(
   action: ShortcutAction,
   run: () => void,
-  { enabled = true, whileTyping = false }: ShortcutOptions = {},
+  { enabled = true }: ShortcutOptions = {},
 ): void {
   const shortcut = useSettingsStore((state) => state.shortcuts[action]);
+  const whileTyping = WORKS_WHILE_TYPING[action];
   // Always the latest `run`, without listening again after every render
   const onShortcut = useEffectEvent(run);
 

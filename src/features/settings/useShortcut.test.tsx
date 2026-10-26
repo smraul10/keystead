@@ -9,15 +9,11 @@ interface HarnessProps {
   action: ShortcutAction;
   run: () => void;
   enabled?: boolean;
-  whileTyping?: boolean;
 }
 
 // A text field, and a button with the action's hint
-function Harness({ action, run, enabled, whileTyping }: HarnessProps) {
-  useShortcut(action, run, {
-    ...(enabled === undefined ? {} : { enabled }),
-    ...(whileTyping === undefined ? {} : { whileTyping }),
-  });
+function Harness({ action, run, enabled }: HarnessProps) {
+  useShortcut(action, run, enabled === undefined ? {} : { enabled });
   const hint = useShortcutHint(action);
   return (
     <>
@@ -74,10 +70,11 @@ describe('useShortcut', () => {
     expect(run).not.toHaveBeenCalled();
   });
 
-  it('works in a text field too when asked', async () => {
+  it('works in a text field for actions that type nothing', async () => {
+    // Ctrl+L types nothing, so locking works even while typing
     const user = userEvent.setup();
     const run = vi.fn();
-    render(<Harness action='lock' run={run} whileTyping />);
+    render(<Harness action='lock' run={run} />);
     await user.click(screen.getByLabelText('Field'));
 
     await user.keyboard('{Control>}l{/Control}');
